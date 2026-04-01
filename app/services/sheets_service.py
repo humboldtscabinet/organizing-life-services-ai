@@ -11,7 +11,7 @@ import gspread
 from google.oauth2 import service_account
 from sqlalchemy.orm import Session
 
-from app.db.models import GA4Data, GBPInsight, GoogleAdsData, GSCData
+from app.db.models import GA4Data, GBPInsight, GoogleAdsData, GSCData, SEOReport
 
 SHEETS_SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -443,6 +443,110 @@ def push_gbp_to_sheets(
 
     _write_sheet_tab(spreadsheet, "GBP Metric Totals", totals_headers, totals_rows)
     total_pushed += len(totals_rows)
+
+    return {
+        "status": "success",
+        "spreadsheet_id": spreadsheet_id,
+        "rows_pushed": total_pushed,
+    }
+
+
+def push_audit_to_sheets(
+    db: Session,
+    audit_results: dict,
+    spreadsheet_id: str = None,
+) -> dict:
+    """
+    Push SEO audit results to Google Sheets.
+
+    Creates two tabs:
+    - SEO Audit Summary: key metrics from each channel
+    - SEO Recommendations: prioritized action items for human review
+    """
+    spreadsheet_id = spreadsheet_id or os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
+    if not spreadsheet_id:
+        raise ValueError("GOOGLE_SHEETS_SPREADSHEET_ID is not set")
+
+    client = _get_sheets_client()
+    spreadsheet = client.open_by_key(spreadsheet_id)
+    total_pushed = 0
+
+    findings = audit_results.get("findings", {})
+
+    # --- Tab 1: Audit Summary ---
+    summary_headers = ["Section", "Metric", "Value"]
+    summary_rows = []
+
+    # GSC summary
+    gsc = findings.get("gsc", {})
+    if gsc:
+        totals = gsc.get("totals", {})
+        summary_rows.append(["GSC", "Total Clicks", totals.get("clicks", 0)])
+        summary_rows.append(["GSC", "Total Impressions", totals.get("impressions", 0)])
+        summary_rows.append(["GSC", "Unique Queries", totals.get("unique_queries", 0)])
+        summary_rows.append(["GSC", "Unique Pages", totals.get("unique_pages", 0)])
+        summary_rows.append(["GSC", "Opportunity Keywords", len(gsc.get("opportunity_keywords", []))])
+        summary_rows.append(["GSC", "Near Page 1 Queries", len(gsc.get("almost_page_one", []))])
+
+    # GA4 summary
+    ga4 = findings.get("ga4", {})
+    if ga4:
+        totals = ga4.get("totals", {})
+        summary_rows.append(["GA4", "Sessions", totals.get("sessions", 0)])
+        summary_rows.append(["GA4", "Active Users", totals.get("active_users", 0)])
+        summary_rows.append(["GA4", "New Users", totals.get("new_users", 0)])
+        summary_rows.append(["GA4", "Pageviews", totals.get("pageviews", 0)])
+        summary_rows.append(["GA4", "Avg Bounce Rate %", totals.get("avg_bounce_rate_pct", 0)])
+        summary_rows.append(["GA4", "Avg Session Duration (s)", totals.get("avg_session_duration_s", 0)])
+        summary_rows.append(["GA4", "Traffic Alerts", len(ga4.get("traffic_alerts", []))])
+
+    # Ads summary
+    ads = findings.get("google_ads", {})
+    if ads:
+        totals = ads.get("totals", {})
+        summary_rows.append(["Google Ads", "Total Spend ($)", totals.get("total_spend", 0)])
+        summary_rows.append(["Google Ads", "Total Clicks", totals.get("total_clicks", 0)])
+        summary_rows.append(["Google Ads", "Total Conversions", totals.get("total_conversions", 0)])
+        summary_rows.append(["Google Ads", "Campaigns Flagged", len(ads.get("inefficient_campaigns", []))])
+
+    if summary_rows:
+        _write_sheet_tab(spreadsheet, "SEO Audit Summary", summary_headers, summary_rows)
+        total_pushed += len(summary_rows)
+
+    # --- Tab 2: Recommendations ---
+    recommendations = findings.get("recommendations", [])
+    if recommendations:
+        rec_headers = ["Priority", "Category", "Finding", "Recommended Action"]
+        rec_rows = []
+        for r in recommendations:
+            rec_rows.append([
+                r.get("priority", ""),
+                r.get("category", ""),
+                r.get("finding", ""),
+                r.get("action", ""),
+            ])
+        _write_sheet_tab(spreadsheet, "SEO Recommendations", rec_headers, rec_rows)
+        total_pushed += len(rec_rows)
+
+    # --- Tab 3: Opportunity Keywords (detail) ---
+    opp_keywords = gsc.get("opportunity_keywords", []) if gsc else []
+    if opp_keywords:
+        opp_headers = ["Query", "Impressions", "Clicks", "Avg CTR %", "Avg Position", "Action"]
+        opp_rows = []
+        for kw in opp_keywords:
+            opp_rows.append([
+                kw.get("query", ""),
+                kw.get("impressions", 0),
+                kw.get("clicks", 0),
+                round(kw.get("avg_ctr", 0) * 100, 1),
+                kw.get("avg_position", 0),
+                kw.get("action", ""),
+            ])
+        _write_sheet_tab(spreadsheet, "SEO Opportunity Keywords", opp_headers, opp_rows)
+        total_pushed += len(opp_rows)
+
+    if total_pushed == 0:
+        return {"status": "no_data", "rows_pushed": 0}
 
     return {
         "status": "success",

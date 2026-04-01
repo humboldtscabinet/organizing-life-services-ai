@@ -15,7 +15,9 @@ from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
 from app.services.gsc_service import pull_gsc_data
+from app.services.seo_audit_service import run_seo_audit
 from app.services.sheets_service import (
+    push_audit_to_sheets,
     push_ga4_to_sheets,
     push_gbp_to_sheets,
     push_google_ads_to_sheets,
@@ -257,6 +259,55 @@ def trigger_ads_full_pipeline(
         return {
             "status": "success",
             "pull": pull_result,
+            "push": push_result,
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+# ===================== SEO Audit Endpoints =====================
+
+
+@router.post("/audit/run")
+def trigger_seo_audit(
+    days_back: int = 7, db: Session = Depends(get_db)
+):
+    """
+    Run a full SEO audit across GSC, GA4, and Google Ads data.
+
+    Analyzes the last N days of data already in Postgres.
+    Generates findings and prioritized recommendations.
+    Stores results in seo_reports table.
+    """
+    try:
+        result = run_seo_audit(db=db, days_back=days_back)
+        return result
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/audit/push-to-sheets")
+def trigger_audit_push_to_sheets(
+    days_back: int = 7, db: Session = Depends(get_db)
+):
+    """
+    Run SEO audit and push results to Google Sheets.
+
+    Creates three tabs:
+    - SEO Audit Summary: key metrics from each channel
+    - SEO Recommendations: prioritized action items
+    - SEO Opportunity Keywords: high-impression, low-CTR queries
+    """
+    try:
+        audit_result = run_seo_audit(db=db, days_back=days_back)
+        push_result = push_audit_to_sheets(
+            db=db, audit_results=audit_result
+        )
+        return {
+            "status": "success",
+            "audit": {
+                "reports_created": audit_result.get("reports_created", 0),
+            },
             "push": push_result,
         }
     except Exception as e:
