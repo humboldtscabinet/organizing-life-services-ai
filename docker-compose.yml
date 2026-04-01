@@ -1,0 +1,60 @@
+# =============================================================
+# Organizing Life Services AI — Docker Compose (Laptop Dev)
+# =============================================================
+# Usage: docker compose up -d --build
+# =============================================================
+
+version: "3.9"
+
+services:
+  # ---------- Postgres ----------
+  postgres:
+    image: postgres:16-alpine
+    container_name: ols-postgres
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./infra/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-ols_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------- FastAPI ----------
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ols-api
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${FASTAPI_PORT:-8000}:8000"
+    volumes:
+      - ./app:/app/app
+      - ./credentials:/app/credentials:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # ---------- n8n ----------
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: ols-n8n
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${N8N_PORT:-5678}:5678"
+    volumes:
+      - n8n_data:/home/node/.n8n
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  n8n_data:

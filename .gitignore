@@ -1,0 +1,51 @@
+# =============================================================
+# Organizing Life Services AI — .gitignore
+# =============================================================
+
+# ---------- Environment / Secrets ----------
+.env
+credentials/
+*.json
+!package.json
+!tsconfig.json
+
+# ---------- Python ----------
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+*.egg
+
+# ---------- Docker ----------
+# Don't ignore docker-compose.yml — it's version-controlled
+docker-compose.override.yml
+
+# ---------- IDE ----------
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ---------- Postgres data (local volume) ----------
+infra/postgres/data/
+
+# ---------- n8n local data ----------
+n8n_data/
+
+# ---------- Logs ----------
+*.log
+logs/
+
+# ---------- OS ----------
+Thumbs.db
+.DS_Store
+
+# ---------- Test / Coverage ----------
+.coverage
+htmlcov/
+.pytest_cache/
