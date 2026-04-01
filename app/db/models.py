@@ -108,6 +108,23 @@ class GoogleAdsData(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class ImageAnalysis(Base):
+    __tablename__ = "image_analysis"
+
+    id = Column(Integer, primary_key=True, index=True)
+    image_url = Column(String(1000), nullable=False)
+    filename = Column(String(500))
+    gallery_name = Column(String(300))
+    alt_text = Column(Text)
+    title = Column(String(500))
+    item_tags = Column(JSONB)       # ["furniture", "antique desk", "oak"]
+    description = Column(Text)       # longer description for SEO
+    confidence = Column(Float)       # 0.0–1.0 from the vision model
+    status = Column(String(50), default="pending")  # pending, analyzed, error
+    data = Column(JSONB)             # full API response for debugging
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 class ShopifyOrder(Base):
     __tablename__ = "shopify_orders"
 
