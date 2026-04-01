@@ -11,7 +11,7 @@ import gspread
 from google.oauth2 import service_account
 from sqlalchemy.orm import Session
 
-from app.db.models import GA4Data, GSCData
+from app.db.models import GA4Data, GBPInsight, GoogleAdsData, GSCData
 
 SHEETS_SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -221,6 +221,228 @@ def push_ga4_to_sheets(
 
     if total_pushed == 0:
         return {"status": "no_data", "rows_pushed": 0}
+
+    return {
+        "status": "success",
+        "spreadsheet_id": spreadsheet_id,
+        "rows_pushed": total_pushed,
+    }
+
+
+def push_google_ads_to_sheets(
+    db: Session,
+    spreadsheet_id: str = None,
+    limit: int = 500,
+) -> dict:
+    """
+    Push Google Ads performance data from Postgres to Google Sheets.
+
+    Creates three tabs:
+    - Ads Campaign Performance: daily campaign-level metrics
+    - Ads Ad Group Performance: daily ad-group-level metrics
+    - Ads Keywords: keyword-level click/cost/impression data
+    """
+    spreadsheet_id = spreadsheet_id or os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
+    if not spreadsheet_id:
+        raise ValueError("GOOGLE_SHEETS_SPREADSHEET_ID is not set")
+
+    client = _get_sheets_client()
+    spreadsheet = client.open_by_key(spreadsheet_id)
+    total_pushed = 0
+
+    # --- Tab 1: Campaign Performance ---
+    campaign_records = (
+        db.query(GoogleAdsData)
+        .filter(GoogleAdsData.data["report"].as_string() == "campaign")
+        .order_by(GoogleAdsData.date.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if campaign_records:
+        headers = [
+            "Date",
+            "Campaign",
+            "Clicks",
+            "Impressions",
+            "CTR %",
+            "Cost ($)",
+            "Avg CPC ($)",
+            "Conversions",
+        ]
+        rows = []
+        for r in campaign_records:
+            rows.append([
+                r.date.strftime("%Y-%m-%d") if r.date else "",
+                r.campaign_name or "",
+                r.clicks or 0,
+                r.impressions or 0,
+                round(r.data.get("ctr", 0) * 100, 2) if r.data else 0,
+                round(r.cost, 2) if r.cost else 0,
+                round(r.data.get("average_cpc", 0), 2) if r.data else 0,
+                round(r.conversions, 1) if r.conversions else 0,
+            ])
+        _write_sheet_tab(spreadsheet, "Ads Campaign Performance", headers, rows)
+        total_pushed += len(rows)
+
+    # --- Tab 2: Ad Group Performance ---
+    adgroup_records = (
+        db.query(GoogleAdsData)
+        .filter(GoogleAdsData.data["report"].as_string() == "ad_group")
+        .order_by(GoogleAdsData.date.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if adgroup_records:
+        headers = [
+            "Date",
+            "Campaign",
+            "Ad Group",
+            "Clicks",
+            "Impressions",
+            "Cost ($)",
+            "Conversions",
+        ]
+        rows = []
+        for r in adgroup_records:
+            rows.append([
+                r.date.strftime("%Y-%m-%d") if r.date else "",
+                r.campaign_name or "",
+                r.ad_group or "",
+                r.clicks or 0,
+                r.impressions or 0,
+                round(r.cost, 2) if r.cost else 0,
+                round(r.conversions, 1) if r.conversions else 0,
+            ])
+        _write_sheet_tab(spreadsheet, "Ads Ad Group Performance", headers, rows)
+        total_pushed += len(rows)
+
+    # --- Tab 3: Keywords ---
+    keyword_records = (
+        db.query(GoogleAdsData)
+        .filter(GoogleAdsData.data["report"].as_string() == "keyword")
+        .order_by(GoogleAdsData.date.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if keyword_records:
+        headers = [
+            "Date",
+            "Campaign",
+            "Keyword",
+            "Clicks",
+            "Impressions",
+            "Cost ($)",
+        ]
+        rows = []
+        for r in keyword_records:
+            rows.append([
+                r.date.strftime("%Y-%m-%d") if r.date else "",
+                r.campaign_name or "",
+                r.ad_group or "",  # keyword stored in ad_group field
+                r.clicks or 0,
+                r.impressions or 0,
+                round(r.cost, 2) if r.cost else 0,
+            ])
+        _write_sheet_tab(spreadsheet, "Ads Keywords", headers, rows)
+        total_pushed += len(rows)
+
+    if total_pushed == 0:
+        return {"status": "no_data", "rows_pushed": 0}
+
+    return {
+        "status": "success",
+        "spreadsheet_id": spreadsheet_id,
+        "rows_pushed": total_pushed,
+    }
+
+
+def push_gbp_to_sheets(
+    db: Session,
+    spreadsheet_id: str = None,
+    limit: int = 500,
+) -> dict:
+    """
+    Push GBP performance data from Postgres to Google Sheets.
+
+    Creates two tabs:
+    - GBP Daily Metrics: one row per date with all metrics as columns
+    - GBP Metric Totals: aggregate totals per metric over the date range
+    """
+    spreadsheet_id = spreadsheet_id or os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
+    if not spreadsheet_id:
+        raise ValueError("GOOGLE_SHEETS_SPREADSHEET_ID is not set")
+
+    client = _get_sheets_client()
+    spreadsheet = client.open_by_key(spreadsheet_id)
+    total_pushed = 0
+
+    # Query all GBP records, most recent first
+    records = (
+        db.query(GBPInsight)
+        .order_by(GBPInsight.period_start.desc())
+        .limit(limit)
+        .all()
+    )
+
+    if not records:
+        return {"status": "no_data", "rows_pushed": 0}
+
+    # --- Tab 1: GBP Daily Metrics (pivoted: one row per date) ---
+    date_metrics = {}
+    all_metric_names = set()
+
+    for r in records:
+        date_key = r.period_start.strftime("%Y-%m-%d") if r.period_start else "unknown"
+        if date_key not in date_metrics:
+            date_metrics[date_key] = {}
+        date_metrics[date_key][r.metric_name] = int(r.metric_value or 0)
+        all_metric_names.add(r.metric_name)
+
+    # Sort metric names for consistent column order
+    sorted_metrics = sorted(all_metric_names)
+
+    # Friendly column names
+    friendly_names = {
+        "BUSINESS_IMPRESSIONS_DESKTOP_MAPS": "Desktop Maps",
+        "BUSINESS_IMPRESSIONS_DESKTOP_SEARCH": "Desktop Search",
+        "BUSINESS_IMPRESSIONS_MOBILE_MAPS": "Mobile Maps",
+        "BUSINESS_IMPRESSIONS_MOBILE_SEARCH": "Mobile Search",
+        "BUSINESS_DIRECTION_REQUESTS": "Direction Requests",
+        "CALL_CLICKS": "Call Clicks",
+        "WEBSITE_CLICKS": "Website Clicks",
+    }
+
+    headers = ["Date"] + [friendly_names.get(m, m) for m in sorted_metrics]
+    rows = []
+    for date_key in sorted(date_metrics.keys(), reverse=True):
+        m = date_metrics[date_key]
+        row = [date_key]
+        for metric in sorted_metrics:
+            row.append(m.get(metric, 0))
+        rows.append(row)
+
+    _write_sheet_tab(spreadsheet, "GBP Daily Metrics", headers, rows)
+    total_pushed += len(rows)
+
+    # --- Tab 2: GBP Metric Totals ---
+    metric_totals = {}
+    for r in records:
+        name = r.metric_name
+        metric_totals[name] = metric_totals.get(name, 0) + int(r.metric_value or 0)
+
+    totals_headers = ["Metric", "Total"]
+    totals_rows = []
+    for metric in sorted_metrics:
+        totals_rows.append([
+            friendly_names.get(metric, metric),
+            metric_totals.get(metric, 0),
+        ])
+
+    _write_sheet_tab(spreadsheet, "GBP Metric Totals", totals_headers, totals_rows)
+    total_pushed += len(totals_rows)
 
     return {
         "status": "success",

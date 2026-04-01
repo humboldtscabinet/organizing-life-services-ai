@@ -12,8 +12,15 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.services.ga4_service import pull_ga4_data
+from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
+from app.services.google_ads_service import pull_google_ads_data
 from app.services.gsc_service import pull_gsc_data
-from app.services.sheets_service import push_ga4_to_sheets, push_gsc_to_sheets
+from app.services.sheets_service import (
+    push_ga4_to_sheets,
+    push_gbp_to_sheets,
+    push_google_ads_to_sheets,
+    push_gsc_to_sheets,
+)
 
 router = APIRouter(prefix="/api/seo", tags=["SEO"])
 
@@ -113,6 +120,140 @@ def trigger_ga4_full_pipeline(
     try:
         pull_result = pull_ga4_data(db=db, days_back=days_back)
         push_result = push_ga4_to_sheets(db=db, limit=limit)
+        return {
+            "status": "success",
+            "pull": pull_result,
+            "push": push_result,
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+# ===================== GBP Endpoints =====================
+
+
+@router.post("/gbp/discover")
+def trigger_gbp_discover(account_name: str = None):
+    """
+    Discover GBP accounts and locations accessible by the service account.
+
+    Step 1: Call without params to list accounts.
+    Step 2: Call with account_name (e.g. "accounts/123456") to list locations.
+    """
+    try:
+        if account_name:
+            locations = discover_gbp_locations(account_name)
+            return {
+                "status": "success",
+                "account": account_name,
+                "locations": locations,
+            }
+        else:
+            accounts = discover_gbp_accounts()
+            return {"status": "success", "accounts": accounts}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/gbp/pull")
+def trigger_gbp_pull(
+    days_back: int = 28, db: Session = Depends(get_db)
+):
+    """
+    Manually trigger a Google Business Profile performance data pull.
+
+    Pulls the last N days of daily metrics (impressions, clicks,
+    direction requests, calls, website clicks) and stores in Postgres.
+    Default is 28 days since GBP data is typically reviewed monthly.
+    """
+    try:
+        result = pull_gbp_data(db=db, days_back=days_back)
+        return result
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/gbp/push-to-sheets")
+def trigger_gbp_push_to_sheets(
+    limit: int = 500, db: Session = Depends(get_db)
+):
+    """
+    Manually push GBP data from Postgres to Google Sheets.
+
+    Creates two tabs: GBP Daily Metrics and GBP Metric Totals.
+    """
+    try:
+        result = push_gbp_to_sheets(db=db, limit=limit)
+        return result
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/gbp/pull-and-push")
+def trigger_gbp_full_pipeline(
+    days_back: int = 28, limit: int = 500, db: Session = Depends(get_db)
+):
+    """
+    Full pipeline: Pull GBP data → store in Postgres → push to Sheets.
+    """
+    try:
+        pull_result = pull_gbp_data(db=db, days_back=days_back)
+        push_result = push_gbp_to_sheets(db=db, limit=limit)
+        return {
+            "status": "success",
+            "pull": pull_result,
+            "push": push_result,
+        }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+# ===================== Google Ads Endpoints =====================
+
+
+@router.post("/ads/pull")
+def trigger_ads_pull(
+    days_back: int = 30, db: Session = Depends(get_db)
+):
+    """
+    Manually trigger a Google Ads data pull.
+
+    Pulls campaign and ad group performance for the last N days.
+    Default is 30 days to match billing cycles.
+    """
+    try:
+        result = pull_google_ads_data(db=db, days_back=days_back)
+        return result
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/ads/push-to-sheets")
+def trigger_ads_push_to_sheets(
+    limit: int = 500, db: Session = Depends(get_db)
+):
+    """
+    Manually push Google Ads data from Postgres to Google Sheets.
+
+    Creates two tabs: Ads Campaign Performance, Ads Ad Group Performance.
+    """
+    try:
+        result = push_google_ads_to_sheets(db=db, limit=limit)
+        return result
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/ads/pull-and-push")
+def trigger_ads_full_pipeline(
+    days_back: int = 30, limit: int = 500, db: Session = Depends(get_db)
+):
+    """
+    Full pipeline: Pull Google Ads data → store in Postgres → push to Sheets.
+    """
+    try:
+        pull_result = pull_google_ads_data(db=db, days_back=days_back)
+        push_result = push_google_ads_to_sheets(db=db, limit=limit)
         return {
             "status": "success",
             "pull": pull_result,
