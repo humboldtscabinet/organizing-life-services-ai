@@ -8,6 +8,9 @@ Capabilities:
   - Read products, pages, blog posts, orders
   - Update meta titles, descriptions, page content
   - Pull order data for the shopify_orders pipeline
+  - Create URL redirects (301) for thin/archived pages
+  - Create new pages (portfolio pages, etc.)
+  - Delete pages (after redirect is in place)
 
 Manual-approval mode: all write operations require explicit trigger.
 """
@@ -368,6 +371,149 @@ def get_site_seo_data() -> dict:
             art["blog_id"] = blog["id"]
             art["blog_title"] = blog.get("title", "")
         articles.extend(arts)
+
+# ===================== Redirect & Page Management =====================
+
+
+def create_redirect(from_path: str, to_path: str) -> dict:
+    """
+    Create a 301 URL redirect in Shopify.
+
+    from_path: e.g. "/pages/old-estate-sale-address"
+    to_path:   e.g. "/pages/estate-sale-palm-harbor-pinellas-county"
+    """
+    headers = _shopify_headers()
+    url = _shopify_url("redirects.json")
+
+    resp = httpx.post(
+        url,
+        headers=headers,
+        json={"redirect": {"path": from_path, "target": to_path}},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    redirect = resp.json().get("redirect", {})
+    return {
+        "status": "created",
+        "redirect_id": redirect.get("id"),
+        "from": from_path,
+        "to": to_path,
+    }
+
+
+def delete_page(page_id: int) -> dict:
+    """
+    Delete a page from the Shopify store.
+
+    WARNING: Only call after a 301 redirect is in place for the page URL.
+    """
+    headers = _shopify_headers()
+    url = _shopify_url(f"pages/{page_id}.json")
+
+    resp = httpx.delete(url, headers=headers, timeout=30)
+    resp.raise_for_status()
+    return {"status": "deleted", "page_id": page_id}
+
+
+def create_page(
+    title: str,
+    body_html: str,
+    handle: str = None,
+    meta_description: str = None,
+    published: bool = True,
+) -> dict:
+    """
+    Create a new page in the Shopify store.
+
+    Used for portfolio pages, landing pages, etc.
+    """
+    headers = _shopify_headers()
+    url = _shopify_url("pages.json")
+
+    page_data = {
+        "title": title,
+        "body_html": body_html,
+        "published": published,
+    }
+    if handle:
+        page_data["handle"] = handle
+    if meta_description:
+        page_data["metafield"] = {
+            "namespace": "global",
+            "key": "description_tag",
+            "value": meta_description,
+            "type": "single_line_text_field",
+        }
+
+    resp = httpx.post(
+        url,
+        headers=headers,
+        json={"page": page_data},
+        timeout=30,
+    )
+    resp.raise_for_status()
+    page = resp.json().get("page", {})
+    return {
+        "status": "created",
+        "page_id": page.get("id"),
+        "handle": page.get("handle"),
+        "title": page.get("title"),
+    }
+
+
+def consolidate_thin_pages(redirect_map: list[dict], dry_run: bool = True) -> dict:
+    """
+    Consolidate thin pages by creating 301 redirects and deleting the old pages.
+
+    redirect_map: list of dicts with keys:
+      - page_id: int (Shopify page ID)
+      - from_handle: str (old page handle, e.g. "old-estate-sale-address")
+      - to_handle: str (target page handle, e.g. "estate-sale-palm-harbor-pinellas-county")
+
+    dry_run: if True, returns the plan without executing.
+    """
+    results = []
+
+    for item in redirect_map:
+        page_id = item["page_id"]
+        from_path = f"/pages/{item['from_handle']}"
+        to_path = f"/pages/{item['to_handle']}"
+
+        if dry_run:
+            results.append({
+                "action": "dry_run",
+                "page_id": page_id,
+                "redirect": f"{from_path} → {to_path}",
+            })
+            continue
+
+        try:
+            # Step 1: Create the 301 redirect
+            redirect_result = create_redirect(from_path, to_path)
+
+            # Step 2: Delete the old page
+            delete_result = delete_page(page_id)
+
+            results.append({
+                "action": "completed",
+                "page_id": page_id,
+                "redirect_id": redirect_result.get("redirect_id"),
+                "redirect": f"{from_path} → {to_path}",
+            })
+        except Exception as e:
+            results.append({
+                "action": "error",
+                "page_id": page_id,
+                "redirect": f"{from_path} → {to_path}",
+                "error": str(e),
+            })
+
+    return {
+        "status": "dry_run" if dry_run else "executed",
+        "total": len(results),
+        "results": results,
+    }
+
 
     return {
         "products": [
