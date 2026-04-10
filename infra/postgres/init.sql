@@ -91,3 +91,23 @@ CREATE TABLE IF NOT EXISTS shopify_orders (
     data            JSONB,
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ---------- Dashboard tables ----------
+
+CREATE TABLE IF NOT EXISTS dashboard_tasks (
+    id              SERIAL PRIMARY KEY,
+    task_type       VARCHAR(50) NOT NULL,
+    category        VARCHAR(100) NOT NULL,
+    priority        VARCHAR(20) NOT NULL,
+    title           VARCHAR(500) NOT NULL,
+    description     TEXT,
+    finding         TEXT,
+    action_endpoint VARCHAR(500),
+    action_payload  JSONB,
+    status          VARCHAR(50) DEFAULT 'pending',
+    result          JSONB,
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    approved_at     TIMESTAMPTZ,
+    completed_at    TIMESTAMPTZ,
+    delayed_until   TIMESTAMPTZ
+);

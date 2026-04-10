@@ -36,9 +36,29 @@ services:
       - "${FASTAPI_PORT:-8000}:8000"
     volumes:
       - ./app:/app/app
+      - ./data:/app/data
       - ./credentials:/app/credentials:ro
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import httpx; httpx.get(\"http://localhost:8000/health\", timeout=5).raise_for_status()'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
     depends_on:
       postgres:
+        condition: service_healthy
+
+  # ---------- Dashboard ----------
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: ols-dashboard
+    restart: unless-stopped
+    ports:
+      - "${DASHBOARD_PORT:-3000}:80"
+    depends_on:
+      api:
         condition: service_healthy
 
   # ---------- n8n ----------

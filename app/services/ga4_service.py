@@ -15,9 +15,43 @@ from google.analytics.data_v1beta.types import (
     Metric,
     RunReportRequest,
 )
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.db.models import GA4Data, WorkflowLog
+
+
+def _upsert_ga4(db: Session, metric_name: str, dimension_name: str,
+                dimension_value: str, date: datetime, metric_value: float,
+                data: dict) -> str:
+    """Insert or update a GA4 record. Returns 'inserted' or 'updated'."""
+    existing = (
+        db.query(GA4Data)
+        .filter(
+            and_(
+                GA4Data.metric_name == metric_name,
+                GA4Data.dimension_name == dimension_name,
+                GA4Data.dimension_value == dimension_value,
+                GA4Data.date == date,
+            )
+        )
+        .first()
+    )
+    if existing:
+        existing.metric_value = metric_value
+        existing.data = data
+        return "updated"
+    else:
+        record = GA4Data(
+            metric_name=metric_name,
+            metric_value=metric_value,
+            dimension_name=dimension_name,
+            dimension_value=dimension_value,
+            date=date,
+            data=data,
+        )
+        db.add(record)
+        return "inserted"
 
 
 def _get_ga4_client():
@@ -74,6 +108,7 @@ def pull_ga4_data(
 
     overview_response = client.run_report(overview_request)
     inserted = 0
+    updated = 0
 
     for row in overview_response.rows:
         date_str = row.dimension_values[0].value  # YYYYMMDD format
@@ -90,16 +125,15 @@ def pull_ga4_data(
 
         for i, metric_name in enumerate(metric_names):
             value = float(row.metric_values[i].value)
-            record = GA4Data(
-                metric_name=metric_name,
-                metric_value=value,
-                dimension_name="date",
-                dimension_value=date_str,
-                date=date_obj,
-                data={"report": "daily_overview"},
+            result = _upsert_ga4(
+                db, metric_name=metric_name, dimension_name="date",
+                dimension_value=date_str, date=date_obj,
+                metric_value=value, data={"report": "daily_overview"},
             )
-            db.add(record)
-            inserted += 1
+            if result == "inserted":
+                inserted += 1
+            else:
+                updated += 1
 
     # --- Report 2: Top pages ---
     pages_request = RunReportRequest(
@@ -129,20 +163,20 @@ def pull_ga4_data(
         date_str = row.dimension_values[1].value
         date_obj = datetime.strptime(date_str, "%Y%m%d")
 
-        record = GA4Data(
-            metric_name="pageViews",
+        result = _upsert_ga4(
+            db, metric_name="pageViews", dimension_name="pagePath",
+            dimension_value=page_path, date=date_obj,
             metric_value=float(row.metric_values[0].value),
-            dimension_name="pagePath",
-            dimension_value=page_path,
-            date=date_obj,
             data={
                 "report": "top_pages",
                 "activeUsers": float(row.metric_values[1].value),
                 "avgSessionDuration": float(row.metric_values[2].value),
             },
         )
-        db.add(record)
-        inserted += 1
+        if result == "inserted":
+            inserted += 1
+        else:
+            updated += 1
 
     # --- Report 3: Traffic sources ---
     sources_request = RunReportRequest(
@@ -171,19 +205,19 @@ def pull_ga4_data(
         date_str = row.dimension_values[1].value
         date_obj = datetime.strptime(date_str, "%Y%m%d")
 
-        record = GA4Data(
-            metric_name="sessions",
+        result = _upsert_ga4(
+            db, metric_name="sessions", dimension_name="sessionSourceMedium",
+            dimension_value=source_medium, date=date_obj,
             metric_value=float(row.metric_values[0].value),
-            dimension_name="sessionSourceMedium",
-            dimension_value=source_medium,
-            date=date_obj,
             data={
                 "report": "traffic_sources",
                 "activeUsers": float(row.metric_values[1].value),
             },
         )
-        db.add(record)
-        inserted += 1
+        if result == "inserted":
+            inserted += 1
+        else:
+            updated += 1
 
     # Log the workflow execution
     log_entry = WorkflowLog(
@@ -194,6 +228,7 @@ def pull_ga4_data(
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
             "rows_inserted": inserted,
+            "rows_updated": updated,
         },
     )
     db.add(log_entry)
@@ -205,4 +240,5 @@ def pull_ga4_data(
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
         "rows_inserted": inserted,
+            "rows_updated": updated,
     }

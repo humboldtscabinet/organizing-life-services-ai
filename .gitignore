@@ -49,3 +49,14 @@ Thumbs.db
 .coverage
 htmlcov/
 .pytest_cache/
+
+# ---------- Session tokens / cookies (never commit) ----------
+data/xo_session_token.txt
+data/xo_cookies.pkl
+data/xo_*.json
+data/xo_*.js
+data/test.txt
+data/*.pkl
+data/*session*
+data/*token*
+data/*cookies*

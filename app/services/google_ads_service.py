@@ -22,9 +22,48 @@ from google.analytics.data_v1beta.types import (
     Metric,
     RunReportRequest,
 )
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.db.models import GoogleAdsData, WorkflowLog
+
+
+def _upsert_ads(db: Session, campaign_name: str, ad_group: str,
+                date: datetime, clicks: int, impressions: int,
+                cost: float, conversions: float, data: dict) -> str:
+    """Insert or update a Google Ads record. Returns 'inserted' or 'updated'."""
+    existing = (
+        db.query(GoogleAdsData)
+        .filter(
+            and_(
+                GoogleAdsData.campaign_name == campaign_name,
+                GoogleAdsData.ad_group == ad_group if ad_group else GoogleAdsData.ad_group.is_(None),
+                GoogleAdsData.date == date,
+                GoogleAdsData.data["report"].astext == data.get("report", ""),
+            )
+        )
+        .first()
+    )
+    if existing:
+        existing.clicks = clicks
+        existing.impressions = impressions
+        existing.cost = cost
+        existing.conversions = conversions
+        existing.data = data
+        return "updated"
+    else:
+        record = GoogleAdsData(
+            campaign_name=campaign_name,
+            ad_group=ad_group,
+            clicks=clicks,
+            impressions=impressions,
+            cost=cost,
+            conversions=conversions,
+            date=date,
+            data=data,
+        )
+        db.add(record)
+        return "inserted"
 
 
 def _get_ga4_client():
@@ -64,6 +103,7 @@ def pull_google_ads_data(
     start_date = end_date - timedelta(days=days_back)
 
     rows_inserted = 0
+    rows_updated = 0
 
     # --- Report 1: Campaign performance (daily) ---
     campaign_request = RunReportRequest(
@@ -105,14 +145,10 @@ def pull_google_ads_data(
         # Calculate CTR
         ctr = (clicks / impressions) if impressions > 0 else 0.0
 
-        record = GoogleAdsData(
-            campaign_name=campaign_name,
-            ad_group=None,  # Campaign-level row
-            clicks=clicks,
-            impressions=impressions,
-            cost=cost,
-            conversions=conversions,
-            date=date_obj,
+        result = _upsert_ads(
+            db, campaign_name=campaign_name, ad_group=None,
+            date=date_obj, clicks=clicks, impressions=impressions,
+            cost=cost, conversions=conversions,
             data={
                 "report": "campaign",
                 "ctr": round(ctr, 4),
@@ -121,8 +157,10 @@ def pull_google_ads_data(
                 "source": "ga4_api",
             },
         )
-        db.add(record)
-        rows_inserted += 1
+        if result == "inserted":
+            rows_inserted += 1
+        else:
+            rows_updated += 1
         campaign_count += 1
 
     # --- Report 2: Ad Group performance (daily) ---
@@ -162,22 +200,20 @@ def pull_google_ads_data(
         impressions = int(float(row.metric_values[2].value))
         conversions = float(row.metric_values[3].value)
 
-        record = GoogleAdsData(
-            campaign_name=campaign_name,
-            ad_group=ad_group_name,
-            clicks=clicks,
-            impressions=impressions,
-            cost=cost,
-            conversions=conversions,
-            date=date_obj,
+        result = _upsert_ads(
+            db, campaign_name=campaign_name, ad_group=ad_group_name,
+            date=date_obj, clicks=clicks, impressions=impressions,
+            cost=cost, conversions=conversions,
             data={
                 "report": "ad_group",
                 "customer_id": customer_id,
                 "source": "ga4_api",
             },
         )
-        db.add(record)
-        rows_inserted += 1
+        if result == "inserted":
+            rows_inserted += 1
+        else:
+            rows_updated += 1
         adgroup_count += 1
 
     # --- Report 3: Ad keywords / search terms ---
@@ -215,22 +251,22 @@ def pull_google_ads_data(
         cost = round(float(row.metric_values[1].value), 2)
         impressions = int(float(row.metric_values[2].value))
 
-        record = GoogleAdsData(
-            campaign_name=campaign_name,
-            ad_group=keyword,  # Store keyword in ad_group field
-            clicks=clicks,
-            impressions=impressions,
-            cost=cost,
-            conversions=0,
-            date=date_obj,
+        result = _upsert_ads(
+            db, campaign_name=campaign_name,
+            ad_group=keyword,  # Store keyword in ad_group field (model lacks keyword column)
+            date=date_obj, clicks=clicks, impressions=impressions,
+            cost=cost, conversions=0,
             data={
                 "report": "keyword",
+                "keyword": keyword,  # Store actual keyword name in data JSON
                 "customer_id": customer_id,
                 "source": "ga4_api",
             },
         )
-        db.add(record)
-        rows_inserted += 1
+        if result == "inserted":
+            rows_inserted += 1
+        else:
+            rows_updated += 1
         keyword_count += 1
 
     db.commit()

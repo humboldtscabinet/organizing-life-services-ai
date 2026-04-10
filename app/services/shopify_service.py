@@ -488,11 +488,12 @@ def consolidate_thin_pages(redirect_map: list[dict], dry_run: bool = True) -> di
             continue
 
         try:
-            # Step 1: Create the 301 redirect
-            redirect_result = create_redirect(from_path, to_path)
-
-            # Step 2: Delete the old page
+            # Step 1: Delete the old page FIRST
+            # (Shopify returns 422 if you try to redirect from an active page)
             delete_result = delete_page(page_id)
+
+            # Step 2: Create the 301 redirect now that the path is free
+            redirect_result = create_redirect(from_path, to_path)
 
             results.append({
                 "action": "completed",

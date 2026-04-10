@@ -50,7 +50,8 @@ def _shopify_graphql(query: str, variables: dict = None) -> dict:
     if variables:
         payload["variables"] = variables
 
-    resp = httpx.post(url, headers=headers, json=payload, timeout=30)
+    timeout = httpx.Timeout(connect=10.0, read=20.0, write=10.0, pool=10.0)
+    resp = httpx.post(url, headers=headers, json=payload, timeout=timeout)
     resp.raise_for_status()
     return resp.json()
 
@@ -112,6 +113,167 @@ def pull_image_urls(query_filter: str = "media_type:IMAGE", limit: int = 50) -> 
         })
 
     return images
+
+
+def pull_theme_assets(filter_prefix: str = "photo", limit: int = 250) -> list:
+    """
+    Pull image URLs from Shopify Theme Assets API.
+
+    XO Gallery stores images as theme assets on Shopify's CDN.
+    These appear under /t/{theme_id}/assets/ in the URL.
+
+    filter_prefix: filter asset keys that start with this string
+    """
+    from app.services.shopify_service import _shopify_headers, _shopify_url
+
+    headers = _shopify_headers()
+
+    # First, get the active theme ID
+    themes_url = _shopify_url("themes.json")
+    resp = httpx.get(themes_url, headers=headers, timeout=30)
+    resp.raise_for_status()
+    themes = resp.json().get("themes", [])
+
+    # Find the published/main theme
+    active_theme = None
+    for theme in themes:
+        if theme.get("role") == "main":
+            active_theme = theme
+            break
+
+    if not active_theme:
+        return []
+
+    theme_id = active_theme["id"]
+
+    # Pull all assets from the theme
+    assets_url = _shopify_url(f"themes/{theme_id}/assets.json")
+    resp = httpx.get(assets_url, headers=headers, timeout=60)
+    resp.raise_for_status()
+    assets = resp.json().get("assets", [])
+
+    # Filter for image assets (XO Gallery photos)
+    store = os.getenv("SHOPIFY_STORE")
+    images = []
+    image_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
+
+    for asset in assets:
+        key = asset.get("key", "")
+        # Filter for images in assets that match our prefix or are photos
+        if not key.lower().endswith(image_extensions):
+            continue
+        if filter_prefix and not key.lower().split("/")[-1].startswith(filter_prefix.lower()):
+            continue
+
+        # Build the CDN URL
+        filename = key.split("/")[-1]
+        # The public URL uses the theme's CDN path
+        public_url = asset.get("public_url", "")
+        if not public_url:
+            public_url = f"https://cdn.shopify.com/s/files/1/0294/7966/5708/{key}"
+
+        images.append({
+            "url": public_url,
+            "filename": filename,
+            "key": key,
+            "content_type": asset.get("content_type", ""),
+            "created_at": asset.get("created_at", ""),
+            "updated_at": asset.get("updated_at", ""),
+        })
+
+        if len(images) >= limit:
+            break
+
+    return images
+
+
+def list_all_themes() -> list:
+    """
+    List all Shopify themes (including unpublished ones).
+
+    XO Gallery stores images under an older theme (e.g., theme 7)
+    while the active storefront uses a newer theme (e.g., theme 16).
+    """
+    from app.services.shopify_service import _shopify_headers, _shopify_url
+
+    headers = _shopify_headers()
+    themes_url = _shopify_url("themes.json")
+    resp = httpx.get(themes_url, headers=headers, timeout=30)
+    resp.raise_for_status()
+    return resp.json().get("themes", [])
+
+
+def pull_xo_gallery_assets(
+    theme_id: int = None,
+    filter_prefix: str = "photo",
+    limit: int = 10000,
+) -> list:
+    """
+    Pull XO Gallery image URLs from a specific Shopify theme.
+
+    XO Gallery stores estate sale photos as theme assets under an older
+    theme version (typically /t/7/assets/). The active theme (/t/16/)
+    does NOT contain these images.
+
+    If theme_id is not provided, searches ALL themes for photo assets.
+
+    Returns list of dicts: {url, filename, key, theme_id}
+    """
+    from app.services.shopify_service import _shopify_headers, _shopify_url
+
+    headers = _shopify_headers()
+    image_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
+
+    # If no theme_id specified, get all themes and search each
+    if theme_id is None:
+        themes = list_all_themes()
+        theme_ids = [t["id"] for t in themes]
+    else:
+        theme_ids = [theme_id]
+
+    all_images = []
+
+    for tid in theme_ids:
+        try:
+            assets_url = _shopify_url(f"themes/{tid}/assets.json")
+            resp = httpx.get(assets_url, headers=headers, timeout=120)
+            resp.raise_for_status()
+            assets = resp.json().get("assets", [])
+        except Exception:
+            continue
+
+        for asset in assets:
+            key = asset.get("key", "")
+            if not key.lower().endswith(image_extensions):
+                continue
+            filename = key.split("/")[-1]
+            if filter_prefix and not filename.lower().startswith(
+                filter_prefix.lower()
+            ):
+                continue
+
+            public_url = asset.get("public_url", "")
+            if not public_url:
+                public_url = (
+                    f"https://cdn.shopify.com/s/files/1/0294/7966/5708/{key}"
+                )
+
+            all_images.append(
+                {
+                    "url": public_url,
+                    "filename": filename,
+                    "key": key,
+                    "theme_id": tid,
+                    "content_type": asset.get("content_type", ""),
+                    "created_at": asset.get("created_at", ""),
+                    "updated_at": asset.get("updated_at", ""),
+                }
+            )
+
+            if len(all_images) >= limit:
+                return all_images
+
+    return all_images
 
 
 def pull_gallery_images_from_page(page_handle: str) -> list:
@@ -263,6 +425,12 @@ Respond ONLY with valid JSON, no markdown formatting or code blocks."""
             response_text = response_text.strip()
 
         result = json.loads(response_text)
+
+        # Include token usage for cost tracking
+        if hasattr(message, "usage"):
+            result["_input_tokens"] = message.usage.input_tokens
+            result["_output_tokens"] = message.usage.output_tokens
+
         return result
 
     except Exception as e:
@@ -380,6 +548,229 @@ def analyze_gallery_images(
     }
 
 
+# ===================== Budget-Aware Bulk Processing =====================
+
+# Claude Sonnet 4 pricing (per million tokens)
+_INPUT_PRICE_PER_M = 3.0   # $3 per 1M input tokens
+_OUTPUT_PRICE_PER_M = 15.0  # $15 per 1M output tokens
+
+
+def _estimate_cost(input_tokens: int, output_tokens: int) -> float:
+    """Calculate cost in dollars from token counts."""
+    return (input_tokens * _INPUT_PRICE_PER_M / 1_000_000) + (
+        output_tokens * _OUTPUT_PRICE_PER_M / 1_000_000
+    )
+
+
+def bulk_analyze_with_budget(
+    db: Session,
+    budget_dollars: float = 90.0,
+    commit_every: int = 25,
+    max_workers: int = 5,
+) -> dict:
+    """
+    Analyze ALL XO Gallery images from the local JSON file, respecting a budget cap.
+
+    Processes images with concurrent API calls (max_workers threads),
+    commits to DB in batches, tracks cost, stops when budget is exhausted.
+
+    Returns a summary with cost tracking.
+    """
+    import json as _json
+    import logging
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    logger = logging.getLogger("vision_bulk")
+    logging.basicConfig(level=logging.INFO)
+
+    xo_data_path = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.dirname(__file__))),
+        "data", "xo_gallery_images.json",
+    )
+    if not os.path.exists(xo_data_path):
+        return {"status": "error", "message": "xo_gallery_images.json not found"}
+
+    with open(xo_data_path) as f:
+        data = _json.load(f)
+
+    # Theme assets base URL (for photo-* lowercase files)
+    theme_base_url = data.get("base_url", "")
+    # Shopify Files base URL (for Photo_*, long-name files uploaded via XO Gallery)
+    files_base_url = "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/"
+    galleries = data.get("galleries", {})
+
+    total_input_tokens = 0
+    total_output_tokens = 0
+    total_cost = 0.0
+    total_processed = 0
+    total_skipped = 0
+    total_errors = 0
+    galleries_completed = 0
+    budget_hit = False
+
+    # Only skip successfully analyzed images — retry errors
+    all_existing_urls = set(
+        row[0] for row in db.query(ImageAnalysis.image_url).filter(
+            ImageAnalysis.status == "analyzed"
+        ).all()
+    )
+    logger.info(f"Found {len(all_existing_urls)} successfully analyzed images in DB")
+
+    # Delete old error rows so they can be retried (avoids duplicate inserts)
+    error_count = db.query(ImageAnalysis).filter(
+        ImageAnalysis.status == "error"
+    ).delete()
+    db.commit()
+    if error_count:
+        logger.info(f"Deleted {error_count} previous error rows for retry")
+
+    for gid, gallery in galleries.items():
+        if budget_hit:
+            break
+
+        gallery_name = gallery.get("name", "")
+        filenames = gallery.get("filenames", [])
+
+        # Filter out already-analyzed images
+        to_process = []
+        for fname in filenames:
+            # Use correct base URL: theme assets for photo-* files,
+            # Shopify Files for everything else (Photo_*, long names, etc.)
+            if fname.startswith("photo-"):
+                url = theme_base_url + fname
+            else:
+                url = files_base_url + fname
+            if url in all_existing_urls:
+                total_skipped += 1
+            else:
+                to_process.append((fname, url))
+
+        if not to_process:
+            galleries_completed += 1
+            logger.info(
+                f"Gallery {gid}: {gallery_name} — all {len(filenames)} "
+                f"already analyzed, skipping"
+            )
+            continue
+
+        logger.info(
+            f"Gallery {gid}: {gallery_name} ({len(to_process)} new / "
+            f"{len(filenames)} total) [cost so far: ${total_cost:.2f}]"
+        )
+
+        # Process in parallel batches
+        batch_count = 0
+        batch_start = 0
+
+        while batch_start < len(to_process) and not budget_hit:
+            # Take next chunk of max_workers images
+            chunk = to_process[batch_start:batch_start + max_workers]
+            batch_start += max_workers
+
+            # Submit all images in chunk to thread pool
+            futures = {}
+            with ThreadPoolExecutor(max_workers=max_workers) as executor:
+                for fname, url in chunk:
+                    future = executor.submit(
+                        analyze_image, url, gallery_name=gallery_name
+                    )
+                    futures[future] = (fname, url)
+
+                for future in as_completed(futures):
+                    fname, url = futures[future]
+                    try:
+                        analysis = future.result()
+                    except Exception as e:
+                        analysis = {
+                            "error": f"Thread error: {str(e)}",
+                            "alt_text": "", "title": "",
+                            "tags": [], "description": "",
+                            "confidence": 0.0,
+                        }
+
+                    # Track tokens/cost
+                    img_input = analysis.pop("_input_tokens", 0)
+                    img_output = analysis.pop("_output_tokens", 0)
+                    img_cost = _estimate_cost(img_input, img_output)
+                    total_input_tokens += img_input
+                    total_output_tokens += img_output
+                    total_cost += img_cost
+
+                    # Store result
+                    record = ImageAnalysis(
+                        image_url=url,
+                        filename=fname,
+                        gallery_name=gallery_name,
+                        alt_text=analysis.get("alt_text", ""),
+                        title=analysis.get("title", ""),
+                        item_tags=analysis.get("tags", []),
+                        description=analysis.get("description", ""),
+                        confidence=analysis.get("confidence", 0.0),
+                        status="analyzed" if "error" not in analysis else "error",
+                        data=analysis,
+                    )
+                    db.add(record)
+                    all_existing_urls.add(url)
+                    total_processed += 1
+                    batch_count += 1
+
+                    if "error" in analysis:
+                        total_errors += 1
+
+            # Commit after each parallel chunk
+            db.commit()
+            logger.info(
+                f"  Chunk done: {total_processed} processed, "
+                f"${total_cost:.2f} spent, {total_errors} errors"
+            )
+
+            # Check budget after each chunk
+            if total_cost >= budget_dollars:
+                budget_hit = True
+                logger.info(
+                    f"BUDGET HIT: ${total_cost:.2f} >= ${budget_dollars:.2f}. "
+                    f"Stopping after {total_processed} images."
+                )
+
+        # Commit at end of each gallery
+        db.commit()
+        if not budget_hit:
+            galleries_completed += 1
+
+    # Final log entry
+    log_entry = WorkflowLog(
+        workflow_name="bulk_image_analysis",
+        status="budget_hit" if budget_hit else "success",
+        payload={
+            "total_processed": total_processed,
+            "total_skipped": total_skipped,
+            "total_errors": total_errors,
+            "galleries_completed": galleries_completed,
+            "total_cost_usd": round(total_cost, 4),
+            "total_input_tokens": total_input_tokens,
+            "total_output_tokens": total_output_tokens,
+            "budget_dollars": budget_dollars,
+        },
+    )
+    db.add(log_entry)
+    db.commit()
+
+    return {
+        "status": "budget_hit" if budget_hit else "success",
+        "total_processed": total_processed,
+        "total_skipped": total_skipped,
+        "total_errors": total_errors,
+        "galleries_completed": galleries_completed,
+        "total_galleries": len(galleries),
+        "total_cost_usd": round(total_cost, 4),
+        "avg_cost_per_image": round(total_cost / max(total_processed, 1), 6),
+        "total_input_tokens": total_input_tokens,
+        "total_output_tokens": total_output_tokens,
+        "budget_dollars": budget_dollars,
+        "budget_remaining": round(budget_dollars - total_cost, 2),
+    }
+
+
 # ===================== Export =====================
 
 
@@ -425,6 +816,469 @@ def export_analysis_csv(db: Session, gallery_name: str = None) -> str:
         ])
 
     return output.getvalue()
+
+
+# ===================== Bulk Alt Text Push to Shopify =====================
+
+
+def _fetch_shopify_file_ids(cursor: str = None, limit: int = 250) -> dict:
+    """
+    Fetch a page of Shopify Files with their GIDs and filenames.
+
+    Returns {files: [{id, filename, alt, url}, ...], has_next, cursor}
+    """
+    after_clause = f', after: "{cursor}"' if cursor else ""
+    query = f"""
+    query {{
+        files(first: {limit}, query: "media_type:IMAGE"{after_clause}) {{
+            edges {{
+                node {{
+                    ... on MediaImage {{
+                        id
+                        alt
+                        image {{
+                            url
+                            altText
+                        }}
+                    }}
+                }}
+                cursor
+            }}
+            pageInfo {{
+                hasNextPage
+            }}
+        }}
+    }}
+    """
+    result = _shopify_graphql(query)
+    edges = result.get("data", {}).get("files", {}).get("edges", [])
+    has_next = result.get("data", {}).get("files", {}).get("pageInfo", {}).get("hasNextPage", False)
+
+    files = []
+    last_cursor = None
+    for edge in edges:
+        node = edge.get("node", {})
+        image = node.get("image", {})
+        if not node.get("id"):
+            continue
+        url = image.get("url", "")
+        filename = url.split("/")[-1].split("?")[0] if url else ""
+        files.append({
+            "id": node["id"],
+            "filename": filename,
+            "current_alt": image.get("altText", "") or node.get("alt", ""),
+            "url": url,
+        })
+        last_cursor = edge.get("cursor")
+
+    return {"files": files, "has_next": has_next, "cursor": last_cursor}
+
+
+def _update_file_alt_text(file_id: str, alt_text: str) -> dict:
+    """
+    Update the alt text on a single Shopify File via GraphQL.
+
+    Uses the fileUpdate mutation.
+    """
+    query = """
+    mutation fileUpdate($input: [FileUpdateInput!]!) {
+        fileUpdate(files: $input) {
+            files {
+                ... on MediaImage {
+                    id
+                    alt
+                    image {
+                        altText
+                    }
+                }
+            }
+            userErrors {
+                field
+                message
+            }
+        }
+    }
+    """
+    variables = {
+        "input": [{
+            "id": file_id,
+            "alt": alt_text,
+        }]
+    }
+    result = _shopify_graphql(query, variables)
+    errors = result.get("data", {}).get("fileUpdate", {}).get("userErrors", [])
+    if errors:
+        return {"status": "error", "errors": errors}
+    return {"status": "updated", "id": file_id}
+
+
+def bulk_push_alt_text(db: Session, batch_size: int = 50, force: bool = False, progress_callback=None) -> dict:
+    """
+    Push AI-generated alt text to Shopify Files in bulk.
+
+    1. Fetches all Shopify Files via GraphQL (paginated)
+    2. Matches filenames to analyzed images in our database
+    3. Updates alt text on each matched file
+
+    force: If True, overwrite existing alt text (e.g. Webrex filename-based alt).
+
+    Only updates files that:
+    - Have a match in our image_analysis table with status='analyzed'
+    - Currently have empty or missing alt text on Shopify
+
+    Returns summary of updates.
+    """
+    import logging
+    import time
+
+    logger = logging.getLogger("vision_alt_push")
+
+    # Load all analyzed images keyed by filename
+    analyzed = db.query(ImageAnalysis).filter(
+        ImageAnalysis.status == "analyzed",
+        ImageAnalysis.alt_text.isnot(None),
+        ImageAnalysis.alt_text != "",
+    ).all()
+
+    # Build lookup by filename (without _500x suffix and with it)
+    alt_lookup = {}
+    for record in analyzed:
+        fname = record.filename or ""
+        if fname:
+            alt_lookup[fname] = record.alt_text
+            # Also try without _500x suffix
+            clean = fname.replace("_500x", "")
+            alt_lookup[clean] = record.alt_text
+
+    logger.info(f"Loaded {len(analyzed)} analyzed images, {len(alt_lookup)} lookup entries")
+
+    total_shopify_files = 0
+    total_matched = 0
+    total_updated = 0
+    total_skipped_has_alt = 0
+    total_no_match = 0
+    total_errors = 0
+    cursor = None
+
+    while True:
+        # Retry pagination fetch up to 3 times (SSL timeouts are transient)
+        page = None
+        for attempt in range(3):
+            try:
+                page = _fetch_shopify_file_ids(cursor=cursor)
+                break
+            except Exception as e:
+                logger.warning(f"Fetch page failed (attempt {attempt+1}/3): {e}")
+                if attempt < 2:
+                    time.sleep(5 * (attempt + 1))  # Backoff: 5s, 10s
+                else:
+                    logger.error(f"Fetch page failed after 3 attempts, stopping.")
+                    return {
+                        "status": "partial",
+                        "detail": f"Stopped after fetch error: {e}",
+                        "total_shopify_files": total_shopify_files,
+                        "total_matched": total_matched,
+                        "total_updated": total_updated,
+                        "total_skipped_has_alt": total_skipped_has_alt,
+                        "total_no_match": total_no_match,
+                        "total_errors": total_errors,
+                    }
+
+        files = page["files"]
+        total_shopify_files += len(files)
+
+        for f in files:
+            fname = f["filename"]
+
+            # Try to match by filename
+            alt_text = alt_lookup.get(fname)
+            if not alt_text:
+                # Try without _500x
+                clean = fname.replace("_500x", "")
+                alt_text = alt_lookup.get(clean)
+
+            if not alt_text:
+                total_no_match += 1
+                continue
+
+            total_matched += 1
+
+            # Skip if already has the exact alt text we'd push (idempotent)
+            current = f["current_alt"] or ""
+            if current == alt_text:
+                total_skipped_has_alt += 1
+                continue
+
+            # Skip if already has GOOD alt text (not just a filename)
+            # Webrex sets alt text to the raw filename — that's not real alt text
+            is_filename_alt = current.endswith(('.jpg', '.jpeg', '.png', '.gif', '.webp'))
+            if not force and current and len(current) > 5 and not is_filename_alt:
+                total_skipped_has_alt += 1
+                continue
+
+            # Update alt text on Shopify (with retry for transient errors)
+            last_error = ""
+            update_success = False
+            for attempt in range(3):
+                try:
+                    result = _update_file_alt_text(f["id"], alt_text)
+                    if result["status"] == "updated":
+                        total_updated += 1
+                        update_success = True
+                    else:
+                        last_error = str(result)
+                        logger.warning(f"Error updating {fname}: {result}")
+                    break  # Don't retry on API-level errors (permissions etc)
+                except Exception as e:
+                    last_error = str(e)
+                    if attempt < 2:
+                        logger.warning(f"Retry {attempt+1} for {fname}: {e}")
+                        time.sleep(3 * (attempt + 1))
+                    else:
+                        logger.error(f"Failed after 3 attempts for {fname}: {e}")
+
+            if not update_success and last_error:
+                total_errors += 1
+
+            if last_error and progress_callback:
+                progress_callback({
+                    "files_scanned": total_shopify_files,
+                    "matched": total_matched,
+                    "updated": total_updated,
+                    "skipped": total_skipped_has_alt,
+                    "errors": total_errors,
+                    "no_match": total_no_match,
+                    "last_error": last_error[:500],
+                    "last_error_file": fname,
+                })
+
+            # Rate limit: Shopify allows ~2 requests/sec for GraphQL mutations
+            time.sleep(0.5)
+
+        logger.info(
+            f"Page done: {total_shopify_files} files scanned, "
+            f"{total_matched} matched, {total_updated} updated"
+        )
+
+        if progress_callback:
+            progress_callback({
+                "files_scanned": total_shopify_files,
+                "matched": total_matched,
+                "updated": total_updated,
+                "skipped": total_skipped_has_alt,
+                "errors": total_errors,
+                "no_match": total_no_match,
+            })
+
+        if not page["has_next"]:
+            break
+        cursor = page["cursor"]
+
+    return {
+        "status": "success",
+        "total_shopify_files": total_shopify_files,
+        "total_matched": total_matched,
+        "total_updated": total_updated,
+        "total_skipped_has_alt": total_skipped_has_alt,
+        "total_no_match": total_no_match,
+        "total_errors": total_errors,
+    }
+
+
+def fix_empty_alt_text(progress_callback=None) -> dict:
+    """
+    Find all Shopify files with empty alt text, analyze them with Claude Vision,
+    and push AI-generated alt text directly.
+
+    This handles the ~189 files that weren't in the original analysis DB.
+    """
+    import logging
+    import time
+
+    logger = logging.getLogger("vision_fix_empty")
+
+    total_scanned = 0
+    total_empty = 0
+    total_analyzed = 0
+    total_pushed = 0
+    total_errors = 0
+    cursor = None
+
+    while True:
+        # Fetch page with retry
+        page = None
+        for attempt in range(3):
+            try:
+                page = _fetch_shopify_file_ids(cursor=cursor)
+                break
+            except Exception as e:
+                logger.warning(f"Fetch page failed (attempt {attempt+1}/3): {e}")
+                if attempt < 2:
+                    time.sleep(5 * (attempt + 1))
+                else:
+                    return {
+                        "status": "partial",
+                        "detail": f"Stopped after fetch error: {e}",
+                        "total_scanned": total_scanned,
+                        "total_empty": total_empty,
+                        "total_analyzed": total_analyzed,
+                        "total_pushed": total_pushed,
+                        "total_errors": total_errors,
+                    }
+
+        for f in page["files"]:
+            total_scanned += 1
+            current_alt = (f.get("current_alt") or "").strip()
+
+            if current_alt:
+                continue  # Already has alt text, skip
+
+            total_empty += 1
+            url = f.get("url", "")
+            filename = f.get("filename", "")
+            file_id = f.get("id", "")
+
+            if not url:
+                total_errors += 1
+                logger.warning(f"No URL for empty-alt file: {filename}")
+                continue
+
+            # Analyze with Claude Vision
+            try:
+                result = analyze_image(url, gallery_name="Organizing Life Services")
+                alt_text = result.get("alt_text", "")
+                if not alt_text:
+                    total_errors += 1
+                    logger.warning(f"No alt text generated for {filename}: {result}")
+                    continue
+                total_analyzed += 1
+            except Exception as e:
+                total_errors += 1
+                logger.error(f"Vision analysis failed for {filename}: {e}")
+                continue
+
+            # Push to Shopify with retry
+            push_success = False
+            for attempt in range(3):
+                try:
+                    push_result = _update_file_alt_text(file_id, alt_text)
+                    if push_result["status"] == "updated":
+                        total_pushed += 1
+                        push_success = True
+                    else:
+                        logger.warning(f"Push error for {filename}: {push_result}")
+                    break
+                except Exception as e:
+                    if attempt < 2:
+                        logger.warning(f"Push retry {attempt+1} for {filename}: {e}")
+                        time.sleep(3 * (attempt + 1))
+                    else:
+                        logger.error(f"Push failed after 3 attempts for {filename}: {e}")
+
+            if not push_success:
+                total_errors += 1
+
+            # Rate limit
+            time.sleep(1.0)  # Slower rate for Vision API + Shopify mutation combo
+
+            if progress_callback:
+                progress_callback({
+                    "scanned": total_scanned,
+                    "empty_found": total_empty,
+                    "analyzed": total_analyzed,
+                    "pushed": total_pushed,
+                    "errors": total_errors,
+                    "last_file": filename,
+                    "last_alt": alt_text[:100] if alt_text else "",
+                })
+
+        if progress_callback:
+            progress_callback({
+                "scanned": total_scanned,
+                "empty_found": total_empty,
+                "analyzed": total_analyzed,
+                "pushed": total_pushed,
+                "errors": total_errors,
+            })
+
+        if not page["has_next"]:
+            break
+        cursor = page["cursor"]
+
+    return {
+        "status": "success",
+        "total_scanned": total_scanned,
+        "total_empty": total_empty,
+        "total_analyzed": total_analyzed,
+        "total_pushed": total_pushed,
+        "total_errors": total_errors,
+    }
+
+
+def compare_alt_text(db: Session, sample_size: int = 10) -> dict:
+    """
+    Compare existing Shopify Files alt text (e.g. from Webrex) with our AI-generated alt text.
+
+    Returns side-by-side comparison for matched files.
+    """
+    import logging
+
+    logger = logging.getLogger("vision_alt_compare")
+
+    # Load analyzed images keyed by filename
+    analyzed = db.query(ImageAnalysis).filter(
+        ImageAnalysis.status == "analyzed",
+        ImageAnalysis.alt_text.isnot(None),
+        ImageAnalysis.alt_text != "",
+    ).all()
+
+    alt_lookup = {}
+    for record in analyzed:
+        fname = record.filename or ""
+        if fname:
+            alt_lookup[fname] = record.alt_text
+            clean = fname.replace("_500x", "")
+            alt_lookup[clean] = record.alt_text
+
+    comparisons = []
+    cursor = None
+
+    while len(comparisons) < sample_size:
+        page = _fetch_shopify_file_ids(cursor=cursor)
+        files = page["files"]
+
+        for f in files:
+            fname = f["filename"]
+            our_alt = alt_lookup.get(fname)
+            if not our_alt:
+                clean = fname.replace("_500x", "")
+                our_alt = alt_lookup.get(clean)
+
+            if not our_alt:
+                continue
+
+            shopify_alt = f["current_alt"] or ""
+
+            comparisons.append({
+                "filename": fname,
+                "shopify_current_alt": shopify_alt,
+                "our_ai_alt": our_alt,
+                "shopify_length": len(shopify_alt),
+                "our_length": len(our_alt),
+            })
+
+            if len(comparisons) >= sample_size:
+                break
+
+        if not page["has_next"]:
+            break
+        cursor = page["cursor"]
+
+    return {
+        "status": "success",
+        "sample_size": len(comparisons),
+        "comparisons": comparisons,
+    }
 
 
 def get_analysis_summary(db: Session) -> dict:

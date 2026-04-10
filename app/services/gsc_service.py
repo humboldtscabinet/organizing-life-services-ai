@@ -65,24 +65,45 @@ def pull_gsc_data(
 
     rows = response.get("rows", [])
     inserted = 0
+    updated = 0
 
     for row in rows:
         keys = row.get("keys", [])
         query_text = keys[0] if len(keys) > 0 else ""
         page_url = keys[1] if len(keys) > 1 else ""
         date_str = keys[2] if len(keys) > 2 else start_date.isoformat()
+        row_date = datetime.fromisoformat(date_str)
 
-        record = GSCData(
-            query=query_text,
-            page=page_url,
-            clicks=int(row.get("clicks", 0)),
-            impressions=int(row.get("impressions", 0)),
-            ctr=round(row.get("ctr", 0.0), 4),
-            position=round(row.get("position", 0.0), 2),
-            date=datetime.fromisoformat(date_str),
+        # Upsert: check if this query+page+date combo already exists
+        existing = (
+            db.query(GSCData)
+            .filter(
+                GSCData.query == query_text,
+                GSCData.page == page_url,
+                GSCData.date == row_date,
+            )
+            .first()
         )
-        db.add(record)
-        inserted += 1
+
+        if existing:
+            # Update with latest data (GSC can revise numbers)
+            existing.clicks = int(row.get("clicks", 0))
+            existing.impressions = int(row.get("impressions", 0))
+            existing.ctr = round(row.get("ctr", 0.0), 4)
+            existing.position = round(row.get("position", 0.0), 2)
+            updated += 1
+        else:
+            record = GSCData(
+                query=query_text,
+                page=page_url,
+                clicks=int(row.get("clicks", 0)),
+                impressions=int(row.get("impressions", 0)),
+                ctr=round(row.get("ctr", 0.0), 4),
+                position=round(row.get("position", 0.0), 2),
+                date=row_date,
+            )
+            db.add(record)
+            inserted += 1
 
     # Log the workflow execution
     log_entry = WorkflowLog(
@@ -93,6 +114,7 @@ def pull_gsc_data(
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
             "rows_inserted": inserted,
+            "rows_updated": updated,
         },
     )
     db.add(log_entry)

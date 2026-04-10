@@ -8,9 +8,11 @@ from sqlalchemy import (
     Column,
     DateTime,
     Float,
+    Index,
     Integer,
     String,
     Text,
+    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
@@ -56,6 +58,12 @@ class SEOReport(Base):
 
 class GSCData(Base):
     __tablename__ = "gsc_data"
+    __table_args__ = (
+        Index("ix_gsc_data_date", "date"),
+        Index("ix_gsc_data_query", "query"),
+        Index("ix_gsc_data_query_date", "query", "date"),
+        Index("ix_gsc_data_query_page_date", "query", "page", "date"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     query = Column(String(500))
@@ -70,6 +78,11 @@ class GSCData(Base):
 
 class GA4Data(Base):
     __tablename__ = "ga4_data"
+    __table_args__ = (
+        Index("ix_ga4_data_date", "date"),
+        Index("ix_ga4_data_metric_date", "metric_name", "date"),
+        Index("ix_ga4_data_metric_dim_date", "metric_name", "dimension_value", "date"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     metric_name = Column(String(200), nullable=False)
@@ -95,6 +108,10 @@ class GBPInsight(Base):
 
 class GoogleAdsData(Base):
     __tablename__ = "google_ads_data"
+    __table_args__ = (
+        Index("ix_google_ads_data_date", "date"),
+        Index("ix_google_ads_data_campaign_date", "campaign_name", "date"),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
     campaign_name = Column(String(300))
@@ -137,3 +154,29 @@ class ShopifyOrder(Base):
     order_date = Column(DateTime)
     data = Column(JSONB)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+# ---------- Dashboard Task Management ----------
+
+class DashboardTask(Base):
+    __tablename__ = "dashboard_tasks"
+    __table_args__ = (
+        Index("ix_dashboard_tasks_status", "status"),
+        Index("ix_dashboard_tasks_type_status", "task_type", "status"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_type = Column(String(50), nullable=False)  # seo, ads, shopify, content
+    category = Column(String(100), nullable=False)   # e.g. "keyword_optimization", "ad_spend", "meta_fix"
+    priority = Column(String(20), nullable=False)     # HIGH, MEDIUM, LOW
+    title = Column(String(500), nullable=False)
+    description = Column(Text)
+    finding = Column(Text)                            # The data that triggered this task
+    action_endpoint = Column(String(500))             # API endpoint to call when approved
+    action_payload = Column(JSONB)                    # JSON payload for the API call
+    status = Column(String(50), default="pending")    # pending, approved, executing, completed, failed, dismissed, delayed
+    result = Column(JSONB)                            # Result from execution
+    delayed_until = Column(DateTime, nullable=True)   # When to show the task again if delayed
+    created_at = Column(DateTime, default=datetime.utcnow)
+    approved_at = Column(DateTime, nullable=True)
+    completed_at = Column(DateTime, nullable=True)
