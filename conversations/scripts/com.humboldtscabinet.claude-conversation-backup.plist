@@ -10,7 +10,7 @@
         <string>/bin/bash</string>
         <string>-lc</string>
         <!-- -l makes sure Homebrew's git/python are on PATH when launchd runs us -->
-        <string>"$HOME/Documents/Claude/Projects/Ai Agent Ecosystem - OLS/organizing-life-services-ai/conversations/scripts/backup_conversations.sh"</string>
+        <string>"$HOME/Developer/organizing-life-services-ai/conversations/scripts/backup_conversations.sh"</string>
     </array>
 
     <!-- Run daily at 2:15am local time. Change Hour/Minute if you prefer. -->
@@ -21,6 +21,14 @@
         <key>Minute</key>
         <integer>15</integer>
     </dict>
+
+    <!-- Manual trigger: touching this file fires the backup. Works from
+         any shell, and from Claude (the file is inside the workspace folder
+         that the sandbox can write to). -->
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/robertporter/Developer/organizing-life-services-ai/conversations/.trigger</string>
+    </array>
 
     <!-- If the Mac was asleep at 2:15, run as soon as it wakes -->
     <key>RunAtLoad</key>

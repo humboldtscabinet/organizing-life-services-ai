@@ -19,7 +19,7 @@
 set -euo pipefail
 
 # ── Config ─────────────────────────────────────────────────────────
-REPO_ROOT="${REPO_ROOT:-$HOME/Documents/Claude/Projects/Ai Agent Ecosystem - OLS/organizing-life-services-ai}"
+REPO_ROOT="${REPO_ROOT:-$HOME/Developer/organizing-life-services-ai}"
 # Cowork/Claude desktop stores transcripts under Library/Application Support.
 # Override with CLAUDE_PROJECTS_DIR env var if yours lives elsewhere.
 CLAUDE_PROJECTS_DIR="${CLAUDE_PROJECTS_DIR:-$HOME/Library/Application Support/Claude/local-agent-mode-sessions}"

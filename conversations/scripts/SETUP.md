@@ -74,14 +74,45 @@ launchctl list | grep claude-conversation-backup
 
 You should see a line with the label and exit status `0`.
 
-## Troubleshooting
+## Manual triggers
 
-### "I want to run it right now instead of waiting for 2:15am"
+There are three ways to run a backup on demand. Pick whichever feels natural.
+
+### Option A — Shell alias `cowork-backup` (easiest)
+
+One-time install:
+
+```bash
+bash "$HOME/Documents/Claude/Projects/Ai Agent Ecosystem - OLS/organizing-life-services-ai/conversations/scripts/install_alias.sh"
+source ~/.zshrc
+```
+
+After that, from **any** Terminal window, from **any** directory:
+
+```bash
+cowork-backup
+```
+
+### Option B — Invoke the launchd job directly
 
 ```bash
 launchctl start com.humboldtscabinet.claude-conversation-backup
 tail -f /tmp/claude-conversation-backup.stdout.log
 ```
+
+Works the same as the daily 2:15am run, just fires immediately.
+
+### Option C — Touch the trigger file (works from Claude mid-conversation)
+
+The launchd job watches `conversations/.trigger`. Any modification to it fires a backup. From a shell:
+
+```bash
+touch "$HOME/Documents/Claude/Projects/Ai Agent Ecosystem - OLS/organizing-life-services-ai/conversations/.trigger"
+```
+
+Or just ask Claude: *"Back up our conversations."* Claude can touch that file directly from the sandbox — no shell needed.
+
+## Troubleshooting
 
 ### "I want to change the run time"
 
