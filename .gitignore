@@ -60,3 +60,11 @@ data/*.pkl
 data/*session*
 data/*token*
 data/*cookies*
+
+# ---------- Conversation archive ----------
+# Raw transcripts must be gzipped (GitHub rejects files >100MB).
+# Block any uncompressed .jsonl from accidentally being committed.
+conversations/raw/*.jsonl
+conversations/scripts/backup.log
+# Trigger file for WatchPaths-based manual backup (never commit)
+conversations/.trigger

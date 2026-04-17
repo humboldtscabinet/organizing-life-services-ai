@@ -8,6 +8,10 @@
 - **Service Account:** ols-operations@ols-marketing-agent.iam.gserviceaccount.com
 
 ## Status
+- All 3 APIs enabled in GCP console as of April 15, 2026
+- **Quota is 0 on all APIs** — requests return 429 Too Many Requests
+- Quota increase requested April 15, 2026 (100 req/min for Account Management, Business Information, Performance)
+- **Expected quota provisioning: up to 10 business days (by ~April 29, 2026)**
 - Service account invited as Manager on GBP listing (pending acceptance)
 - GBP_LOCATION_ID set to: locations/8085786647786125239
 - Invitation cannot be accepted until Account Management API quota is granted

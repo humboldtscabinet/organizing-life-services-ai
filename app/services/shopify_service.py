@@ -372,6 +372,56 @@ def get_site_seo_data() -> dict:
             art["blog_title"] = blog.get("title", "")
         articles.extend(arts)
 
+    return {
+        "products": [
+            {
+                "id": p["id"],
+                "title": p.get("title", ""),
+                "handle": p.get("handle", ""),
+                "body_html_length": len(p.get("body_html", "") or ""),
+                "tags": p.get("tags", ""),
+                "product_type": p.get("product_type", ""),
+                "status": p.get("status", ""),
+                "meta_title": p.get("metafields_global_title_tag", ""),
+                "meta_description": p.get(
+                    "metafields_global_description_tag", ""
+                ),
+            }
+            for p in products
+        ],
+        "pages": [
+            {
+                "id": pg["id"],
+                "title": pg.get("title", ""),
+                "handle": pg.get("handle", ""),
+                "body_html_length": len(pg.get("body_html", "") or ""),
+            }
+            for pg in pages
+        ],
+        "articles": [
+            {
+                "id": a["id"],
+                "blog_id": a.get("blog_id"),
+                "blog_title": a.get("blog_title", ""),
+                "title": a.get("title", ""),
+                "handle": a.get("handle", ""),
+                "body_html_length": len(a.get("body_html", "") or ""),
+                "summary_html_length": len(
+                    a.get("summary_html", "") or ""
+                ),
+                "tags": a.get("tags", ""),
+            }
+            for a in articles
+        ],
+        "totals": {
+            "products": len(products),
+            "pages": len(pages),
+            "articles": len(articles),
+            "blogs": len(blogs),
+        },
+    }
+
+
 # ===================== Redirect & Page Management =====================
 
 
@@ -513,54 +563,4 @@ def consolidate_thin_pages(redirect_map: list[dict], dry_run: bool = True) -> di
         "status": "dry_run" if dry_run else "executed",
         "total": len(results),
         "results": results,
-    }
-
-
-    return {
-        "products": [
-            {
-                "id": p["id"],
-                "title": p.get("title", ""),
-                "handle": p.get("handle", ""),
-                "body_html_length": len(p.get("body_html", "") or ""),
-                "tags": p.get("tags", ""),
-                "product_type": p.get("product_type", ""),
-                "status": p.get("status", ""),
-                "meta_title": p.get("metafields_global_title_tag", ""),
-                "meta_description": p.get(
-                    "metafields_global_description_tag", ""
-                ),
-            }
-            for p in products
-        ],
-        "pages": [
-            {
-                "id": pg["id"],
-                "title": pg.get("title", ""),
-                "handle": pg.get("handle", ""),
-                "body_html_length": len(pg.get("body_html", "") or ""),
-            }
-            for pg in pages
-        ],
-        "articles": [
-            {
-                "id": a["id"],
-                "blog_id": a.get("blog_id"),
-                "blog_title": a.get("blog_title", ""),
-                "title": a.get("title", ""),
-                "handle": a.get("handle", ""),
-                "body_html_length": len(a.get("body_html", "") or ""),
-                "summary_html_length": len(
-                    a.get("summary_html", "") or ""
-                ),
-                "tags": a.get("tags", ""),
-            }
-            for a in articles
-        ],
-        "totals": {
-            "products": len(products),
-            "pages": len(pages),
-            "articles": len(articles),
-            "blogs": len(blogs),
-        },
     }
