@@ -15,9 +15,10 @@ from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
 from app.services.gsc_service import pull_gsc_data
-from app.services.seo_audit_service import run_seo_audit
+from app.services.seo_audit_service import run_deep_seo_audit, run_seo_audit
 from app.services.sheets_service import (
     push_audit_to_sheets,
+    push_deep_audit_to_sheets,
     push_ga4_to_sheets,
     push_gbp_to_sheets,
     push_google_ads_to_sheets,
@@ -265,6 +266,89 @@ def trigger_ads_full_pipeline(
         return {"status": "error", "detail": str(e)}
 
 
+# ----- Direct Google Ads API (Phase A) -----
+
+@router.get("/ads/account-overview")
+def ads_account_overview():
+    """Customer info, campaign summary, conversion-action audit (direct API)."""
+    from app.services.google_ads_service import get_account_overview
+    try:
+        return get_account_overview()
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.get("/ads/conversion-audit")
+def ads_conversion_audit():
+    """Flag bogus / misconfigured conversion actions (direct API)."""
+    from app.services.google_ads_service import (
+        audit_conversion_actions, direct_api_available,
+    )
+    if not direct_api_available():
+        return {
+            "status": "unavailable",
+            "detail": "GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
+        }
+    try:
+        return {"status": "success", **audit_conversion_actions()}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.get("/ads/campaigns")
+def ads_campaigns():
+    """List all campaigns with budget + bidding strategy (direct API)."""
+    from app.services.google_ads_service import (
+        list_campaigns, direct_api_available,
+    )
+    if not direct_api_available():
+        return {
+            "status": "unavailable",
+            "detail": "GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
+        }
+    try:
+        return {"status": "success", "campaigns": list_campaigns()}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+# ----- Google Tag Manager (Phase C) -----
+
+@router.get("/gtm/discover")
+def gtm_discover(account_id: str | None = None):
+    """List GTM accounts (and containers if account_id given) the SA can see."""
+    from app.services.gtm_service import (
+        direct_api_available, discover_gtm_accounts, discover_gtm_containers,
+    )
+    if not direct_api_available():
+        return {"status": "unavailable", "detail": "GTM credentials not configured."}
+    try:
+        if account_id:
+            return {"status": "success", "containers": discover_gtm_containers(account_id)}
+        return {"status": "success", "accounts": discover_gtm_accounts()}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.get("/gtm/overview")
+def gtm_overview():
+    """Tags, triggers, variables, and audit findings for the configured container."""
+    from app.services.gtm_service import get_container_overview
+    return get_container_overview()
+
+
+@router.get("/gtm/audit")
+def gtm_audit():
+    """Just the audit findings (drift, dead tags, double-fires, page-view conversions)."""
+    from app.services.gtm_service import audit_container, direct_api_available
+    if not direct_api_available():
+        return {"status": "unavailable", "detail": "GTM credentials not configured."}
+    try:
+        return {"status": "success", **audit_container()}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
 # ===================== SEO Audit Endpoints =====================
 
 
@@ -310,5 +394,74 @@ def trigger_audit_push_to_sheets(
             },
             "push": push_result,
         }
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+# ===================== Deep SEO Audit Endpoints =====================
+
+@router.post("/audit/deep")
+def trigger_deep_seo_audit(
+    period_days: int = 28,
+    include_crawl: bool = True,
+    include_shopify_overrides: bool = False,
+    max_urls: int = 250,
+    db: Session = Depends(get_db),
+):
+    """
+    Run a deep SEO audit: live GSC + GA4 period comparison, dual-UA
+    technical crawl, impression-weighted position, optional Shopify
+    SEO-override check. Persists as SEOReport(report_type='deep_audit').
+    """
+    try:
+        return run_deep_seo_audit(
+            db=db,
+            period_days=period_days,
+            include_crawl=include_crawl,
+            include_shopify_overrides=include_shopify_overrides,
+            max_urls=max_urls,
+        )
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.post("/audit/deep/push-to-sheets")
+def trigger_deep_audit_push_to_sheets(
+    period_days: int = 28,
+    include_crawl: bool = True,
+    include_shopify_overrides: bool = False,
+    max_urls: int = 250,
+    db: Session = Depends(get_db),
+):
+    """
+    Run deep audit and push the executive summary + tables to Sheets.
+    Intended for n8n weekly cron.
+    """
+    try:
+        audit = run_deep_seo_audit(
+            db=db,
+            period_days=period_days,
+            include_crawl=include_crawl,
+            include_shopify_overrides=include_shopify_overrides,
+            max_urls=max_urls,
+        )
+        push = push_deep_audit_to_sheets(audit_payload=audit)
+        return {"status": "success", "report_id": audit.get("report_id"),
+                "push": push}
+    except Exception as e:
+        return {"status": "error", "detail": str(e)}
+
+
+@router.get("/audit/shopify-overrides")
+def trigger_shopify_override_audit(include_products: bool = False):
+    """
+    Compare Shopify-stored SEO title/meta vs rendered <title> on every
+    page + article. Flags theme overrides and length issues at the source.
+    """
+    from app.services.shopify_seo_audit_service import (
+        audit_shopify_seo_overrides,
+    )
+    try:
+        return audit_shopify_seo_overrides(include_products=include_products)
     except Exception as e:
         return {"status": "error", "detail": str(e)}

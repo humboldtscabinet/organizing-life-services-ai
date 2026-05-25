@@ -569,3 +569,182 @@ def _write_sheet_tab(spreadsheet, tab_name: str, headers: list, rows: list):
     worksheet.update(range_name="A1", values=all_data)
     worksheet.format(f"A1:{chr(64 + len(headers))}1", {"textFormat": {"bold": True}})
     worksheet.freeze(rows=1)
+
+
+# ===================== Deep Audit (exec summary) =====================
+
+def push_deep_audit_to_sheets(
+    audit_payload: dict,
+    spreadsheet_id: str = None,
+) -> dict:
+    """
+    Push a `run_deep_seo_audit` payload to Sheets.
+
+    Creates / refreshes:
+      - "Deep Audit — Executive Summary"
+      - "Deep Audit — Query Winners"
+      - "Deep Audit — Query Losers"
+      - "Deep Audit — Striking Distance"
+      - "Deep Audit — CTR Opportunities"
+      - "Deep Audit — Crawl Issues"
+      - "Deep Audit — Shopify Overrides" (if included)
+    """
+    spreadsheet_id = spreadsheet_id or os.getenv("GOOGLE_SHEETS_SPREADSHEET_ID")
+    if not spreadsheet_id:
+        raise ValueError("GOOGLE_SHEETS_SPREADSHEET_ID is not set")
+
+    client = _get_sheets_client()
+    spreadsheet = client.open_by_key(spreadsheet_id)
+    total = 0
+
+    data = audit_payload.get("data") or audit_payload  # accept either shape
+    exec_sum = data.get("executive_summary", {})
+    gsc = data.get("gsc", {})
+    crawl = data.get("crawl") or {}
+    shopify = data.get("shopify_overrides") or {}
+
+    # 1. Executive summary
+    h = exec_sum.get("headline", {})
+    w = exec_sum.get("windows", {})
+    summary_rows = [
+        ["Window — current",
+         f"{w.get('current',{}).get('start','')} → {w.get('current',{}).get('end','')}",
+         ""],
+        ["Window — prior",
+         f"{w.get('prior',{}).get('start','')} → {w.get('prior',{}).get('end','')}",
+         ""],
+        ["Clicks", h.get("clicks_prior", 0), h.get("clicks_current", 0)],
+        ["Impressions", h.get("impressions_prior", 0),
+         h.get("impressions_current", 0)],
+        ["CTR (%)", h.get("ctr_prior_pct", 0), h.get("ctr_current_pct", 0)],
+        ["Weighted Position", h.get("weighted_position_prior", 0),
+         h.get("weighted_position_current", 0)],
+        ["Raw (unweighted) Position", h.get("raw_position_prior", 0),
+         h.get("raw_position_current", 0)],
+    ]
+    for v in exec_sum.get("verdict", []):
+        summary_rows.append(["Verdict", v, ""])
+    if exec_sum.get("crawl"):
+        c = exec_sum["crawl"]
+        summary_rows.append(["Crawl — URLs OK (browser)",
+                             c.get("urls_ok_browser", 0), ""])
+        summary_rows.append(["Crawl — URLs OK (Googlebot)",
+                             c.get("urls_ok_googlebot", 0), ""])
+        summary_rows.append(["Crawl — browser blocked / Googlebot OK",
+                             c.get("browser_blocked_googlebot_ok", 0), ""])
+        summary_rows.append(["Crawl — Googlebot blocked / browser OK",
+                             c.get("googlebot_blocked_browser_ok", 0), ""])
+    if exec_sum.get("shopify_overrides"):
+        s = exec_sum["shopify_overrides"]
+        summary_rows.append(["Shopify resources audited",
+                             s.get("resources_audited", 0), ""])
+        summary_rows.append(["Shopify resources flagged",
+                             s.get("resources_flagged", 0), ""])
+        summary_rows.append(["Shopify theme overrides",
+                             s.get("theme_overrides", 0), ""])
+
+    _write_sheet_tab(
+        spreadsheet, "Deep Audit — Executive Summary",
+        ["Metric", "Prior / Detail", "Current"], summary_rows,
+    )
+    total += len(summary_rows)
+
+    # 2. Query winners
+    if gsc.get("top_query_winners"):
+        rows = [
+            [m["query"], m["clicks"], m["clicks_delta"], m["position"],
+             m.get("position_delta") if m.get("position_delta") is not None else "new"]
+            for m in gsc["top_query_winners"]
+        ]
+        _write_sheet_tab(
+            spreadsheet, "Deep Audit — Query Winners",
+            ["Query", "Clicks", "Δ Clicks", "Position", "Δ Position"], rows,
+        )
+        total += len(rows)
+
+    # 3. Query losers
+    if gsc.get("top_query_losers"):
+        rows = [
+            [m["query"], m["clicks"], m["prev_clicks"], m["clicks_delta"],
+             m["position"],
+             m.get("position_delta") if m.get("position_delta") is not None else ""]
+            for m in gsc["top_query_losers"]
+        ]
+        _write_sheet_tab(
+            spreadsheet, "Deep Audit — Query Losers",
+            ["Query", "Clicks Now", "Clicks Was", "Δ", "Position", "Δ Position"], rows,
+        )
+        total += len(rows)
+
+    # 4. Striking distance
+    if gsc.get("striking_distance"):
+        rows = [
+            [s["query"], s["page"], s["impressions"], s["clicks"], s["position"]]
+            for s in gsc["striking_distance"]
+        ]
+        _write_sheet_tab(
+            spreadsheet, "Deep Audit — Striking Distance",
+            ["Query", "Page", "Impressions", "Clicks", "Position"], rows,
+        )
+        total += len(rows)
+
+    # 5. CTR opportunities
+    if gsc.get("ctr_opportunities"):
+        rows = [
+            [o["query"], o["page"], o["impressions"],
+             round(o["ctr"] * 100, 2), o["position"]]
+            for o in gsc["ctr_opportunities"]
+        ]
+        _write_sheet_tab(
+            spreadsheet, "Deep Audit — CTR Opportunities",
+            ["Query", "Page", "Impressions", "CTR %", "Position"], rows,
+        )
+        total += len(rows)
+
+    # 6. Crawl issues
+    if crawl and "error" not in crawl:
+        rows = []
+        for p in sorted(
+            crawl.get("browser", {}).get("pages", []),
+            key=lambda x: -len(x.get("issues", [])),
+        )[:50]:
+            if not p.get("ok"):
+                rows.append([p.get("url", ""), p.get("status", ""),
+                             p.get("error", "blocked"), "", "", "", ""])
+                continue
+            rows.append([
+                p["url"], p.get("status", ""),
+                ", ".join(p.get("issues", [])),
+                p.get("title_len", 0), p.get("meta_description_len", 0),
+                p.get("h1_count", 0),
+                ", ".join(p.get("schema_types", []))[:80],
+            ])
+        if rows:
+            _write_sheet_tab(
+                spreadsheet, "Deep Audit — Crawl Issues",
+                ["URL", "Status", "Issues", "Title Len", "Meta Len", "H1 Count", "Schema"],
+                rows,
+            )
+            total += len(rows)
+
+    # 7. Shopify overrides
+    if shopify and "error" not in shopify and shopify.get("theme_overrides"):
+        rows = [
+            [r["url"], r["kind"], ", ".join(r["flags"]),
+             r["stored_title_len"], r["live_title_len"],
+             (r["stored_title"] or "")[:80], (r["live_title"] or "")[:80]]
+            for r in shopify["theme_overrides"]
+        ]
+        _write_sheet_tab(
+            spreadsheet, "Deep Audit — Shopify Overrides",
+            ["URL", "Kind", "Flags", "Stored Title Len", "Live Title Len",
+             "Stored Title", "Live Title"],
+            rows,
+        )
+        total += len(rows)
+
+    return {
+        "status": "success",
+        "spreadsheet_id": spreadsheet_id,
+        "rows_pushed": total,
+    }

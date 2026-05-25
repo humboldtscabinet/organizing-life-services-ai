@@ -68,3 +68,10 @@ conversations/raw/*.jsonl
 conversations/scripts/backup.log
 # Trigger file for WatchPaths-based manual backup (never commit)
 conversations/.trigger
+
+# ---------- Local audit venv & runtime outputs ----------
+.venv-audit/
+data/audit_output/
+
+# ---------- Allow versioned n8n workflows despite *.json rule ----------
+!workflows/n8n/*.json

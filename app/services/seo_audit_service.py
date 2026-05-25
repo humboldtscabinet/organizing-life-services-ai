@@ -604,3 +604,582 @@ def _generate_recommendations(findings: dict) -> list:
     recs.sort(key=lambda x: priority_order.get(x["priority"], 3))
 
     return recs
+
+
+# =========================================================================
+# Deep SEO Audit — period-over-period from live GSC + GA4 APIs
+# =========================================================================
+#
+# This is the canonical implementation. The standalone CLI script
+# `data/deep_seo_audit.py` calls into this same code path so the report
+# stays consistent whether run from Docker (`POST /api/seo/audit/deep`)
+# or from a developer laptop.
+
+from app.services import seo_crawler  # noqa: E402
+
+
+# ---------- Math helpers ----------------------------------------------------
+
+def weighted_avg_position(rows: list[dict]) -> float:
+    """
+    Impression-weighted average position.
+
+    GSC's raw "average position" is unweighted — a single long-tail
+    impression at position 99 distorts the number as much as a money
+    keyword at position 3. This weights every position by the number of
+    impressions it produced, which is what humans actually mean when
+    they say "where do we rank on average".
+    """
+    total_imp = sum(r.get("impressions", 0) for r in rows)
+    if total_imp <= 0:
+        return 0.0
+    return (
+        sum(r.get("position", 0) * r.get("impressions", 0) for r in rows)
+        / total_imp
+    )
+
+
+def _pct_change(curr: float, prev: float) -> float | None:
+    if not prev:
+        return None
+    return (curr - prev) / prev * 100.0
+
+
+def _totals(rows: list[dict]) -> dict:
+    clicks = sum(r.get("clicks", 0) for r in rows)
+    imps = sum(r.get("impressions", 0) for r in rows)
+    ctr = clicks / imps if imps else 0.0
+    return {
+        "clicks": clicks,
+        "impressions": imps,
+        "ctr": ctr,
+        "avg_position_unweighted": (
+            sum(r.get("position", 0) for r in rows) / len(rows) if rows else 0.0
+        ),
+        "avg_position_weighted": weighted_avg_position(rows),
+    }
+
+
+# ---------- GSC live pull (period comparison) -------------------------------
+
+def _gsc_client():
+    from google.oauth2 import service_account
+    from googleapiclient.discovery import build
+
+    creds_path = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        "/app/credentials/google-service-account.json",
+    )
+    creds = service_account.Credentials.from_service_account_file(
+        creds_path,
+        scopes=["https://www.googleapis.com/auth/webmasters.readonly"],
+    )
+    return build("searchconsole", "v1", credentials=creds, cache_discovery=False)
+
+
+def _gsc_query(svc, site_url: str, start, end, dims: list[str],
+               row_limit: int = 25000) -> list[dict]:
+    rows: list[dict] = []
+    start_row = 0
+    while True:
+        body = {
+            "startDate": str(start),
+            "endDate": str(end),
+            "dimensions": dims,
+            "rowLimit": row_limit,
+            "startRow": start_row,
+        }
+        resp = svc.searchanalytics().query(siteUrl=site_url, body=body).execute()
+        batch = resp.get("rows", [])
+        rows.extend(batch)
+        if len(batch) < row_limit:
+            break
+        start_row += row_limit
+        if start_row > 100000:
+            break
+    # Flatten keys
+    out = []
+    for r in rows:
+        item = {
+            "clicks": r.get("clicks", 0),
+            "impressions": r.get("impressions", 0),
+            "ctr": r.get("ctr", 0.0),
+            "position": r.get("position", 0.0),
+        }
+        for i, dim in enumerate(dims):
+            item[dim] = r["keys"][i] if i < len(r["keys"]) else ""
+        out.append(item)
+    return out
+
+
+def _gsc_period_block(
+    site_url: str, cur_start, cur_end, prv_start, prv_end
+) -> dict:
+    svc = _gsc_client()
+
+    cur_all = _gsc_query(svc, site_url, cur_start, cur_end, [])
+    prv_all = _gsc_query(svc, site_url, prv_start, prv_end, [])
+
+    cur_tot = _totals(cur_all)
+    prv_tot = _totals(prv_all)
+
+    deltas = {
+        "clicks_delta_pct": _pct_change(cur_tot["clicks"], prv_tot["clicks"]),
+        "impressions_delta_pct": _pct_change(
+            cur_tot["impressions"], prv_tot["impressions"]
+        ),
+        "ctr_delta_pp": (
+            (cur_tot["ctr"] - prv_tot["ctr"]) * 100
+            if prv_tot["impressions"] else None
+        ),
+        "position_delta_unweighted": (
+            cur_tot["avg_position_unweighted"]
+            - prv_tot["avg_position_unweighted"]
+            if prv_tot["impressions"] else None
+        ),
+        "position_delta_weighted": (
+            cur_tot["avg_position_weighted"]
+            - prv_tot["avg_position_weighted"]
+            if prv_tot["impressions"] else None
+        ),
+    }
+
+    # Queries
+    cur_q = _gsc_query(svc, site_url, cur_start, cur_end, ["query"])
+    prv_q = _gsc_query(svc, site_url, prv_start, prv_end, ["query"])
+    cur_q_map = {r["query"]: r for r in cur_q}
+    prv_q_map = {r["query"]: r for r in prv_q}
+
+    movers = []
+    for q, c in cur_q_map.items():
+        p = prv_q_map.get(q)
+        prev_clicks = p["clicks"] if p else 0
+        prev_pos = p["position"] if p else None
+        prev_imp = p["impressions"] if p else 0
+        movers.append({
+            "query": q,
+            "clicks": c["clicks"],
+            "prev_clicks": prev_clicks,
+            "clicks_delta": c["clicks"] - prev_clicks,
+            "impressions": c["impressions"],
+            "prev_impressions": prev_imp,
+            "position": round(c["position"], 1),
+            "prev_position": round(prev_pos, 1) if prev_pos else None,
+            "position_delta": (
+                round(c["position"] - prev_pos, 1) if prev_pos else None
+            ),
+            "ctr": round(c["ctr"], 4),
+        })
+
+    top_winners = sorted(movers, key=lambda x: x["clicks_delta"], reverse=True)[:20]
+    top_losers = sorted(
+        [m for m in movers if m["prev_clicks"] > 0],
+        key=lambda x: x["clicks_delta"],
+    )[:20]
+    rank_gains = sorted(
+        [m for m in movers if m["position_delta"] is not None
+         and m["prev_impressions"] >= 5],
+        key=lambda x: x["position_delta"],
+    )[:20]
+    rank_losses = sorted(
+        [m for m in movers if m["position_delta"] is not None
+         and m["prev_impressions"] >= 5],
+        key=lambda x: x["position_delta"],
+        reverse=True,
+    )[:20]
+
+    # Pages
+    cur_p = _gsc_query(svc, site_url, cur_start, cur_end, ["page"])
+    prv_p = _gsc_query(svc, site_url, prv_start, prv_end, ["page"])
+    cur_p_map = {r["page"]: r for r in cur_p}
+    prv_p_map = {r["page"]: r for r in prv_p}
+
+    page_changes = []
+    for url, c in cur_p_map.items():
+        p = prv_p_map.get(url)
+        prev_clicks = p["clicks"] if p else 0
+        prev_imp = p["impressions"] if p else 0
+        prev_pos = p["position"] if p else None
+        page_changes.append({
+            "page": url,
+            "clicks": c["clicks"],
+            "prev_clicks": prev_clicks,
+            "clicks_delta": c["clicks"] - prev_clicks,
+            "impressions": c["impressions"],
+            "prev_impressions": prev_imp,
+            "impressions_delta": c["impressions"] - prev_imp,
+            "position": round(c["position"], 1),
+            "prev_position": round(prev_pos, 1) if prev_pos else None,
+            "position_delta": (
+                round(c["position"] - prev_pos, 1) if prev_pos else None
+            ),
+            "ctr": round(c["ctr"], 4),
+        })
+
+    page_winners = sorted(
+        page_changes, key=lambda x: x["clicks_delta"], reverse=True
+    )[:15]
+    page_losers = sorted(
+        [p for p in page_changes if p["prev_clicks"] > 0],
+        key=lambda x: x["clicks_delta"],
+    )[:15]
+
+    # Query × page for striking distance + CTR opps
+    cur_qp = _gsc_query(svc, site_url, cur_start, cur_end, ["query", "page"])
+
+    ctr_opportunities = [
+        {
+            "query": r["query"],
+            "page": r["page"],
+            "impressions": r["impressions"],
+            "ctr": round(r["ctr"], 4),
+            "position": round(r["position"], 1),
+        }
+        for r in cur_qp
+        if r["impressions"] >= 30
+        and 1 <= r["position"] <= 20
+        and r["ctr"] < 0.03
+    ]
+    ctr_opportunities.sort(key=lambda x: x["impressions"], reverse=True)
+
+    striking_distance = [
+        {
+            "query": r["query"],
+            "page": r["page"],
+            "impressions": r["impressions"],
+            "clicks": r["clicks"],
+            "position": round(r["position"], 1),
+        }
+        for r in cur_qp
+        if 8 <= r["position"] <= 20 and r["impressions"] >= 10
+    ]
+    striking_distance.sort(key=lambda x: x["impressions"], reverse=True)
+
+    return {
+        "windows": {
+            "current": {"start": str(cur_start), "end": str(cur_end)},
+            "prior":   {"start": str(prv_start), "end": str(prv_end)},
+        },
+        "totals_current": cur_tot,
+        "totals_prior": prv_tot,
+        "deltas": deltas,
+        "top_query_winners": top_winners,
+        "top_query_losers": top_losers,
+        "biggest_rank_gains": rank_gains,
+        "biggest_rank_losses": rank_losses,
+        "page_winners": page_winners,
+        "page_losers": page_losers,
+        "ctr_opportunities": ctr_opportunities[:30],
+        "striking_distance": striking_distance[:30],
+    }
+
+
+# ---------- GA4 period block (live) -----------------------------------------
+
+def _ga4_period_block(cur_start, cur_end, prv_start, prv_end) -> dict | None:
+    prop_id = os.getenv("GA4_PROPERTY_ID")
+    if not prop_id:
+        return None
+    try:
+        from google.oauth2 import service_account
+        from google.analytics.data_v1beta import BetaAnalyticsDataClient
+        from google.analytics.data_v1beta.types import (
+            DateRange, Dimension, Metric, RunReportRequest, FilterExpression,
+            Filter,
+        )
+    except ImportError:
+        return {"error": "google-analytics-data not installed"}
+
+    creds_path = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        "/app/credentials/google-service-account.json",
+    )
+    creds = service_account.Credentials.from_service_account_file(
+        creds_path,
+        scopes=["https://www.googleapis.com/auth/analytics.readonly"],
+    )
+    client = BetaAnalyticsDataClient(credentials=creds)
+    prop = f"properties/{prop_id}"
+
+    def run(start, end, dims, mets, filt=None, limit=10000):
+        req = RunReportRequest(
+            property=prop,
+            date_ranges=[DateRange(start_date=str(start), end_date=str(end))],
+            dimensions=[Dimension(name=d) for d in dims],
+            metrics=[Metric(name=m) for m in mets],
+            limit=limit,
+        )
+        if filt is not None:
+            req.dimension_filter = filt
+        return client.run_report(req)
+
+    def sum_metrics(resp) -> dict:
+        out: dict[str, float] = {}
+        for row in resp.rows:
+            for i, mv in enumerate(row.metric_values):
+                k = resp.metric_headers[i].name
+                out[k] = out.get(k, 0.0) + float(mv.value or 0)
+        return out
+
+    overall = ["sessions", "activeUsers", "newUsers", "screenPageViews",
+               "engagementRate", "averageSessionDuration", "bounceRate"]
+
+    cur_all = run(cur_start, cur_end, [], overall)
+    prv_all = run(prv_start, prv_end, [], overall)
+
+    organic_filter = FilterExpression(
+        filter=Filter(
+            field_name="sessionDefaultChannelGroup",
+            string_filter=Filter.StringFilter(
+                value="Organic Search", case_sensitive=False
+            ),
+        )
+    )
+    org_mets = ["sessions", "activeUsers", "screenPageViews",
+                "engagementRate", "conversions"]
+    cur_org = run(cur_start, cur_end, [], org_mets, filt=organic_filter)
+    prv_org = run(prv_start, prv_end, [], org_mets, filt=organic_filter)
+
+    channels_resp = run(
+        cur_start, cur_end,
+        ["sessionDefaultChannelGroup"],
+        ["sessions", "activeUsers", "conversions"],
+        limit=20,
+    )
+    channels = [
+        {
+            "channel": r.dimension_values[0].value,
+            "sessions": float(r.metric_values[0].value or 0),
+            "users": float(r.metric_values[1].value or 0),
+            "conversions": float(r.metric_values[2].value or 0),
+        }
+        for r in channels_resp.rows
+    ]
+
+    lp_resp = run(
+        cur_start, cur_end,
+        ["landingPagePlusQueryString"],
+        ["sessions", "activeUsers", "engagementRate", "conversions"],
+        filt=organic_filter,
+        limit=25,
+    )
+    landing = [
+        {
+            "page": r.dimension_values[0].value,
+            "sessions": float(r.metric_values[0].value or 0),
+            "users": float(r.metric_values[1].value or 0),
+            "engagement_rate": float(r.metric_values[2].value or 0),
+            "conversions": float(r.metric_values[3].value or 0),
+        }
+        for r in lp_resp.rows
+    ]
+
+    return {
+        "windows": {
+            "current": {"start": str(cur_start), "end": str(cur_end)},
+            "prior":   {"start": str(prv_start), "end": str(prv_end)},
+        },
+        "all_traffic_current": sum_metrics(cur_all),
+        "all_traffic_prior":   sum_metrics(prv_all),
+        "organic_current":     sum_metrics(cur_org),
+        "organic_prior":       sum_metrics(prv_org),
+        "channels_current": channels,
+        "top_organic_landing_pages": landing,
+    }
+
+
+# ---------- Executive summary -----------------------------------------------
+
+def build_executive_summary(gsc: dict, ga4: dict | None,
+                            crawl: dict | None,
+                            shopify_overrides: dict | None = None) -> dict:
+    """Headline numbers + verdict bullets, suitable for the dashboard."""
+    cur = gsc["totals_current"]
+    prv = gsc["totals_prior"]
+    d = gsc["deltas"]
+
+    verdict = []
+    if (d["clicks_delta_pct"] or 0) > 5:
+        verdict.append(
+            f"Clicks up {d['clicks_delta_pct']:.1f}% — optimizations driving traffic."
+        )
+    elif (d["clicks_delta_pct"] or 0) < -5:
+        verdict.append(
+            f"Clicks down {abs(d['clicks_delta_pct']):.1f}% — recent changes not lifting traffic."
+        )
+    if d["ctr_delta_pp"] is not None and abs(d["ctr_delta_pp"]) > 0.2:
+        direction = "up" if d["ctr_delta_pp"] > 0 else "down"
+        verdict.append(
+            f"CTR {direction} {abs(d['ctr_delta_pp']):.2f} pp — meta/title work {'paying off' if direction=='up' else 'needs another pass'}."
+        )
+    if d["position_delta_weighted"] is not None:
+        if d["position_delta_weighted"] < -0.3:
+            verdict.append(
+                f"Weighted position improved by {abs(d['position_delta_weighted']):.1f} — money keywords moving up."
+            )
+        elif d["position_delta_weighted"] > 0.3:
+            verdict.append(
+                f"Weighted position dropped by {d['position_delta_weighted']:.1f} — investigate top queries."
+            )
+
+    summary = {
+        "windows": gsc["windows"],
+        "headline": {
+            "clicks_current": cur["clicks"],
+            "clicks_prior": prv["clicks"],
+            "clicks_delta_pct": d["clicks_delta_pct"],
+            "impressions_current": cur["impressions"],
+            "impressions_prior": prv["impressions"],
+            "impressions_delta_pct": d["impressions_delta_pct"],
+            "ctr_current_pct": round(cur["ctr"] * 100, 2),
+            "ctr_prior_pct": round(prv["ctr"] * 100, 2),
+            "ctr_delta_pp": d["ctr_delta_pp"],
+            "weighted_position_current": round(cur["avg_position_weighted"], 2),
+            "weighted_position_prior": round(prv["avg_position_weighted"], 2),
+            "weighted_position_delta": d["position_delta_weighted"],
+            "raw_position_current": round(cur["avg_position_unweighted"], 2),
+            "raw_position_prior": round(prv["avg_position_unweighted"], 2),
+        },
+        "verdict": verdict,
+    }
+
+    if ga4 and "error" not in (ga4 or {}):
+        org_c = ga4.get("organic_current", {})
+        org_p = ga4.get("organic_prior", {})
+        summary["ga4"] = {
+            "organic_sessions_current": int(org_c.get("sessions", 0)),
+            "organic_sessions_prior": int(org_p.get("sessions", 0)),
+            "organic_conversions_current": int(org_c.get("conversions", 0)),
+            "organic_conversions_prior": int(org_p.get("conversions", 0)),
+        }
+
+    if crawl:
+        diff = crawl.get("diff", {})
+        summary["crawl"] = {
+            "urls_crawled": crawl.get("browser", {}).get("urls_crawled", 0),
+            "urls_ok_browser": crawl.get("browser", {}).get("urls_ok", 0),
+            "urls_ok_googlebot": crawl.get("googlebot", {}).get("urls_ok", 0),
+            "status_mismatches": diff.get("status_mismatch_count", 0),
+            "browser_blocked_googlebot_ok": len(
+                diff.get("browser_blocked_but_googlebot_ok", [])
+            ),
+            "googlebot_blocked_browser_ok": len(
+                diff.get("googlebot_blocked_but_browser_ok", [])
+            ),
+        }
+
+    if shopify_overrides:
+        summary["shopify_overrides"] = {
+            "resources_audited": shopify_overrides.get("resources_audited", 0),
+            "resources_flagged": shopify_overrides.get("resources_flagged", 0),
+            "theme_overrides": len(
+                shopify_overrides.get("theme_overrides", [])
+            ),
+            "flag_counts": shopify_overrides.get("flag_counts", {}),
+        }
+
+    return summary
+
+
+# ---------- Public entry point ---------------------------------------------
+
+def run_deep_seo_audit(
+    db: Session,
+    period_days: int = 28,
+    include_crawl: bool = True,
+    include_shopify_overrides: bool = False,
+    max_urls: int = 250,
+) -> dict:
+    """
+    Run a full deep SEO audit:
+      - GSC live pull, current period vs prior period
+      - GA4 live pull, same windows
+      - Optional dual-UA crawl (browser + Googlebot) + diff
+      - Optional Shopify SEO-override detection
+      - Impression-weighted position score
+      - Persist as SEOReport(report_type='deep_audit')
+    """
+    site_url = os.getenv("GSC_SITE_URL")
+    if not site_url:
+        raise ValueError("GSC_SITE_URL is not set")
+
+    today = datetime.utcnow().date()
+    gsc_end = today - timedelta(days=3)  # GSC lag
+    cur_start = gsc_end - timedelta(days=period_days - 1)
+    prv_end = cur_start - timedelta(days=1)
+    prv_start = prv_end - timedelta(days=period_days - 1)
+
+    gsc = _gsc_period_block(site_url, cur_start, gsc_end, prv_start, prv_end)
+    ga4 = _ga4_period_block(
+        today - timedelta(days=period_days),
+        today - timedelta(days=1),
+        today - timedelta(days=period_days * 2),
+        today - timedelta(days=period_days + 1),
+    )
+
+    crawl = None
+    if include_crawl:
+        try:
+            crawl = seo_crawler.dual_ua_crawl(site_url, max_urls=max_urls)
+        except Exception as e:
+            crawl = {"error": str(e)}
+
+    shopify_overrides = None
+    if include_shopify_overrides:
+        try:
+            from app.services import shopify_seo_audit_service
+            shopify_overrides = (
+                shopify_seo_audit_service.audit_shopify_seo_overrides()
+            )
+        except Exception as e:
+            shopify_overrides = {"error": str(e)}
+
+    exec_summary = build_executive_summary(
+        gsc, ga4, crawl, shopify_overrides
+    )
+
+    payload = {
+        "executive_summary": exec_summary,
+        "gsc": gsc,
+        "ga4": ga4,
+        "crawl": crawl,
+        "shopify_overrides": shopify_overrides,
+    }
+
+    headline = exec_summary["headline"]
+    summary_text = (
+        f"Clicks {headline['clicks_prior']} → {headline['clicks_current']} "
+        f"({headline['clicks_delta_pct']:.1f}% Δ); "
+        f"CTR {headline['ctr_prior_pct']}% → {headline['ctr_current_pct']}%; "
+        f"weighted position "
+        f"{headline['weighted_position_prior']} → "
+        f"{headline['weighted_position_current']}."
+    )
+
+    report = SEOReport(
+        report_type="deep_audit",
+        report_date=datetime.utcnow(),
+        summary=summary_text,
+        data=payload,
+    )
+    db.add(report)
+
+    db.add(WorkflowLog(
+        workflow_name="deep_seo_audit",
+        status="success",
+        payload={
+            "period_days": period_days,
+            "include_crawl": include_crawl,
+            "include_shopify_overrides": include_shopify_overrides,
+            "report_id": None,  # filled below after flush
+        },
+    ))
+    db.commit()
+    db.refresh(report)
+
+    return {
+        "status": "success",
+        "report_id": report.id,
+        "summary": summary_text,
+        "data": payload,
+    }
