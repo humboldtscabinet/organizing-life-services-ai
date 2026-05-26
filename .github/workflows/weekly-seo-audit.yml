@@ -1,0 +1,84 @@
+name: Weekly SEO Audit
+
+# Runs the deep SEO audit every Monday at 12:00 UTC (~ 7-8am ET) and opens
+# a pull request with the resulting MD + JSON in data/audit_output/.
+#
+# Required repo secrets (Settings -> Secrets and variables -> Actions):
+#   GOOGLE_SERVICE_ACCOUNT_JSON  - full contents of credentials/google-service-account.json
+#   SHOPIFY_STORE_DOMAIN         - e.g. organizinglifeservices.myshopify.com
+#   SHOPIFY_ADMIN_API_TOKEN      - Shopify Admin API access token (read scope is fine for audit)
+#   GA4_PROPERTY_ID              - 396184354
+#   SEARCH_CONSOLE_SITE_URL      - sc-domain:organizinglifeservices.com (or https URL form)
+#
+# A maintainer should review the PR, synthesize a human-readable audit in
+# docs/seo-audits/ if it's a notable run, update the CHANGELOG, then merge.
+
+on:
+  schedule:
+    # Every Monday at 12:00 UTC
+    - cron: "0 12 * * 1"
+  # Allow manual runs from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  run-audit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Write service-account credentials from secret
+        run: |
+          mkdir -p credentials
+          echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > credentials/google-service-account.json
+          chmod 600 credentials/google-service-account.json
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+
+      - name: Run deep SEO audit
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credentials/google-service-account.json
+          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
+          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          SEARCH_CONSOLE_SITE_URL: ${{ secrets.SEARCH_CONSOLE_SITE_URL }}
+        run: |
+          python data/deep_seo_audit.py
+
+      - name: Clean up credentials before commit
+        if: always()
+        run: |
+          rm -f credentials/google-service-account.json
+
+      - name: Create pull request with audit results
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "docs(seo): weekly audit run"
+          title: "Weekly SEO audit — ${{ github.run_id }}"
+          body: |
+            Automated weekly SEO audit.
+
+            **Next steps for the maintainer:**
+            1. Review the new files under `data/audit_output/`.
+            2. If notable changes, synthesize a human-readable summary at `docs/seo-audits/YYYY-MM-DD-<slug>.md`.
+            3. Add an entry to `docs/seo-audits/CHANGELOG.md`.
+            4. Merge.
+          branch: "automation/weekly-seo-audit-${{ github.run_id }}"
+          add-paths: |
+            data/audit_output/
+          delete-branch: true
