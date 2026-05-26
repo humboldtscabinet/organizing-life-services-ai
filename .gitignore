@@ -34,6 +34,10 @@ docker-compose.override.yml
 # ---------- Postgres data (local volume) ----------
 infra/postgres/data/
 
+# ---------- SEO audit raw outputs ----------
+# Historical audits are committed for trend analysis.
+# (Was previously `data/audit_output/` — un-ignored 2026-05-25.)
+
 # ---------- n8n local data ----------
 n8n_data/
 
@@ -69,9 +73,9 @@ conversations/scripts/backup.log
 # Trigger file for WatchPaths-based manual backup (never commit)
 conversations/.trigger
 
-# ---------- Local audit venv & runtime outputs ----------
+# ---------- Local audit venv ----------
 .venv-audit/
-data/audit_output/
+# NOTE: data/audit_output/ is intentionally tracked (see top of file).
 
 # ---------- Allow versioned n8n workflows despite *.json rule ----------
 !workflows/n8n/*.json
