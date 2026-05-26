@@ -1,0 +1,102 @@
+{%- comment -%}
+  OLS — JSON-LD SEO schema. Auto-detects template (homepage / page / article).
+  Include in <head> via:  {% render 'seo-schema' %}
+{%- endcomment -%}
+
+{%- assign biz_name  = 'Organizing Life Services' -%}
+{%- assign biz_phone = '+17275426028' -%}
+{%- assign biz_url   = shop.url -%}
+{%- assign biz_logo  = 'logo.png' | asset_url | prepend: 'https:' -%}
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "@id": "{{ biz_url }}#business",
+  "name": {{ biz_name | json }},
+  "url": {{ biz_url | json }},
+  "telephone": {{ biz_phone | json }},
+  "image": {{ biz_logo | json }},
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "addressRegion": "FL",
+    "addressCountry": "US"
+  },
+  "areaServed": [
+    {"@type":"AdministrativeArea","name":"Pinellas County, FL"},
+    {"@type":"AdministrativeArea","name":"Pasco County, FL"},
+    {"@type":"AdministrativeArea","name":"Hillsborough County, FL"},
+    {"@type":"AdministrativeArea","name":"Hernando County, FL"},
+    {"@type":"AdministrativeArea","name":"Citrus County, FL"},
+    {"@type":"AdministrativeArea","name":"Manatee County, FL"}
+  ],
+  "serviceType": [
+    "Estate Sales",
+    "Senior Downsizing",
+    "Estate Cleanouts",
+    "Moving Sales",
+    "Estate Liquidation"
+  ]
+}
+</script>
+
+{%- if template contains 'article' and article -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ article.title | json }},
+  {%- if article.image %}
+  "image": {{ article.image | image_url: width: 1200 | prepend: 'https:' | json }},
+  {%- endif %}
+  "datePublished": {{ article.published_at | date: "%Y-%m-%dT%H:%M:%S%z" | json }},
+  "dateModified": {{ article.updated_at | date: "%Y-%m-%dT%H:%M:%S%z" | json }},
+  "author": {
+    "@type": "Organization",
+    "name": {{ biz_name | json }}
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": {{ biz_name | json }},
+    "logo": {"@type":"ImageObject","url": {{ biz_logo | json }}}
+  },
+  "mainEntityOfPage": {{ canonical_url | json }}
+}
+</script>
+{%- endif -%}
+
+{%- if template contains 'page' and page -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": {{ page.title | json }},
+  "url": {{ canonical_url | json }},
+  "provider": {"@id": "{{ biz_url }}#business"},
+  "areaServed": [
+    "Pinellas County, FL","Pasco County, FL","Hillsborough County, FL",
+    "Hernando County, FL","Citrus County, FL","Manatee County, FL"
+  ]
+}
+</script>
+{%- endif -%}
+
+{%- comment -%} Breadcrumbs for non-home templates {%- endcomment -%}
+{%- unless template == 'index' -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {"@type":"ListItem","position":1,"name":"Home","item": {{ shop.url | json }}}
+    {%- if template contains 'article' and blog -%},
+    {"@type":"ListItem","position":2,"name": {{ blog.title | json }},"item": {{ shop.url | append: blog.url | json }}},
+    {"@type":"ListItem","position":3,"name": {{ article.title | json }},"item": {{ canonical_url | json }}}
+    {%- elsif template contains 'page' and page -%},
+    {"@type":"ListItem","position":2,"name": {{ page.title | json }},"item": {{ canonical_url | json }}}
+    {%- endif -%}
+  ]
+}
+</script>
+{%- endunless -%}

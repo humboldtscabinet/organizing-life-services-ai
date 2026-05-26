@@ -1,0 +1,79 @@
+{%- comment -%}
+  ============================================================
+  Google Ads "Calls from Website" — Call tracking snippet
+  ------------------------------------------------------------
+  Purpose:
+    1. Swaps your real phone number on the page with a Google
+       forwarding number when the visitor came from a Google Ad.
+    2. Fires a Google Ads conversion when a visitor taps any
+       tel: link OR clicks the swapped number.
+
+  Placement:
+    Paste this entire file's contents into theme.liquid, just
+    BEFORE the closing </body> tag. Or, if your theme uses
+    snippets, save as snippets/google-ads-call-tracking.liquid
+    and add `{% render 'google-ads-call-tracking' %}` before
+    </body> in theme.liquid.
+
+  REQUIRED EDITS — replace ALL three placeholders below:
+    - AW-XXXXXXXXXX        (your Google Ads conversion ID)
+    - XXXXXXXXXXXXXXXXXX   (your "Calls from Website" label)
+    - 17275550100          (your REAL business phone, digits only,
+                            include country code, no + or spaces)
+
+  Find conversion ID + label:
+    Google Ads → Tools → Conversions →
+      "Calls from Website" → Tag setup → Use Google tag
+
+  Notes:
+    * If gtag.js is NOT already on your theme (via Google &
+      YouTube channel), uncomment the loader block below.
+    * The phone number that appears on-page must match the
+      number you registered in Google Ads exactly. Spaces,
+      dashes, parens are fine in display; the digits must match.
+  ============================================================
+{%- endcomment -%}
+
+<!-- ===== gtag.js loader (uncomment ONLY if not already loaded) =====
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-XXXXXXXXXX');
+</script>
+========================================================================== -->
+
+<!-- ===== Number replacement (Google Ads forwarding) ===== -->
+<script>
+  gtag('config', 'AW-XXXXXXXXXX/XXXXXXXXXXXXXXXXXX', {
+    'phone_conversion_number': '17275550100'
+  });
+</script>
+
+<!-- ===== Click-to-call conversion (mobile tap on tel: link) ===== -->
+<script>
+  (function () {
+    function fireCallConversion(url) {
+      try {
+        gtag('event', 'conversion', {
+          'send_to': 'AW-XXXXXXXXXX/XXXXXXXXXXXXXXXXXX',
+          'event_callback': function () {
+            if (url) { window.location = url; }
+          }
+        });
+      } catch (e) { /* gtag not ready — let the tap proceed */ }
+      return false;
+    }
+
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="tel:"]');
+      if (!a) return;
+      // Only intercept on primary click without modifier keys
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      fireCallConversion(a.href);
+    }, false);
+  })();
+</script>
+<!-- ===== End Google Ads call tracking ===== -->
