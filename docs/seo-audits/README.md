@@ -14,17 +14,20 @@ Example: `2026-05-25-post-april-changes-audit.md`
 
 ## How audits are generated
 
-1. Run the deep audit script (writes raw JSON + MD to the gitignored `data/audit_output/`):
+1. Run the deep audit script (writes raw JSON + MD to `data/audit_output/`):
    ```bash
    source .venv-audit/bin/activate
    python data/deep_seo_audit.py
    ```
 2. Synthesize the raw output into a human-readable summary in this folder.
-3. Commit and push so the team has the full history.
+3. Update [CHANGELOG.md](CHANGELOG.md) with the new audit entry.
+4. Commit and push so the team has the full history.
 
-## Why not commit the raw output?
+See [docs/runbooks/run-deep-seo-audit.md](../runbooks/run-deep-seo-audit.md) for the full procedure.
 
-`data/audit_output/` is intentionally gitignored — the raw JSON can contain large query/page lists and changes every run. The curated summaries in this folder are the canonical record.
+## Raw outputs
+
+`data/audit_output/` is tracked in git (both `.md` and `.json`) so contributors and the weekly GitHub Actions cron can diff audits across time. The curated summaries in *this* folder are the human-readable interpretation; the raw files are the machine-readable source.
 
 ## Cadence
 
