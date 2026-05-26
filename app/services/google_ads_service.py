@@ -299,3 +299,192 @@ def pull_google_ads_data(
         "keyword_rows": keyword_count,
         "rows_inserted": rows_inserted,
     }
+
+
+# =============================================================
+# Direct Google Ads API (Phase A)
+# -------------------------------------------------------------
+# These functions use the official google-ads SDK and require:
+#   GOOGLE_ADS_DEVELOPER_TOKEN, _CLIENT_ID, _CLIENT_SECRET,
+#   _REFRESH_TOKEN, _CUSTOMER_ID
+#
+# When the developer token is missing, ``direct_api_available()``
+# returns False and callers should fall back to the GA4-derived
+# data path above.
+# =============================================================
+
+
+def direct_api_available() -> bool:
+    """True if the direct Google Ads API is fully configured."""
+    from app.services.google_oauth import google_ads_client
+    return google_ads_client() is not None
+
+
+def _customer_id() -> str:
+    cid = os.getenv("GOOGLE_ADS_CUSTOMER_ID", "").replace("-", "").strip()
+    if not cid:
+        raise ValueError("GOOGLE_ADS_CUSTOMER_ID is not set")
+    return cid
+
+
+def list_conversion_actions() -> list[dict]:
+    """Return every conversion action on the account, with config flags.
+
+    This is the audit that would have caught the page_view / Contact Page
+    Load bogus conversions automatically.
+    """
+    from app.services.google_oauth import google_ads_client
+    client = google_ads_client()
+    if client is None:
+        raise RuntimeError(
+            "Google Ads direct API is not configured. "
+            "Set GOOGLE_ADS_DEVELOPER_TOKEN + OAuth credentials in .env."
+        )
+
+    ga_service = client.get_service("GoogleAdsService")
+    query = """
+        SELECT
+            conversion_action.id,
+            conversion_action.name,
+            conversion_action.status,
+            conversion_action.type,
+            conversion_action.category,
+            conversion_action.primary_for_goal,
+            conversion_action.counting_type,
+            conversion_action.click_through_lookback_window_days,
+            conversion_action.value_settings.default_value,
+            conversion_action.value_settings.always_use_default_value
+        FROM conversion_action
+        ORDER BY conversion_action.name
+    """
+    response = ga_service.search(customer_id=_customer_id(), query=query)
+    out: list[dict] = []
+    for row in response:
+        ca = row.conversion_action
+        out.append({
+            "id": ca.id,
+            "name": ca.name,
+            "status": ca.status.name,
+            "type": ca.type_.name,
+            "category": ca.category.name,
+            "primary_for_goal": ca.primary_for_goal,
+            "counting_type": ca.counting_type.name,
+            "click_lookback_days": ca.click_through_lookback_window_days,
+            "default_value": ca.value_settings.default_value,
+        })
+    return out
+
+
+def audit_conversion_actions() -> dict:
+    """Flag conversion actions that look bogus or misconfigured.
+
+    Heuristics:
+        * Type == ``WEBPAGE`` + name contains 'page view' / 'page load'
+          → almost certainly a vanity metric, not a real conversion.
+        * Counting type == ``MANY_PER_CLICK`` for phone/form actions
+          → inflates conversion counts; should be ONE_PER_CLICK.
+        * Status == ``ENABLED`` + ``primary_for_goal`` True with category
+          ``PAGE_VIEW`` → these are the ones that destroy Smart Bidding.
+    """
+    actions = list_conversion_actions()
+    findings: list[dict] = []
+    for a in actions:
+        issues: list[str] = []
+        name_lc = a["name"].lower()
+        if a["category"] == "PAGE_VIEW":
+            issues.append("category=PAGE_VIEW (not a real conversion)")
+        if any(s in name_lc for s in ("page view", "page load", "pageview")):
+            issues.append("name suggests page-view tracking")
+        if a["counting_type"] == "MANY_PER_CLICK" and any(
+            s in name_lc for s in ("call", "phone", "form", "submit", "lead")
+        ):
+            issues.append("counting=MANY_PER_CLICK (should be ONE for leads)")
+        if a["status"] == "ENABLED" and a["primary_for_goal"] and issues:
+            issues.append("ENABLED + primary_for_goal — actively biasing bids")
+        if issues:
+            findings.append({**a, "issues": issues})
+    return {
+        "total_actions": len(actions),
+        "flagged": len(findings),
+        "actions": actions,
+        "findings": findings,
+    }
+
+
+def list_campaigns() -> list[dict]:
+    """Return every campaign with status, channel type, budget, and bidding."""
+    from app.services.google_oauth import google_ads_client
+    client = google_ads_client()
+    if client is None:
+        raise RuntimeError("Google Ads direct API is not configured.")
+
+    ga_service = client.get_service("GoogleAdsService")
+    query = """
+        SELECT
+            campaign.id,
+            campaign.name,
+            campaign.status,
+            campaign.advertising_channel_type,
+            campaign.bidding_strategy_type,
+            campaign_budget.amount_micros,
+            campaign.start_date,
+            campaign.end_date
+        FROM campaign
+        ORDER BY campaign.name
+    """
+    response = ga_service.search(customer_id=_customer_id(), query=query)
+    out: list[dict] = []
+    for row in response:
+        c = row.campaign
+        out.append({
+            "id": c.id,
+            "name": c.name,
+            "status": c.status.name,
+            "channel": c.advertising_channel_type.name,
+            "bidding_strategy": c.bidding_strategy_type.name,
+            "daily_budget_usd": round(row.campaign_budget.amount_micros / 1_000_000, 2),
+            "start_date": c.start_date,
+            "end_date": c.end_date,
+        })
+    return out
+
+
+def get_account_overview() -> dict:
+    """One-call summary: customer info + campaign count + conversion-action audit."""
+    from app.services.google_oauth import google_ads_client
+    client = google_ads_client()
+    if client is None:
+        return {"available": False, "reason": "developer token / OAuth not configured"}
+
+    ga_service = client.get_service("GoogleAdsService")
+    customer_query = """
+        SELECT
+            customer.id,
+            customer.descriptive_name,
+            customer.currency_code,
+            customer.time_zone,
+            customer.manager,
+            customer.test_account
+        FROM customer LIMIT 1
+    """
+    customer_row = next(iter(ga_service.search(
+        customer_id=_customer_id(), query=customer_query
+    )))
+    cust = customer_row.customer
+    campaigns = list_campaigns()
+    audit = audit_conversion_actions()
+    return {
+        "available": True,
+        "customer": {
+            "id": cust.id,
+            "name": cust.descriptive_name,
+            "currency": cust.currency_code,
+            "time_zone": cust.time_zone,
+            "is_manager": cust.manager,
+            "is_test": cust.test_account,
+        },
+        "campaign_count": len(campaigns),
+        "active_campaigns": [c for c in campaigns if c["status"] == "ENABLED"],
+        "conversion_audit": audit,
+    }
+

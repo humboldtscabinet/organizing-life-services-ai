@@ -21,6 +21,10 @@ google-auth-httplib2==0.2.0
 gspread==6.1.4
 google-analytics-data==0.18.13
 
+# ---------- Google Ads (Phase A — direct API) ----------
+# Activated when GOOGLE_ADS_DEVELOPER_TOKEN is set in .env.
+google-ads==25.1.0
+
 # ---------- AI ----------
 anthropic==0.39.0
 openai==1.52.0
