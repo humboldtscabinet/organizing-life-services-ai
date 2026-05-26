@@ -34,7 +34,29 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
    ```
    Targets pages flagged `title_too_long` or `meta_description_too_long` in the most recent audit.
 
-6. **Update the changelog** at [docs/seo-audits/CHANGELOG.md](../seo-audits/CHANGELOG.md).
+6. **Round 3+ (audit-driven, scalable workflow):**
+   The round-3 pipeline reads directly from the latest deep-SEO audit JSON
+   instead of hard-coded TARGETS lists. Use this for any future rewrite pass.
+
+   ```bash
+   # a) Generate drafts for every page flagged in the latest audit
+   python data/round3_draft_metas.py
+   # -> writes data/audit_output/round3_meta_drafts.json (all approved: false)
+
+   # b) Open the JSON, review each draft, set "approved": true to deploy.
+   #    You can also hand-edit draft.new_title / draft.new_meta_description.
+
+   # c) Dry-run preview
+   DRY_RUN=1 docker exec -e DRY_RUN=1 ols-api python3 /app/data/push_meta_round3.py
+
+   # d) Push for real
+   docker exec ols-api python3 /app/data/push_meta_round3.py
+   ```
+
+   Entries with `kind: "special"` (blog index, collections) are skipped
+   automatically — those can't use per-resource SEO metafields.
+
+7. **Update the changelog** at [docs/seo-audits/CHANGELOG.md](../seo-audits/CHANGELOG.md).
 
 7. **Schedule a measurement audit** for ~28 days later so GSC has a clean comparison window. See [run-deep-seo-audit.md](run-deep-seo-audit.md).
 
@@ -54,4 +76,6 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
 - [data/meta_drafts.py](../../data/meta_drafts.py)
 - [data/push_meta_to_shopify.py](../../data/push_meta_to_shopify.py)
 - [data/push_meta_round2.py](../../data/push_meta_round2.py)
+- [data/round3_draft_metas.py](../../data/round3_draft_metas.py)
+- [data/push_meta_round3.py](../../data/push_meta_round3.py)
 - [data/inspect_source_pages.py](../../data/inspect_source_pages.py)
