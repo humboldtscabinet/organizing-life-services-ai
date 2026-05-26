@@ -79,3 +79,6 @@ conversations/.trigger
 
 # ---------- Allow versioned n8n workflows despite *.json rule ----------
 !workflows/n8n/*.json
+
+# ---------- Allow versioned SEO audit JSON despite *.json rule ----------
+!data/audit_output/*.json
