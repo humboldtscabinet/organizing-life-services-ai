@@ -1,7 +1,7 @@
 {
   "source_audit": "deep_seo_audit_20260525_181655.json",
   "model": "claude-sonnet-4-20250514",
-  "count": 39,
+  "count": 40,
   "title_target_chars": [
     45,
     60
@@ -24,12 +24,12 @@
       "current_h1": "Selling a House Empty & Clean: Expert Tips",
       "top_queries": [],
       "draft": {
-        "new_title": "Selling a House Empty and Clean: Expert Tips",
-        "new_title_chars": 46,
-        "new_meta_description": "Learn why selling a house empty and clean maximizes value and attracts buyers faster. Get expert estate sale tips to streamline your home sale.",
-        "new_meta_chars": 152,
+        "new_title": "Selling a House Empty & Clean: Expert Tips",
+        "new_title_chars": 42,
+        "new_meta_description": "Learn why selling a house empty and clean maximizes buyer appeal and sale price from estate sale experts. Get proven tips here.",
+        "new_meta_chars": 144,
         "primary_keyword": "selling a house empty and clean",
-        "rationale": "Shortened the title to focus on the primary keyword while staying within character limits, and condensed the meta description to emphasize speed and value benefits with a clear CTA."
+        "rationale": "Used the existing H1 as the title since it's already optimized and concise, then created a more compelling meta description that highlights the value proposition and includes a clear call-to-action."
       },
       "approved": false,
       "special_note": null
@@ -48,13 +48,13 @@
       "top_queries": [],
       "draft": {
         "new_title": "Why Hire an Estate Sale Company - Maximize Returns",
-        "new_title_chars": 50,
-        "new_meta_description": "Discover why hiring an estate sale company maximizes your return through expert pricing, marketing, and buyer networks. Learn the benefits today.",
-        "new_meta_chars": 158,
+        "new_title_chars": 49,
+        "new_meta_description": "Discover why hiring an estate sale company maximizes your return through expert pricing, marketing, and buyer networks. Get professional results.",
+        "new_meta_chars": 148,
         "primary_keyword": "hire an estate sale company",
-        "rationale": "Shortened the title to fit character limits while preserving core message, and created a more compelling meta description with concrete benefits and a soft CTA."
+        "rationale": "Shortened the title to fit character limits while preserving core message, and condensed the meta description to highlight key benefits with a clear CTA within optimal length range."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -70,12 +70,12 @@
       "current_h1": "news",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Sale News & Tips | Organizing Life Services",
-        "new_title_chars": 54,
-        "new_meta_description": "Get expert estate sale insights, senior downsizing tips, and company updates from Florida's trusted estate sale professionals.",
-        "new_meta_chars": 140,
-        "primary_keyword": "estate sale news",
-        "rationale": "Shortened the overly long title to focus on the blog's primary intent while the meta description was condensed to highlight valuable content that would motivate clicks from people seeking estate sale expertise."
+        "new_title": "Estate Sale Company Blog & News | Organizing Life Services",
+        "new_title_chars": 57,
+        "new_meta_description": "Get expert estate sale tips, downsizing advice, and company news from Florida's premier estate sale professionals. Read our latest insights.",
+        "new_meta_chars": 148,
+        "primary_keyword": "estate sale company blog",
+        "rationale": "Shortened the title to focus on the blog/news purpose while keeping brand recognition, and created a more compelling meta description that emphasizes value and expertise with a clear CTA."
       },
       "approved": false,
       "special_note": "blog_index \u2014 title lives on the Blog object, not metafield. Update via Shopify admin -> Online Store -> Blog Posts -> Manage Blogs."
@@ -93,14 +93,14 @@
       "current_h1": "How Do Estate Sales Work?",
       "top_queries": [],
       "draft": {
-        "new_title": "How Do Estate Sales Work? | Organizing Life Services",
-        "new_title_chars": 54,
-        "new_meta_description": "Learn how estate sales work with our complete guide covering pricing, staging, and execution for maximum returns. Get expert tips today.",
-        "new_meta_chars": 144,
+        "new_title": "How Do Estate Sales Work? Complete Guide",
+        "new_title_chars": 39,
+        "new_meta_description": "Learn how estate sales work with our step-by-step guide. Discover the process, timeline, and tips for a successful sale. Get expert insights today.",
+        "new_meta_chars": 151,
         "primary_keyword": "how do estate sales work",
-        "rationale": "Shortened title to fit character limit while keeping primary keyword and brand, and rewrote meta description to be more specific about value proposition with actionable benefits and soft CTA."
+        "rationale": "Shortened title to focus on primary keyword and improved meta description to be more specific about what readers will learn with a clear call-to-action."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -117,13 +117,13 @@
       "top_queries": [],
       "draft": {
         "new_title": "Estate Sale Pros and Cons: Complete Florida Guide",
-        "new_title_chars": 51,
-        "new_meta_description": "Discover the pros and cons of estate sales with expert insights from Florida's trusted estate sale professionals. Get clarity before you decide.",
-        "new_meta_chars": 153,
+        "new_title_chars": 50,
+        "new_meta_description": "Discover the real pros and cons of estate sales with expert insights from Florida's trusted estate sale professionals. Get the facts before you decide.",
+        "new_meta_chars": 155,
         "primary_keyword": "estate sale pros and cons",
-        "rationale": "Shortened the title to fit within 45-60 characters while maintaining keyword focus, and rewrote the meta description to be more compelling with a clearer value proposition and softer CTA."
+        "rationale": "Shortened the title to fit character limits while maintaining keyword focus, and rewrote the meta description to be more compelling with a clearer value proposition and softer CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -141,10 +141,10 @@
       "draft": {
         "new_title": "Estate Sale Services & Client Benefits | Organizing Life",
         "new_title_chars": 58,
-        "new_meta_description": "Discover our comprehensive estate sale services including downsizing, liquidation, and senior services in Tampa Bay. Learn how we benefit clients.",
-        "new_meta_chars": 157,
+        "new_meta_description": "Discover our comprehensive estate sale services including downsizing, liquidation, and cleanouts in Tampa Bay. Learn how we benefit clients.",
+        "new_meta_chars": 147,
         "primary_keyword": "estate sale services",
-        "rationale": "Shortened title to fit character limits while preserving core topic, and created a focused meta description that highlights service range and includes a clear reason to click."
+        "rationale": "Shortened title to fit character limits while preserving key terms, and created a concise meta description focusing on services and benefits with a soft CTA to learn more."
       },
       "approved": false,
       "special_note": null
@@ -164,12 +164,12 @@
       "draft": {
         "new_title": "How to Plan an Estate Sale: 7 Steps to Maximize Profit",
         "new_title_chars": 54,
-        "new_meta_description": "Learn how to plan an estate sale with our 7-step guide to maximize your income and avoid common mistakes. Get expert tips now.",
-        "new_meta_chars": 139,
+        "new_meta_description": "Learn how to plan an estate sale with our 7-step guide to maximize your income and avoid common pitfalls. Get expert tips today.",
+        "new_meta_chars": 141,
         "primary_keyword": "how to plan an estate sale",
-        "rationale": "Shortened the title to fit character limits while keeping the primary keyword and value proposition, and made the meta description more compelling with concrete benefits and a clear call-to-action."
+        "rationale": "Shortened the title to fit 45-60 character constraint while preserving the primary keyword and 7-step promise, and rewrote the meta description to be more actionable with a clearer value proposition and soft CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -185,12 +185,12 @@
       "current_h1": "Find Reliable Estate Sale Companies Nearby",
       "top_queries": [],
       "draft": {
-        "new_title": "Find Reliable Estate Sale Companies Nearby",
-        "new_title_chars": 43,
-        "new_meta_description": "Learn how to find trustworthy estate sale companies in your area with expert tips on vetting services, asking the right questions, and ensuring success.",
-        "new_meta_chars": 157,
+        "new_title": "Find Reliable Estate Sale Companies Nearby | Guide",
+        "new_title_chars": 54,
+        "new_meta_description": "Learn how to find trustworthy estate sale companies in your area with our expert guide covering key questions, red flags, and selection tips.",
+        "new_meta_chars": 156,
         "primary_keyword": "reliable estate sale companies nearby",
-        "rationale": "Shortened the title to remove redundant branding and kept it within optimal length while creating a focused meta description that provides clear value proposition with actionable insights."
+        "rationale": "Shortened the title to fit the 45-60 character constraint while preserving the primary keyword, and created a focused meta description that highlights the guide's practical value with a soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -213,12 +213,12 @@
         }
       ],
       "draft": {
-        "new_title": "Barbie Collector Buying Guide: Value & Craftsmanship",
-        "new_title_chars": 54,
-        "new_meta_description": "Expert guide to evaluating Barbie collectibles, understanding craftsmanship quality, and identifying valuable dolls. Get insider tips now.",
-        "new_meta_chars": 141,
-        "primary_keyword": "Barbie collector",
-        "rationale": "Shortened title to fit character limit while emphasizing evaluation and craftsmanship to match the top GSC query, and refined meta description to focus on concrete value proposition."
+        "new_title": "Ultimate Guide for Barbie Collector Buyers",
+        "new_title_chars": 42,
+        "new_meta_description": "Master Barbie collecting with expert tips on evaluating craftsmanship, understanding value, and smart buying strategies. Start building your collection today.",
+        "new_meta_chars": 156,
+        "primary_keyword": "Barbie collector buyers",
+        "rationale": "Shortened title to fit character limit while preserving primary keyword, and rewrote meta description to include craftsmanship evaluation (top GSC query) with actionable benefits and clear CTA."
       },
       "approved": false,
       "special_note": null
@@ -238,10 +238,10 @@
       "draft": {
         "new_title": "How to Find the Best Antique Buyer | Organizing Life Services",
         "new_title_chars": 59,
-        "new_meta_description": "Learn expert strategies to find the best antique buyer for your valuable pieces, from research tips to negotiation tactics. Get top dollar today.",
-        "new_meta_chars": 150,
+        "new_meta_description": "Learn how to find the best antique buyer for your valuable items with expert tips on research, evaluation, and negotiation strategies.",
+        "new_meta_chars": 141,
         "primary_keyword": "best antique buyer",
-        "rationale": "Shortened the title to focus on the primary keyword while keeping the brand, and enhanced the meta description with a stronger value proposition and clearer call-to-action."
+        "rationale": "Shortened the title to focus on the primary intent while keeping the brand suffix, and refined the meta description to be more actionable with specific benefits."
       },
       "approved": false,
       "special_note": null
@@ -259,12 +259,12 @@
       "current_h1": "Cheapest Property for Sale: Tips & Deals",
       "top_queries": [],
       "draft": {
-        "new_title": "Cheapest Property for Sale: Tips & Deals",
-        "new_title_chars": 40,
-        "new_meta_description": "Find the cheapest property for sale with expert tips on finding affordable real estate deals and navigating estate sales effectively.",
-        "new_meta_chars": 143,
+        "new_title": "Cheapest Property for Sale: Expert Tips & Deals",
+        "new_title_chars": 47,
+        "new_meta_description": "Find the cheapest property for sale with proven strategies from estate sale experts. Learn insider tips for scoring affordable deals today.",
+        "new_meta_chars": 147,
         "primary_keyword": "cheapest property for sale",
-        "rationale": "Removed the brand suffix from the title since the 40-character core title fits perfectly within the 45-60 range, and rewrote the meta description to be more compelling with actionable benefits while staying within character limits."
+        "rationale": "Shortened the title to fit within character limits while maintaining keyword prominence, and enhanced the meta description to provide more compelling value proposition with a clear benefit and soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -282,14 +282,14 @@
       "current_h1": "Find the Best Jewelry Buyer in Tampa Bay, Florida",
       "top_queries": [],
       "draft": {
-        "new_title": "Best Jewelry Buyer in Tampa Bay Florida",
+        "new_title": "Best Jewelry Buyer in Tampa Bay, Florida",
         "new_title_chars": 40,
-        "new_meta_description": "Find trusted jewelry buyers in Tampa Bay with our expert guide. Get top dollar for your valuables with insider tips and vetted recommendations.",
-        "new_meta_chars": 150,
-        "primary_keyword": "jewelry buyer in Tampa Bay",
-        "rationale": "Shortened title to fit constraints while keeping primary keyword prominent, and rewrote meta description to be more compelling with concrete benefits and action-oriented language."
+        "new_meta_description": "Find trusted jewelry buyers in Tampa Bay with our expert guide featuring tips, red flags to avoid, and top recommendations. Start selling today.",
+        "new_meta_chars": 155,
+        "primary_keyword": "jewelry buyer Tampa Bay",
+        "rationale": "Shortened the title to focus on primary keyword while removing redundant brand mention, and improved meta description with specific value propositions and stronger CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -307,10 +307,10 @@
       "draft": {
         "new_title": "How Estate Sales Boost Real Estate Listings",
         "new_title_chars": 43,
-        "new_meta_description": "Discover how estate sale companies elevate real estate listings by clearing properties, increasing buyer appeal, and maximizing sale value. Learn more today!",
-        "new_meta_chars": 156,
+        "new_meta_description": "Discover how estate sale companies elevate real estate listings by clearing properties faster and increasing buyer appeal. Learn the proven strategies today.",
+        "new_meta_chars": 159,
         "primary_keyword": "estate sales boost real estate listings",
-        "rationale": "Kept the existing title since it's already within the 45-60 character range and leads with primary intent, while expanding the meta description to provide more concrete value propositions and benefits."
+        "rationale": "Kept the title unchanged as it's already 43 characters and leads with primary intent, but rewrote the meta description to be more specific about benefits and include a clearer value proposition."
       },
       "approved": false,
       "special_note": null
@@ -328,12 +328,12 @@
       "current_h1": "Probate Guide: Estate Settlement Explained",
       "top_queries": [],
       "draft": {
-        "new_title": "Probate Guide: Estate Settlement Explained",
-        "new_title_chars": 42,
-        "new_meta_description": "Learn how probate attorneys guide estate settlement, ensure proper asset distribution, and resolve disputes. Get expert insights today.",
-        "new_meta_chars": 144,
+        "new_title": "Complete Probate Guide: Estate Settlement Explained",
+        "new_title_chars": 50,
+        "new_meta_description": "Navigate probate with confidence using our comprehensive estate settlement guide. Learn key steps, timelines, and tips. Start today.",
+        "new_meta_chars": 138,
         "primary_keyword": "probate guide",
-        "rationale": "The current title is already within the optimal character range and leads with the primary keyword, so I kept it unchanged but improved the meta description to include a clearer benefit and soft CTA while staying within character limits."
+        "rationale": "Shortened title to fit character limits while maintaining keyword focus, and rewrote meta description to be more actionable with a clear benefit and soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -353,12 +353,12 @@
       "draft": {
         "new_title": "5 Tips to Help Clients Prepare for Estate Sales",
         "new_title_chars": 45,
-        "new_meta_description": "Learn 5 proven tips to help your clients prepare for successful estate sales with expert guidance from Florida's trusted estate sale professionals.",
-        "new_meta_chars": 149,
+        "new_meta_description": "Learn 5 essential tips to help your clients prepare for successful estate sales. Expert advice for smooth transitions and maximum value.",
+        "new_meta_chars": 144,
         "primary_keyword": "prepare for estate sales",
-        "rationale": "Kept the title unchanged as it's already 45 characters and keyword-focused, but rewrote the meta description to be more actionable and specific to the article content while removing the off-topic real estate agent mention."
+        "rationale": "Kept the existing title as it's already within the 45-60 character range and leads with primary intent, and rewrote the meta description to focus on the actual article content rather than generic company services."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -374,12 +374,12 @@
       "current_h1": "Estate Planning Guide with an Estate Attorney",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Planning Guide with Attorney | Organizing Life",
-        "new_title_chars": 55,
-        "new_meta_description": "Master estate planning with expert attorney guidance. Learn step-by-step strategies to protect assets and minimize taxes. Get your legacy secured today.",
-        "new_meta_chars": 158,
+        "new_title": "Estate Planning Guide with Estate Attorney",
+        "new_title_chars": 41,
+        "new_meta_description": "Complete estate planning guide developed with expert estate attorneys to protect your assets and simplify transfers. Start planning today.",
+        "new_meta_chars": 142,
         "primary_keyword": "estate planning guide",
-        "rationale": "Shortened the title to fit character limits while preserving the core topic and added a condensed brand suffix, then rewrote the meta description to be more action-oriented with concrete benefits and a soft CTA."
+        "rationale": "Shortened title to remove redundant company branding and made meta description more action-oriented with a clear benefit and soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -397,12 +397,12 @@
       "current_h1": "A Comprehensive Guide to Wills and Estate Planning",
       "top_queries": [],
       "draft": {
-        "new_title": "Wills and Estate Planning Guide | Organizing Life Services",
-        "new_title_chars": 58,
-        "new_meta_description": "Learn essential wills and estate planning strategies to protect your assets and family's future. Get expert tips and guidance today.",
-        "new_meta_chars": 139,
+        "new_title": "Wills and Estate Planning Guide | Organizing Life",
+        "new_title_chars": 50,
+        "new_meta_description": "Complete guide to wills and estate planning basics, legal requirements, and expert tips to protect your assets and family's future.",
+        "new_meta_chars": 144,
         "primary_keyword": "wills and estate planning",
-        "rationale": "Shortened the title to fit character limits while preserving the keyword focus, and rewrote the meta description to be more engaging with actionable language and a soft CTA."
+        "rationale": "Shortened the title to fit character limits while keeping the primary keyword upfront, and rewrote the meta description to be more engaging with specific benefits and actionable value."
       },
       "approved": false,
       "special_note": null
@@ -421,11 +421,11 @@
       "top_queries": [],
       "draft": {
         "new_title": "How to Buy Probate Real Estate | Organizing Life Services",
-        "new_title_chars": 57,
-        "new_meta_description": "Learn how to buy probate real estate and find discounted properties through the estate settlement process. Get expert tips now.",
-        "new_meta_chars": 141,
+        "new_title_chars": 56,
+        "new_meta_description": "Learn how to buy probate real estate and find discounted properties through estate settlements. Get expert tips on navigating the probate process successfully.",
+        "new_meta_chars": 159,
         "primary_keyword": "how to buy probate real estate",
-        "rationale": "Shortened the title to fit within constraints while keeping the brand suffix, and rewrote the meta description to include a stronger value proposition and clear CTA while maintaining the focus on the buying process."
+        "rationale": "Shortened the title by removing redundant elements while keeping the brand, and rewrote the meta description to include a clearer value proposition and soft CTA about getting expert tips."
       },
       "approved": false,
       "special_note": null
@@ -445,10 +445,10 @@
       "draft": {
         "new_title": "Florida Home Auctions: Expert Tips for Success",
         "new_title_chars": 46,
-        "new_meta_description": "Master Florida home auctions with proven strategies for strategic bidding, property research, and maximizing your investment success.",
-        "new_meta_chars": 139,
+        "new_meta_description": "Master Florida home auctions with proven strategies for strategic bidding, property research, and maximizing your success rate. Get expert tips now.",
+        "new_meta_chars": 154,
         "primary_keyword": "Florida home auctions",
-        "rationale": "Shortened title to fit character limit while keeping primary keyword prominent, and refined meta description to be more specific about the value provided with actionable benefits."
+        "rationale": "Shortened the title to fit the character limit while leading with the primary keyword, and rewrote the meta description to be more specific about the actionable value provided with a clear CTA."
       },
       "approved": false,
       "special_note": null
@@ -468,12 +468,12 @@
       "draft": {
         "new_title": "Home Auctions Guide: Tips & Strategies",
         "new_title_chars": 38,
-        "new_meta_description": "Master home auctions with expert tips on preparation, bidding tactics, and legal considerations. Learn proven strategies today.",
-        "new_meta_chars": 138,
+        "new_meta_description": "Master home auctions with expert tips on bidding strategies, preparation, and legal considerations to secure winning deals. Read the full guide.",
+        "new_meta_chars": 153,
         "primary_keyword": "home auctions guide",
-        "rationale": "The current title was already within optimal range so I kept it unchanged, but shortened the meta description to be more punchy while adding a clear call-to-action."
+        "rationale": "Kept the title unchanged as it's already under 60 characters and leads with primary intent, and rewrote the meta description to be more action-oriented with a clear benefit and CTA while staying within character limits."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -491,10 +491,10 @@
       "draft": {
         "new_title": "Top 3 Things to Consider When Buying a House",
         "new_title_chars": 48,
-        "new_meta_description": "Discover the 3 most important factors when buying a house: finances, must-have features, and location preferences. Get expert insights today.",
-        "new_meta_chars": 152,
+        "new_meta_description": "Discover the 3 essential factors for buying a house including budget planning, location selection, and property evaluation. Get expert insights now.",
+        "new_meta_chars": 157,
         "primary_keyword": "buying a house",
-        "rationale": "Shortened the title to fit character limits while maintaining the primary keyword focus, and rewrote the meta description to be more actionable with a clear value proposition and soft CTA."
+        "rationale": "Shortened the title to fit character limits while preserving the core message, and rewrote the meta description to be more actionable with a clear benefit and soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -512,14 +512,14 @@
       "current_h1": "Estate Auction vs. Estate Sale: Pros, Cons & Which Pays More",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Auction vs Estate Sale: Which Pays More?",
-        "new_title_chars": 47,
-        "new_meta_description": "Compare estate auctions vs estate sales to maximize your returns. Learn the pros, cons, and payout differences to make the right choice.",
-        "new_meta_chars": 147,
+        "new_title": "Estate Auction vs Estate Sale: Pros, Cons & Which Pays More",
+        "new_title_chars": 59,
+        "new_meta_description": "Compare estate auctions vs estate sales to discover which option maximizes your returns and fits your timeline. Learn the key differences today.",
+        "new_meta_chars": 155,
         "primary_keyword": "estate auction vs estate sale",
-        "rationale": "Shortened the title to fit character limits while preserving the core comparison topic and removed brand suffix to prioritize the primary keyword and value proposition."
+        "rationale": "Shortened title by removing brand suffix and hyphens to fit 60-char limit while preserving exact topic, and rewrote meta description to focus on value comparison with stronger CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -535,12 +535,12 @@
       "current_h1": "Foreclosure Homes & Listings: A Buyer\u2019s Guide",
       "top_queries": [],
       "draft": {
-        "new_title": "Foreclosure Homes & Listings: A Buyer's Guide",
-        "new_title_chars": 45,
-        "new_meta_description": "Discover profitable opportunities in foreclosure homes with expert tips on finding, evaluating, and buying distressed properties. Start exploring today.",
-        "new_meta_chars": 153,
+        "new_title": "Foreclosure Homes Guide: Tips & Opportunities",
+        "new_title_chars": 46,
+        "new_meta_description": "Navigate foreclosure homes with expert tips on finding deals, avoiding pitfalls, and maximizing opportunities. Start your search today.",
+        "new_meta_chars": 145,
         "primary_keyword": "foreclosure homes",
-        "rationale": "Removed the brand suffix to create a 45-character title that fits perfectly within constraints, and rewrote the meta description to be more specific about the value proposition with actionable benefits."
+        "rationale": "Condensed the title to fit character limits while keeping the primary keyword upfront, and crafted a meta description that emphasizes actionable value with a clear call-to-action."
       },
       "approved": false,
       "special_note": null
@@ -561,11 +561,11 @@
         "new_title": "How to Increase Your Home Appraisal Value",
         "new_title_chars": 40,
         "new_meta_description": "Learn proven strategies to boost your home appraisal value before selling, from decluttering to key improvements that appraisers notice most.",
-        "new_meta_chars": 146,
-        "primary_keyword": "home appraisal value",
-        "rationale": "Shortened title by removing brand suffix to focus on primary keyword, and rewrote meta description to be more specific about actionable strategies while adding a compelling reason to click."
+        "new_meta_chars": 148,
+        "primary_keyword": "increase home appraisal value",
+        "rationale": "Shortened title by removing brand suffix to focus on primary keyword, and rewrote meta description to be more specific about actionable strategies with a clearer value proposition."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -581,12 +581,12 @@
       "current_h1": "Ultimate Guide to Estate Sale Services",
       "top_queries": [],
       "draft": {
-        "new_title": "Ultimate Guide to Estate Sale Services",
-        "new_title_chars": 34,
-        "new_meta_description": "Master estate sale services with our comprehensive guide covering pricing, marketing, and maximizing returns. Get expert tips today.",
-        "new_meta_chars": 138,
+        "new_title": "Ultimate Guide to Estate Sale Services | Organizing Life",
+        "new_title_chars": 56,
+        "new_meta_description": "Complete guide to estate sale services including planning, pricing, and execution tips from Florida experts. Get your estate sale right.",
+        "new_meta_chars": 144,
         "primary_keyword": "estate sale services",
-        "rationale": "Shortened the title by removing redundant brand mention to focus on the primary keyword, and rewrote the meta description to be more specific about estate sale benefits rather than generic organization tips."
+        "rationale": "Shortened the brand name to fit within character limits while preserving the primary keyword focus, and rewrote the meta description to be more specific about estate sale content with a clear value proposition and soft CTA."
       },
       "approved": false,
       "special_note": null
@@ -606,10 +606,10 @@
       "draft": {
         "new_title": "How to Get Rid of Furniture Fast | Organizing Life Services",
         "new_title_chars": 58,
-        "new_meta_description": "Discover fast, easy ways to get rid of furniture through sales, donations, and professional services in Florida. Get expert tips today.",
-        "new_meta_chars": 144,
+        "new_meta_description": "Discover quick ways to get rid of furniture through sales, donations & professional services. Get expert tips from Florida's trusted downsizing company.",
+        "new_meta_chars": 159,
         "primary_keyword": "get rid of furniture",
-        "rationale": "Shortened title to fit character limits while keeping primary keyword upfront, and rewrote meta description to be more action-oriented with a clear CTA."
+        "rationale": "Shortened title to include brand while staying under 60 chars and rewrote meta description to be more compelling with concrete benefits and geographic relevance."
       },
       "approved": false,
       "special_note": null
@@ -632,12 +632,12 @@
         }
       ],
       "draft": {
-        "new_title": "10 Personal Property Appraisal Tips | Organizing Life",
-        "new_title_chars": 57,
-        "new_meta_description": "Get 10 expert personal property appraisal tips to maximize value and avoid costly mistakes during estate sales and downsizing.",
-        "new_meta_chars": 134,
-        "primary_keyword": "personal property appraisal",
-        "rationale": "Shortened title to fit character limit while leading with the number hook and primary keyword, and rewrote meta description to focus on concrete value proposition with clear benefits."
+        "new_title": "Personal Property Appraisals: 10 Expert Tips",
+        "new_title_chars": 45,
+        "new_meta_description": "Get 10 expert tips for accurate personal property appraisals from Florida's trusted estate sale professionals. Learn proven strategies today.",
+        "new_meta_chars": 145,
+        "primary_keyword": "personal property appraisals",
+        "rationale": "Shortened title to exactly 45 characters by removing brand suffix and updated meta description to be more actionable with concrete benefit and soft CTA while maintaining geographic relevance."
       },
       "approved": false,
       "special_note": null
@@ -677,13 +677,13 @@
       ],
       "draft": {
         "new_title": "Estate Sale vs Garage Sale: Key Differences Explained",
-        "new_title_chars": 54,
-        "new_meta_description": "Learn the key differences between estate sales and garage sales, including pricing, scope, and when to choose each option for your needs.",
-        "new_meta_chars": 147,
+        "new_title_chars": 51,
+        "new_meta_description": "Learn the key differences between estate sales vs garage sales, including pricing, scope, and which option works best for your situation.",
+        "new_meta_chars": 145,
         "primary_keyword": "estate sale vs garage sale",
-        "rationale": "Shortened the title to fit character limits while maintaining the primary keyword and removed the brand suffix to prioritize the core topic."
+        "rationale": "Shortened the title to focus on the primary keyword while staying within character limits, and rewrote the meta description to better address the search intent around differences and include a clearer benefit statement."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -699,12 +699,12 @@
       "current_h1": "Estate Liquidation: Maximize Your Proceeds",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Liquidation Strategies for Maximum Proceeds",
-        "new_title_chars": 50,
-        "new_meta_description": "Maximize your estate liquidation proceeds with proven planning, pricing, and advertising strategies from Florida's trusted experts. Start today.",
-        "new_meta_chars": 149,
+        "new_title": "Estate Liquidation Made Easy | Organizing Life Services",
+        "new_title_chars": 54,
+        "new_meta_description": "Master estate liquidation with proven strategies for planning, advertising, and maximizing proceeds. Get expert tips for success.",
+        "new_meta_chars": 138,
         "primary_keyword": "estate liquidation",
-        "rationale": "Shortened the title to fit character limits while maintaining focus on maximizing proceeds, and rewrote the meta description to include geographic relevance and a clearer value proposition with soft CTA."
+        "rationale": "Shortened title to match the URL's focus on making estate liquidation 'easy' while keeping brand, and tightened meta description to be more actionable with clearer value proposition."
       },
       "approved": false,
       "special_note": null
@@ -722,12 +722,12 @@
       "current_h1": "How to Sell Furniture When Moving: Tips for Maximum Value",
       "top_queries": [],
       "draft": {
-        "new_title": "How to Sell Furniture When Moving: Maximum Value Tips",
-        "new_title_chars": 54,
-        "new_meta_description": "Learn proven strategies to sell furniture when moving and maximize your profits. Get expert tips for pricing, staging, and timing your sale.",
-        "new_meta_chars": 145,
+        "new_title": "Sell Furniture When Moving: Tips for Maximum Value",
+        "new_title_chars": 50,
+        "new_meta_description": "Learn proven strategies to sell furniture when moving and maximize your returns. Get expert tips on pricing, timing, and preparation. Start planning today.",
+        "new_meta_chars": 158,
         "primary_keyword": "sell furniture when moving",
-        "rationale": "Shortened the title to 54 characters while preserving the core keyword and value proposition, and rewrote the meta description to focus on concrete benefits with actionable language and removed the geographic reference that seemed forced."
+        "rationale": "Shortened title to fit 45-60 char limit by removing brand suffix and simplified the meta description to focus on concrete benefits with a clear CTA while maintaining the core topic."
       },
       "approved": false,
       "special_note": null
@@ -745,12 +745,12 @@
       "current_h1": "What to Expect at an Organizing Life Services Estate Sale",
       "top_queries": [],
       "draft": {
-        "new_title": "What to Expect at an Estate Sale | Organizing Life",
-        "new_title_chars": 53,
-        "new_meta_description": "Learn what happens at an Organizing Life Services estate sale from setup to checkout. Get insider tips for a smooth experience.",
-        "new_meta_chars": 138,
+        "new_title": "What to Expect at an Estate Sale | Organizing Life Services",
+        "new_title_chars": 58,
+        "new_meta_description": "Learn what happens at an estate sale with our professional team in Tampa Bay - from pricing to checkout and everything in between.",
+        "new_meta_chars": 140,
         "primary_keyword": "estate sale",
-        "rationale": "Shortened the title to fit constraints while keeping the primary keyword prominent, and rewrote the meta description to match the actual page topic instead of the generic organizing services description."
+        "rationale": "Shortened the title to fit character limits while keeping the core intent, and rewrote the meta description to actually match the page content about estate sale expectations rather than general organizing services."
       },
       "approved": false,
       "special_note": null
@@ -769,11 +769,11 @@
       "top_queries": [],
       "draft": {
         "new_title": "Psychology of Estate Liquidation & Decluttering",
-        "new_title_chars": 47,
-        "new_meta_description": "Learn how estate liquidation and decluttering transform mental well-being through the powerful connection between organized spaces and peace of mind.",
-        "new_meta_chars": 157,
+        "new_title_chars": 46,
+        "new_meta_description": "Learn how estate liquidation improves mental well-being through decluttering\u2014discover the psychology behind tidy spaces and peace of mind.",
+        "new_meta_chars": 143,
         "primary_keyword": "psychology of estate liquidation",
-        "rationale": "Shortened title to fit character limit while preserving the exact topic focus, and rewrote meta description to be more compelling with actionable language and clearer benefit."
+        "rationale": "Shortened the title to fit 45-60 character range by removing brand suffix and condensed the meta description to be more concise while maintaining the key benefits and adding a subtle CTA."
       },
       "approved": false,
       "special_note": null
@@ -793,12 +793,12 @@
       "draft": {
         "new_title": "Estate Sales Near Me: Tampa Bay Local Finds Guide",
         "new_title_chars": 49,
-        "new_meta_description": "Discover the best estate sales near you in Tampa Bay with insider tips, schedules, and local finds. Start treasure hunting today!",
-        "new_meta_chars": 128,
+        "new_meta_description": "Discover estate sales near you in Tampa Bay with insider tips, schedules, and the best local finds. Get expert guidance today.",
+        "new_meta_chars": 140,
         "primary_keyword": "estate sales near me",
-        "rationale": "Shortened title by removing year and brand to fit character limit while preserving core keyword and geographic focus, and rewrote meta description with stronger action-oriented language and clear benefit."
+        "rationale": "Shortened title by removing year and brand to fit character limit while keeping primary keyword first, and rewrote meta description to be more compelling with stronger action words and clearer value proposition."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -814,14 +814,14 @@
       "current_h1": "Expert Estate Sale Organizers in Tampa Bay | Complete Guide",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Sale Organizers Tampa Bay | Complete Guide",
+        "new_title": "Expert Estate Sale Organizers in Tampa Bay Guide",
         "new_title_chars": 49,
-        "new_meta_description": "Expert estate sale organizers in Tampa Bay help families maximize returns and simplify downsizing. Get our complete guide today.",
-        "new_meta_chars": 140,
+        "new_meta_description": "Complete guide to expert estate sale organizers in Tampa Bay. Learn how professionals help maximize returns and simplify downsizing. Read more.",
+        "new_meta_chars": 155,
         "primary_keyword": "estate sale organizers Tampa Bay",
-        "rationale": "Shortened title to fit 45-60 character limit by removing 'Expert' and brand name, and condensed meta description to focus on key benefits with clear CTA."
+        "rationale": "Shortened title to fit character limit while preserving primary keyword and intent, and refined meta description to be more concise with a clear value proposition and soft CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -837,12 +837,12 @@
       "current_h1": "Products",
       "top_queries": [],
       "draft": {
-        "new_title": "Estate Sale Products & Services | Organizing Life",
-        "new_title_chars": 49,
-        "new_meta_description": "Browse our estate sale products and professional organizing services. Quality items and expert solutions for Florida Gulf Coast families. View collection today.",
-        "new_meta_chars": 158,
+        "new_title": "Estate Sale Products & Collectibles | Organizing Life",
+        "new_title_chars": 55,
+        "new_meta_description": "Browse quality estate sale products and collectibles from Florida Gulf Coast homes. Find unique furniture, antiques, and household items at great prices.",
+        "new_meta_chars": 159,
         "primary_keyword": "estate sale products",
-        "rationale": "Shortened the title to fit within constraints while maintaining keyword focus, and created a descriptive meta description that emphasizes the product collection with a location reference and clear call-to-action."
+        "rationale": "Optimized for search intent around browsing estate sale inventory while keeping the brand and adding geographic relevance within character limits."
       },
       "approved": false,
       "special_note": null
@@ -862,12 +862,35 @@
       "draft": {
         "new_title": "Yard Sale vs Estate Sale: Key Differences Guide",
         "new_title_chars": 47,
-        "new_meta_description": "Discover the key differences between yard sales and estate sales, including pricing, inventory, and profit potential. Compare options now.",
-        "new_meta_chars": 152,
+        "new_meta_description": "Discover the key differences between yard sales and estate sales, from pricing strategies to profit potential. Make the right choice for your needs.",
+        "new_meta_chars": 155,
         "primary_keyword": "yard sale vs estate sale",
-        "rationale": "Shortened the title to fit the 45-60 character constraint while maintaining the primary keyword and intent, and refined the meta description to be more compelling with a clear benefit and soft CTA."
+        "rationale": "Shortened the title to fit character limits while preserving the core keyword phrase and removed the brand suffix to prioritize the primary intent."
       },
-      "approved": false,
+      "approved": true,
+      "special_note": null
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+      "handle": "estate-cleanout-services",
+      "kind": "page",
+      "needs_title_fix": true,
+      "needs_meta_fix": false,
+      "current_title": "Estate Cleanout Services Tampa Bay | Same-Week Service \u2013 Organizing Life Services - Estate Sale Company",
+      "current_title_len": 103,
+      "current_meta": "Full-service estate cleanouts in Pinellas, Pasco & Hillsborough. Sort, donate, dispose, sell. Insured & local. Free on-site estimate \u2014 call today.",
+      "current_meta_len": 146,
+      "current_h1": "Estate Cleanout Services Tampa Bay | Same-Week Service",
+      "top_queries": [],
+      "draft": {
+        "new_title": "Estate Cleanout Services Tampa Bay | Same-Week Help",
+        "new_title_chars": 51,
+        "new_meta_description": "Need estate cleanout services in Tampa Bay? We sort, donate, haul, and prep homes for sale across Pinellas, Pasco, and Hillsborough. Request a free estimate.",
+        "new_meta_chars": 157,
+        "primary_keyword": "estate cleanout services tampa bay",
+        "rationale": "Created a shorter keyword-forward title that fits the target range and a localized meta description focused on service coverage and a clear conversion CTA."
+      },
+      "approved": true,
       "special_note": null
     },
     {
@@ -885,12 +908,12 @@
       "draft": {
         "new_title": "Estate Sale FAQs | Organizing Life Services",
         "new_title_chars": 44,
-        "new_meta_description": "Get answers to common estate sale questions from Florida's trusted experts. Learn about our process, pricing, and timeline. Contact us today.",
-        "new_meta_chars": 151,
+        "new_meta_description": "Get answers to common estate sale questions from Florida's trusted downsizing experts. Learn about our process, pricing, and timeline. Contact us today.",
+        "new_meta_chars": 159,
         "primary_keyword": "estate sale FAQs",
-        "rationale": "Simplified the redundant title by removing duplicate phrases while keeping it under 60 characters, and created a compelling meta description that encourages clicks with specific benefits and a soft CTA."
+        "rationale": "Simplified the redundant title to focus on the primary keyword while staying within character limits, and created a compelling meta description that addresses the FAQ purpose with geographic relevance and a soft CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -907,13 +930,13 @@
       "top_queries": [],
       "draft": {
         "new_title": "About Us | Organizing Life Services",
-        "new_title_chars": 34,
-        "new_meta_description": "Learn about Organizing Life Services, Florida's trusted estate sale company since 2010, led by Vivian Heckman and Sue Porter.",
-        "new_meta_chars": 134,
-        "primary_keyword": "estate sale company",
-        "rationale": "Shortened title to focus on primary intent while keeping brand name, and condensed meta description to highlight key trust signals and leadership within character limits."
+        "new_title_chars": 35,
+        "new_meta_description": "Learn about Organizing Life Services, trusted estate sale experts serving Florida's Gulf Coast since 2010. Get stress-free estate liquidation help.",
+        "new_meta_chars": 154,
+        "primary_keyword": "estate sale",
+        "rationale": "Shortened the title to fit character limits while preserving key trust signals, and condensed the meta description to highlight expertise and trustworthiness with a clear CTA."
       },
-      "approved": false,
+      "approved": true,
       "special_note": null
     },
     {
@@ -929,12 +952,12 @@
       "current_h1": "Fees products",
       "top_queries": [],
       "draft": {
-        "new_title": "Fees Products | Organizing Life Services",
-        "new_title_chars": 41,
-        "new_meta_description": "View our transparent fees products for estate sale and senior downsizing services in the Florida Gulf Coast area. Get clear pricing details today.",
-        "new_meta_chars": 154,
+        "new_title": "Fees Products - Organizing Life Services",
+        "new_title_chars": 40,
+        "new_meta_description": "View our fees products and pricing information for estate sale and senior downsizing services. Get transparent pricing details today.",
+        "new_meta_chars": 147,
         "primary_keyword": "fees products",
-        "rationale": "Shortened title to fit character limit while preserving the exact topic, and created a meta description that explains the page purpose with transparent pricing appeal and soft CTA."
+        "rationale": "Shortened the title to remove redundant 'Estate Sale Company' text while keeping the brand, and created a meta description that emphasizes transparency and encourages clicks for pricing information."
       },
       "approved": false,
       "special_note": null

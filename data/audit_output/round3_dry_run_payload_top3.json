@@ -1,0 +1,39 @@
+{
+  "description": "Safe dry-run payload for 3 recovery URLs only",
+  "source": "data/audit_output/round3_meta_drafts.json",
+  "items": [
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+      "handle": "estate-auction-vs-estate-sale-pros-and-cons",
+      "kind": "article",
+      "approved": true,
+      "owner_resource": "articles",
+      "owner_id": 560933830810,
+      "status": "dry_run",
+      "new_title": "Estate Auction vs Estate Sale: Pros, Cons & Which Pays More",
+      "new_meta": "Compare estate auctions vs estate sales to discover which option maximizes your returns and fits your timeline. Learn the key differences today."
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+      "handle": "estate-cleanout-services",
+      "kind": "page",
+      "approved": true,
+      "owner_resource": "pages",
+      "owner_id": 99735601306,
+      "status": "dry_run",
+      "new_title": "Estate Cleanout Services Tampa Bay | Same-Week Help",
+      "new_meta": "Need estate cleanout services in Tampa Bay? We sort, donate, haul, and prep homes for sale across Pinellas, Pasco, and Hillsborough. Request a free estimate."
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+      "handle": "pros-and-cons-of-estate-sales",
+      "kind": "article",
+      "approved": true,
+      "owner_resource": "articles",
+      "owner_id": 558744010906,
+      "status": "dry_run",
+      "new_title": "Estate Sale Pros and Cons: Complete Florida Guide",
+      "new_meta": "Discover the real pros and cons of estate sales with expert insights from Florida's trusted estate sale professionals. Get the facts before you decide."
+    }
+  ]
+}
