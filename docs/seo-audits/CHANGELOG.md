@@ -10,6 +10,28 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — Geo crosslink boost + 2nd sitemap recrawl for unindexed pages
+
+**What**
+1. **Hub pages** (high-authority indexed pages) — appended idempotent `SERVICE-AREAS-V1` block to bottom of `estate-cleanout-services` and `faqs` page bodies. Each block contains a 2-column `<ul>` linking to all 11 geo pages with exact-match anchors ("Estate sales in {City}").
+2. **Geo pages** — appended `GEO-CROSSLINKS-V1` block to body of all 11 geo pages. Each page links to the other 10 — creating a fully-connected topical cluster. Block size ~1.4KB per page; bumps Shopify `updated_at` so sitemap lastmod refreshes.
+3. **GSC** — resubmitted `sitemap.xml` and re-inspected the 6 previously-unknown URLs.
+
+**Why**
+- The 6 new geo pages from Phase 2 came back as `URL is unknown to Google` despite being in the sitemap. Internal links from already-indexed pages are the single fastest way to signal crawl-priority. We added inbound links from 12 indexed pages (estate-cleanout-services + faqs + 10 sibling geo pages) into each previously-unknown page.
+- Cross-linking all 11 geo pages also strengthens the topical cluster signal (Google understands them as a coordinated set of related local-service pages).
+
+**How**
+- Script: [data/session7_geo_crosslinks_recrawl.py](../../data/session7_geo_crosslinks_recrawl.py) — idempotent (skips pages whose body already contains the marker). 13 pages patched total (2 hub + 11 geo).
+
+**Result**
+- Post-inspection status of the 6 previously-unknown URLs:
+  - `Discovered - currently not indexed`: clearwater, dunedin, st-petersburg, largo, wesley-chapel (5/6 — **upgraded from unknown**)
+  - `URL is unknown to Google`: new-port-richey (1/6 — likely a sample-timing artifact; re-inspect in 48h)
+- Re-run [data/session6_recrawl_nap_geo_metas.py](../../data/session6_recrawl_nap_geo_metas.py) `section_a` in 7–14 days to confirm `PASS / Submitted and indexed`.
+
+---
+
 ## 2026-05-28 — Sitemap recrawl + robots/NAP audit + round-5 geo metafield standardization
 
 **What**
