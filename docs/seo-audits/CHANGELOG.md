@@ -10,6 +10,31 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — Sitemap recrawl + robots/NAP audit + round-5 geo metafield standardization
+
+**What**
+1. **GSC**: resubmitted `sitemap.xml` and inspected 7 URLs (homepage + 6 new geo pages from Phase 2). Inspection output saved to [data/audit_output/session6_url_inspection.json](../../data/audit_output/session6_url_inspection.json).
+2. **robots.txt audit**: parsed 44 `Disallow:` rules under `User-agent: *`. Confirmed **none** of the 18 noindexed pages or 11 geo pages are accidentally blocked from crawl — link equity flows through `noindex,follow` cleanly.
+3. **NAP verification**: printed live homepage `LocalBusiness` JSON-LD (name/phone/address/email/url) for manual cross-check against GBP listing.
+4. **Round-5 geo metafields**: standardized `global.title_tag` + `global.description_tag` across all 11 geo pages — plural "Estate Sales", city + region + FL, phone CTA `(727) 542-6028`, 50-60c titles, 145-160c descriptions. **9 field updates** applied (script skips fields already matching target).
+
+**Why**
+- **Sitemap resubmit + URL inspection** — tells Google the sitemap freshness has changed and queues the 6 new geo pages for crawl review (they were `URL is unknown to Google` at inspection time despite being in the sitemap — typical for brand-new low-authority pages).
+- **robots.txt audit** — confirms our `noindex` pages still pass link equity (a `Disallow` would have made `noindex,follow` useless).
+- **NAP audit** — Knowledge Panel eligibility requires perfect name/address/phone consistency between site JSON-LD and Google Business Profile. Manual user verification step gated on GBP API quota grant (still pending per `/memories/repo/google_apis_status.md`).
+- **Round-5 metas** — consistent format across the geo cluster increases SERP CTR and lets Google understand them as a topical cluster. Phone CTA in meta description drives direct call conversions.
+
+**How**
+- Script: [data/session6_recrawl_nap_geo_metas.py](../../data/session6_recrawl_nap_geo_metas.py) — single idempotent script with three sections (`section_a`, `section_b`, `section_c`). GSC auth via service account `ols-operations@ols-marketing-agent`.
+- Field updates: `palm-harbor` (title+desc), `tarpon-springs` (title), `st-petersburg` (desc), `tampa-hillsborough` (title+desc), `new-port-richey` (desc), `wesley-chapel` (desc), `citrus-county` (desc). Clearwater, Dunedin, Largo, Pasco already matched target.
+
+**Result / next watch**
+- Recheck inspection in 7 days: re-run `section_a` and look for `verdict: PASS` on the 6 geo pages.
+- Once GBP API quota lands (~Apr 29), automate NAP diff via `gbp_service.py` instead of manual.
+- Re-run [data/deep_seo_audit.py](../../data/deep_seo_audit.py) in 2 weeks for impression/CTR lift on standardized metas.
+
+---
+
 ## 2026-05-28 — Enriched LocalBusiness schema + A5 homepage geo intlinks + noindex 18 dead pages
 
 **What**
