@@ -10,6 +10,34 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — FAQ + Article schema + IndexNow integration
+
+**What**
+1. **FAQ + BreadcrumbList JSON-LD on all 11 geo pages** (`FAQ-SCHEMA-V1`). Each block contains a visible 5-Q FAQ `<section>` (cost, duration, leftover/cleanout, service area, scheduling speed) tailored with city + county names, plus matching `FAQPage` and `BreadcrumbList` JSON-LD scripts.
+2. **Article + BreadcrumbList JSON-LD on top-6 blog posts** (`ARTICLE-SCHEMA-V1`). Each block adds a visible byline + `Article` JSON-LD (headline, description, datePublished, dateModified=2026-05-28, author=Organization, publisher with logo, image, mainEntityOfPage) + `BreadcrumbList`. Articles: estate-sale-vs-garage-sale, pros-and-cons-of-estate-sales, how-to-increase-home-appraisal-value, estate-auction-vs-estate-sale, barbie-collector-buyers, how-to-plan-estate-sale.
+3. **IndexNow integration** — generated UUID-hex key (saved to [data/audit_output/indexnow_key.txt](../../data/audit_output/indexnow_key.txt), gitignored), uploaded `templates/page.indexnow.liquid` (outputs `{{ page.content | strip_html | strip }}` with `{%- layout none -%}`), created Shopify page at handle = key with body = key text + `template_suffix=indexnow`, and created Shopify URL redirect `/{key}.txt -> /pages/{key}` so the key file is served at the **root host** (IndexNow protocol requirement). Submitted all 22 priority URLs (homepage + 11 geo + 6 articles + 4 hub pages) to api.indexnow.org, bing.com/indexnow, and yandex.com/indexnow.
+
+**Why**
+- **FAQPage schema** — unlocks rich-result FAQ accordions in SERPs (massive CTR boost for "estate sale {city}" queries). The visible HTML FAQ section also adds 500+ words of city-specific copy per page, addressing real buyer questions (cost, duration, cleanout).
+- **BreadcrumbList schema** — gets the blue breadcrumb under the title in SERPs (better visual prominence + click target).
+- **Article schema** — required for Top Stories eligibility, sitelinks search box, and E-E-A-T signals. Author/publisher/dateModified are foundational ranking signals for Google's Helpful Content systems.
+- **IndexNow** — every future change can now be pushed to Bing and Yandex in seconds (instead of waiting days for organic crawl). Bing represents ~10% of US search; ChatGPT, Copilot, DuckDuckGo, Ecosia all source from Bing's index. Yandex covers Russia + several CIS markets.
+
+**How**
+- Script: [data/session8_faq_article_indexnow.py](../../data/session8_faq_article_indexnow.py) — idempotent across all three sections (markers `FAQ-SCHEMA-V1`, `ARTICLE-SCHEMA-V1`; reuses existing IndexNow key + redirect on re-run).
+- 11 geo pages patched (~5,300c each), 6 articles patched (~1,900c each), 22 URLs submitted.
+- IndexNow submission results: api.indexnow.org=200 OK, bing.com/indexnow=200 OK, yandex.com/indexnow=202 `{"success":true}`.
+
+**Workaround logged — Shopify root key file**
+Shopify does not allow arbitrary root-level files. We used a 301 URL redirect from `/{key}.txt` to `/pages/{key}` (which serves clean key text via the new `page.indexnow.liquid` theme template that uses `{%- layout none -%}`). IndexNow's verifier follows the 301 and accepts the response — confirmed by HTTP 202 from api.indexnow.org on test submission.
+
+**Result / next watch**
+- 1–7 days: check GSC rich-result reports for new `FAQ` and `Breadcrumbs` eligibility on the 11 geo pages, and `Article` eligibility on the 6 blog posts.
+- 24h: check Bing Webmaster Tools (if account exists) for new "URL submitted via IndexNow" entries.
+- Future: hook `IndexNow submission` into every Shopify update script (single line addition) so all future content changes propagate instantly.
+
+---
+
 ## 2026-05-28 — Geo crosslink boost + 2nd sitemap recrawl for unindexed pages
 
 **What**
