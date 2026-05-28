@@ -10,6 +10,13 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — XO Gallery alt-text completion (518 images → 100% coverage)
+
+- **What:** Audited all 57 `xo_gallery.gallery_NN` shop metafields (5,080 total images across the site's gallery pages). Found 518 images with empty/missing `alt.en`. Filled 124 from the existing AI vision pass in `data/image_analysis_export.csv` (matched by filename, ignoring Shopify CDN size suffixes). For the remaining 394 — all uploaded after the last vision pass — generated templated alt text from each gallery's title (e.g. `"613 Severs Landing, Palm Harbor, FL, Estate Sale Part 1 — Organizing Life Services Tampa Bay estate sale, photo N"`). Verified post-write: **5,080/5,080 images now carry alt text (100%).**
+- **Why:** Image alt text is a direct image-search ranking signal and an accessibility requirement. The 518 missing-alt images were all on gallery pages that draw past-sale long-tail traffic — leaving them blank was a free ranking loss. CSV-matched alts use the original AI-generated SEO descriptions; fallback alts use the gallery's location/title so they remain contextual and unique.
+- **How:** `data/xo_gallery_alt_apply.py` (idempotent — only fills empty alts, never overwrites). Two flags: `--dry-run` previews changes; `--fallback` enables the templated-alt path for images not in the CSV. Affected gallery metafields: `gallery_43`, `gallery_68`, `gallery_69`, `gallery_70`.
+- **Result:** Pending — re-crawl with `deep_seo_audit.py` after 2026-06-04 and check Google Search Console → Performance → Image search for impression lift on the affected gallery pages.
+
 ## 2026-05-28 — Geo expansion (6 cities) + round-4 page metas (9 pages) + top-6 article body upgrades
 
 - **What:**
