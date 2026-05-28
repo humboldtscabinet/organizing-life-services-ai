@@ -1,0 +1,143 @@
+<!doctype html>
+<html class="no-js " lang="{{ shop.locale }}">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="{{ settings.color_header_bg }}">
+    {%- if settings.favicon != blank -%}
+    <link rel="shortcut icon" href="{{ settings.favicon | img_url: '32x32' }}" type="image/png">
+    {%- endif -%}
+    <link rel="canonical" href="{{ canonical_url }}">
+    <title>
+  {%- liquid
+    assign has_custom_title_tag = false
+    if article.metafields.global.title_tag != blank
+      assign has_custom_title_tag = true
+    elsif page.metafields.global.title_tag != blank
+      assign has_custom_title_tag = true
+    elsif product.metafields.global.title_tag != blank
+      assign has_custom_title_tag = true
+    elsif collection.metafields.global.title_tag != blank
+      assign has_custom_title_tag = true
+    elsif blog.metafields.global.title_tag != blank
+      assign has_custom_title_tag = true
+    endif
+  -%}
+      {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless has_custom_title_tag or page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}
+    </title>
+    {%- if page_description -%}
+    <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+    {%- include 'social-meta-tags' -%}
+    {%- include 'header-css' -%}
+    {{ content_for_header }}
+
+<script>(function(w,d,t,r,u){var f,n,i;w[u]=w[u]||[],f=function(){var o={ti:"97100129", tm:"shpfy_ui", enableAutoSpaTracking: true};o.q=w[u],w[u]=new UET(o),w[u].push("pageLoad")},n=d.createElement(t),n.src=r,n.async=1,n.onload=n.onreadystatechange=function(){var s=this.readyState;s&&s!=="loaded"&&s!=="complete"||(f(),n.onload=n.onreadystatechange=null)},i=d.getElementsByTagName(t)[0],i.parentNode.insertBefore(n,i)})(window,document,"script","//bat.bing.com/bat.js","uetq");</script>
+
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "LocalBusiness",
+  "name": "Organizing Life Services",
+  "description": "Organizing Life Services is an estate sale company in Palm Harbor, Pinellas County, FL. We specialize in Estate Sales, Moving Sales, Downsizing Sales, Estate Liquidation & much more.",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "E LAKE RD S",
+    "addressLocality": "Palm Harbor",
+    "addressRegion": "FL",
+    "postalCode": "34685",
+    "addressCountry": "US"
+  },
+  "telephone": "(727) 542-6028",
+  "email": "OrganizingLife@Hotmail.Com",
+  "url": "https://organizinglifeservices.com/",
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Estate Sale Company",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Estate Sale Services"
+        }
+      }
+    ]
+  }
+}
+</script>
+
+
+
+    
+  </head>
+  <body class="template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }} body-theme {% if settings.productpage == 'product-2' or settings.productpage == 'product-6' or settings.productpage == 'product-7' %} product-hide-breadcrumb {% endif %}" >
+    
+    {%- section 'announcement-bar' -%}
+    {%- include 'loading' -%}
+    {%- include 'header' -%}
+    <div class="page-container page-element is-moved-by-drawer">
+      {%- include 'breadcrumb' -%}
+      <main class="main-content {% if settings.style_layout == 'row' and template == 'index' %} d-block d-lg-flex main-row {% endif %} " id="MainContent" role="main" {% if  template == 'index' %} style="background:{{ settings.bg_index }};" {% endif %}>
+        {%- if settings.enable_animationscroll -%}<div id ="js-scroll">{% endif%}
+          {%- if settings.enable_animationscroll -%}<div data-scroll-section>{% endif%}
+        <div class="theme-slide {% if settings.style_layout == 'row' and  template == 'index' %}main-left{% endif %}">
+        {%- include 'slideshow' -%}
+      </div>
+        {%- if settings.enable_animationscroll -%}</div>{% endif%}
+        <div class="theme-content {% if settings.style_layout == 'row' and  template == 'index' %}main-right{% endif %}">
+        {{ content_for_layout }}
+      </div>
+        {%- if settings.enable_animationscroll -%}</div>{% endif%}
+      </main>
+
+<script 
+            type="text/javascript" 
+            src="https://cdn.grw.reputon.com/assets/widget.js?shop=ols-online.myshopify.com"></script>
+<div class="reputon-google-reviews-widget"
+                 data-theme="light"
+                 data-autoscroll="true"
+                 data-show-review-photos="true"
+                 data-write-review="true"
+                 data-type="carousel_extended"
+                 data-position-type="regular"
+                 data-position-vertical="bottom"
+                 data-position-horizontal="center"></div>
+
+
+
+
+
+
+
+      
+      {%- section 'banner-footer' -%}
+      {%- section 'newsletter-footer' -%}
+      {%- include 'footer' -%}
+      {%- include 'popup-newsletter' -%}
+      {%- section 'product-suggest' -%}
+      {%- section 'recently-viewed' -%}
+    </div>
+        {%- if template.name == 'index' -%}
+    {%- comment -%} SEO-INTLINKS-V1: estate-cleanout-services anchors {%- endcomment -%}
+    <section class="ols-home-intlinks" aria-label="Estate cleanout resources" style="max-width:1200px;margin:30px auto;padding:24px 16px;border-top:1px solid #eee;font-size:15px;line-height:1.6;color:#333;">
+      <h2 style="font-size:18px;margin:0 0 12px;font-weight:600;">Estate Cleanout Resources for Tampa Bay</h2>
+      <p style="margin:0;">Looking for full-service help? Our team of <a href="/pages/estate-cleanout-services">estate cleanout experts</a> handles same-week house clearings across Pinellas, Pasco, Hillsborough, Hernando, and Citrus counties. We also offer compassionate <a href="/pages/estate-cleanout-services">deceased estate house clearing services</a> for families managing a loved one's belongings.</p>
+    </section>
+    {%- endif -%}
+    {%- include 'cookie-policy' -%}
+    {%- include 'back-to-top' -%}
+    {%- include 'menu-mobile' -%}
+    {%- include 'notify-popup' -%}
+    {%- include 'bottom-contents' -%}
+    {%- include 'quickview' -%}
+    {%- include 'popup-compare' -%}
+    {%- include 'header-js' -%}
+    {%- if settings.show_multiple_currencies -%}
+    {{ "/services/javascripts/currencies.js" | script_tag }}
+    {%- endif -%}
+
+
+  </body>
+</html>

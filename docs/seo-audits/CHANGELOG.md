@@ -10,6 +10,28 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — Enriched LocalBusiness schema + A5 homepage geo intlinks + noindex 18 dead pages
+
+**What**
+1. **Theme** `layout/theme.liquid` (live theme `153690210458`): replaced the legacy hand-written `LocalBusiness` JSON-LD with an enriched, idempotent-keyed block `SCHEMA-LB-V2`. New fields added: `@id`, `logo`, `image`, `priceRange`, `sameAs` (Facebook + Instagram), `areaServed` (9 cities + 5 counties), `openingHoursSpecification` (Mon-Fri 9-5, Sat 9-3), expanded `hasOfferCatalog` (5 services). Telephone normalized to `+17275426028`.
+2. **Theme**: added a second homepage intlinks block (`SEO-INTLINKS-A5-V1`) — scoped `template.name == 'index'`, contains exact-match anchors to all 11 geo pages (9 cities + Pasco/Hernando + Citrus county) plus 4 service-area anchors (appraisal, downsizing, cleanout, FAQs).
+3. **Theme**: added a per-page robots-meta override (`SEO-ROBOTS-V1`) — reads `page.metafields.seo.robots` and emits `<meta name="robots" content="...">` when set.
+4. **Pages**: pushed `seo.robots = "noindex,follow"` metafield to 18 empty past-event pages (single-line image gallery shells with no descriptive copy or active offer). Handles: `13925-pathfinder-drive-tampa-florida`, `613-severs-landing-palm-harbor-fl-estate-sale-part-{1,2}`, `estate-sale-safety-harbor-florida-pinellas-county-34695`, `estate-sale-westchase-tampa-fl-33626-hillsborough-county`, `highland-lakes-estate-sale`, `lansbrook-myrtle-point-estate-sale-part-two`, `myrtle-point-estate-sale`, `moon-lake-estate-sale`, `new-port-richey-appointment-only-sale-april-2024`, `new-port-richey-sale-huge-do-not-miss-this-one`, `odessa-estate-sale-june-2024`, `organizing-life-estate-sale-company-successful-sales`, `pimberton-drive-hudson`, `pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north`, `successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida`, `vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023`, `vintage-palm-harbor-coming-up-soon`.
+
+**Why**
+- **Schema** — Knowledge Panel eligibility requires `image`, `priceRange`, `areaServed`, `sameAs`. Stronger entity identity (`@id` + sameAs) helps Google reconcile the brand across GBP/social and unlocks rich result eligibility (LocalBusiness card, sitelinks search box).
+- **A5 intlinks** — distribute homepage PageRank to the 6 new/expanded geo pages from session 2 and the existing palm-harbor/tarpon-springs pages with exact-match city anchors. Strong internal linking from the highest-authority page in the site is the fastest known lever for local pack visibility.
+- **Noindex 18 dead pages** — these pages add nothing for users (no copy, no active sale, no conversion path) and dilute crawl budget + topical authority. `noindex,follow` keeps link equity flowing while removing them from the index; we choose `follow` (not `nofollow`) because they still link to active gallery pages.
+
+**How**
+- Script: [data/session5_schema_intlinks_noindex.py](../../data/session5_schema_intlinks_noindex.py) — single idempotent script that (a) snapshots `layout/theme.liquid` to `data/audit_output/theme_layout_snapshot_pre_session5.liquid`, (b) replaces the legacy LocalBusiness JSON-LD, (c) inserts the A5 intlinks block after the existing `SEO-INTLINKS-V1` close-`endif`, (d) inserts the robots-meta conditional before `</head>`, (e) upserts the `seo.robots` metafield on the 18 dead pages.
+- Theme size: 6,636 → 10,707 chars.
+- Live verification: homepage HTML contains `SCHEMA-LB-V2`, `areaServed`, `sameAs`, `priceRange`, `openingHours`, all 11 geo anchor `<a>` tags, and 4 service-area anchors. `/pages/highland-lakes-estate-sale` emits `<meta name="robots" content="noindex,follow">`. Homepage emits no robots meta (regression check passed).
+
+**Result** — Watch GSC over 2-3 weeks for: (a) "Estate Sale - Palm Harbor" / "Estate Sale - Tampa" Knowledge Panel candidates, (b) impression lift on the 11 city-keyed queries, (c) coverage report removing the 18 noindexed pages from the indexed set. Re-run [data/deep_seo_audit.py](../../data/deep_seo_audit.py) in 2 weeks.
+
+---
+
 ## 2026-05-28 — XO Gallery alt-text completion (518 images → 100% coverage)
 
 - **What:** Audited all 57 `xo_gallery.gallery_NN` shop metafields (5,080 total images across the site's gallery pages). Found 518 images with empty/missing `alt.en`. Filled 124 from the existing AI vision pass in `data/image_analysis_export.csv` (matched by filename, ignoring Shopify CDN size suffixes). For the remaining 394 — all uploaded after the last vision pass — generated templated alt text from each gallery's title (e.g. `"613 Severs Landing, Palm Harbor, FL, Estate Sale Part 1 — Organizing Life Services Tampa Bay estate sale, photo N"`). Verified post-write: **5,080/5,080 images now carry alt text (100%).**
