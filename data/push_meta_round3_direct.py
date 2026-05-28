@@ -20,15 +20,24 @@ import httpx
 
 def _retry(fn, *args, **kwargs):
     last = None
-    for attempt in range(5):
+    for attempt in range(8):
         try:
-            return fn(*args, **kwargs)
+            r = fn(*args, **kwargs)
+            # If response object with 429, back off and retry
+            if hasattr(r, "status_code") and r.status_code == 429:
+                wait = float(r.headers.get("Retry-After", 2 ** attempt))
+                print(f"  [429] sleeping {wait}s (attempt {attempt+1})", file=sys.stderr)
+                time.sleep(wait)
+                continue
+            return r
         except (httpx.ConnectTimeout, httpx.ReadTimeout, httpx.RemoteProtocolError, httpx.ConnectError) as e:
             last = e
             wait = 2 ** attempt
             print(f"  [retry] {type(e).__name__}: {e}; sleeping {wait}s", file=sys.stderr)
             time.sleep(wait)
-    raise last
+    if last:
+        raise last
+    raise RuntimeError("exhausted retries on 429")
 
 STORE = os.getenv("SHOPIFY_STORE")
 CLIENT_ID = os.getenv("SHOPIFY_CLIENT_ID")
@@ -144,7 +153,9 @@ def main():
             continue
 
         title_mf = upsert_metafield(owner_resource, owner_id, "title_tag", new_title, dry_run=dry_run)
+        time.sleep(0.6)
         desc_mf = upsert_metafield(owner_resource, owner_id, "description_tag", new_meta, dry_run=dry_run)
+        time.sleep(0.6)
         results.append({
             "handle": handle, "kind": kind, "owner_id": owner_id,
             "status": "dry_run" if dry_run else "updated",

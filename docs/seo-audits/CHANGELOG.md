@@ -10,6 +10,21 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — Quick-wins batch: full round-3 (37 URLs) + striking-distance H2s + 4 article FAQs + A4 intlinks
+
+- **What:**
+  - Flipped 21 additional round-3 drafts to `approved=true` and pushed all 37 title_tag + description_tag metafields (74 metafields total). Verified 37/37 OK via `verify_round3_state.py`.
+  - Injected striking-distance H2 + targeted paragraph into 4 pages, each keyed by an idempotent marker: `estate-sale-citrus-county` (SD-ESNM-V1, "estate sales near me"), `tarpon-springs-estate-sale-in-woodfield` (SD-ESTS-V1, "estate sales in Tarpon Springs"), `personal-property-appraisal` (SD-TPPA-V1, "Tampa personal property appraisers"), `downsizing-moving-sales` (SD-DSPC-V1, "downsizing specialist").
+  - Appended FAQ block + FAQPage JSON-LD to the top 4 articles by GSC impressions: `pros-and-cons-of-estate-sales` (FAQ-PCES-V1), `how-to-increase-your-home-appraisal-value` (FAQ-HIAV-V1), `estate-auction-vs-estate-sale-pros-and-cons` (FAQ-EAES-V1), `the-ultimate-guide-for-barbie-collector-buyers` (FAQ-BARB-V1). Each block answers 3 PAA-style queries with rich, original copy.
+  - A4 internal-links pass: appended a standardized "Related Tampa Bay Estate Services" link block (INTLINKS-A4-V1) to the top 6 articles by impressions, with exact-match anchors to `/pages/estate-cleanout-services`, `/pages/personal-property-appraisal`, `/pages/downsizing-moving-sales`, `/pages/estate-sale-palm-harbor-pinellas-county`, `/pages/tarpon-springs-estate-sale-in-woodfield`, `/pages/estate-sale-citrus-county`, `/pages/fees-products`, `/pages/faqs`.
+- **Why:**
+  - Round-3 completion: 21 more URLs now ship clean meta in Google's display window → expected CTR lift broad across the blog.
+  - Striking-distance: GSC showed 7 queries at position 5-15, ≥50 impressions, <2% CTR (`gsc_striking_distance_2026-05-28.json`). Adding the exact-match query as an H2 + ~150-word answer is the most reliable on-page lever to push these from page-2 to top-5.
+  - FAQ rollout: top 4 articles by impressions have CTR ≤0.17%. FAQ blocks unlock PAA + Featured Snippet eligibility and lengthen low-bounce engagement on already-trafficked pages.
+  - A4 intlinks distribute authority from the 6 highest-impression posts down to the commercial money pages + geo landers, with anchor text reinforced by the striking-distance queries we just published H2s for.
+- **How:** `data/push_meta_round3_direct.py` (with retry+throttle), `data/gsc_pull_opportunities.py`, `data/page_apply_striking_distance.py`, `data/article_apply_top4_faqs.py`, `data/article_apply_intlinks_a4.py`. Verified end-to-end via `data/verify_quick_wins.py` (4/4 SD + 4/4 FAQ + 6/6 A4 markers present live) and `data/verify_round3_state.py` (37/37 metafields match drafts).
+- **Result:** Pending — re-run `deep_seo_audit.py` and `gsc_pull_opportunities.py` after 2026-06-11 to measure CTR/position lift on the 7 striking-distance queries, the 4 FAQ articles, and overall round-3 set.
+
 ## 2026-05-28 — Theme title patch + round-3 metas (16 URLs) + homepage internal links + yard/garage FAQ
 
 - **What:**

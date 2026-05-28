@@ -1,0 +1,74 @@
+{
+  "site_url": "https://organizinglifeservices.com/",
+  "date_range": [
+    "2026-04-27",
+    "2026-05-25"
+  ],
+  "filters": {
+    "min_impressions": 50,
+    "position_range": [
+      5,
+      15
+    ],
+    "max_ctr": 0.02
+  },
+  "count": 7,
+  "rows": [
+    {
+      "query": "estate sales palm harbor",
+      "page": "https://organizinglifeservices.com/",
+      "impressions": 187,
+      "clicks": 1,
+      "ctr": 0.0053,
+      "position": 8.83
+    },
+    {
+      "query": "estate sales near me",
+      "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+      "impressions": 100,
+      "clicks": 1,
+      "ctr": 0.01,
+      "position": 8.89
+    },
+    {
+      "query": "estate sale and appraisal services",
+      "page": "https://organizinglifeservices.com/",
+      "impressions": 94,
+      "clicks": 0,
+      "ctr": 0.0,
+      "position": 5.23
+    },
+    {
+      "query": "estate sale organizer",
+      "page": "https://organizinglifeservices.com/",
+      "impressions": 73,
+      "clicks": 0,
+      "ctr": 0.0,
+      "position": 8.88
+    },
+    {
+      "query": "estate sales tarpon springs",
+      "page": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+      "impressions": 71,
+      "clicks": 0,
+      "ctr": 0.0,
+      "position": 8.93
+    },
+    {
+      "query": "tampa personal property appraisers",
+      "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+      "impressions": 64,
+      "clicks": 0,
+      "ctr": 0.0,
+      "position": 6.94
+    },
+    {
+      "query": "downsizing specialist",
+      "page": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+      "impressions": 62,
+      "clicks": 0,
+      "ctr": 0.0,
+      "position": 5.45
+    }
+  ]
+}
