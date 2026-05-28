@@ -10,6 +10,19 @@ Each entry should answer:
 
 ---
 
+## 2026-05-28 — Geo expansion (6 cities) + round-4 page metas (9 pages) + top-6 article body upgrades
+
+- **What:**
+  - **Geo expansion:** Created 4 new city landing pages with ~600-word unique bodies, `LocalBusiness` JSON-LD (NAP + service area + serviceType), full title/desc metas, and idempotent `GEO-<HANDLE>-V1` markers: `estate-sale-st-petersburg-florida`, `estate-sale-largo-florida`, `estate-sale-new-port-richey-florida`, `estate-sale-wesley-chapel-florida`. Expanded 2 thin existing geo pages with the same content block + schema + meta: `estate-sale-clearwater-florida` (1,564 → 5,815 chars), `estate-sale-dunedin-florida` (1,190 → 5,401 chars).
+  - **Round-4 page metas:** Pushed title_tag + description_tag (under 65 / 160 char Google windows) to 9 high-value pages that round-3 didn't cover: `testimonials`, `contact-us`, `estate-liquidators-tampa-bay`, `estate-sale-appraisal-services`, `estate-sale-companies-near-me`, `estate-sale-citrus-county`, `estate-sale-pasco-county`, `how-it-works`, `tarpon-springs-estate-sale-in-woodfield`. (All 34 blog articles already covered by round-3, so round-4 was scoped to pages only. 16 past-sale event pages with empty bodies were deliberately skipped — better candidates for a noindex pass.)
+  - **Top-6 article body upgrades:** Prepended a keyword-optimized "Updated for 2026" H2 + ~250-word intro block to the 6 highest-impression articles: `estate-sale-vs-garage-sale-know-the-differences`, `pros-and-cons-of-estate-sales`, `how-to-increase-your-home-appraisal-value`, `estate-auction-vs-estate-sale-pros-and-cons`, `the-ultimate-guide-for-barbie-collector-buyers`, `how-to-plan-estate-sale`. Each block lands the primary keyword in the first 100 words, references 2026 context, and is idempotent via `BODY-UP-V1`.
+- **Why:**
+  - Geo: GSC striking-distance data shows "estate sales [city]" queries already ranking pos 5-15 for Palm Harbor / Tarpon Springs / Citrus — expanding to St. Pete, Largo, NPR, Wesley Chapel, Clearwater (expand), and Dunedin (expand) opens 6 more geo-keyword footholds with LocalBusiness schema for Local-Pack eligibility.
+  - Round-4 pages: high-impression / high-conversion pages like `testimonials`, `contact-us`, and the service pages were rendering with the theme's brand-suffix fallback (130+ chars, truncated). Clean metas under the display window should lift CTR site-wide.
+  - Body upgrades: top-6 articles had primary keyword buried mid-body. Prepending a keyword-in-first-100-words intro is the highest-ROI single edit for posts already at impressions 500+ but stuck at pos 15-24.
+- **How:** `data/geo_pages_expansion.py`, `data/push_meta_round4_pages.py`, `data/article_body_upgrade_top6.py`. Verified end-to-end via `data/verify_session3.py` — 6/6 geo + 9/9 page metas + 6/6 body upgrades all present live.
+- **Result:** Pending — re-run `gsc_pull_opportunities.py` + `deep_seo_audit.py` after 2026-06-18 to measure (a) new geo-page rankings for "estate sales [city]" queries, (b) CTR lift on the 9 round-4 pages, and (c) position movement on the 6 upgraded articles.
+
 ## 2026-05-28 — Quick-wins batch: full round-3 (37 URLs) + striking-distance H2s + 4 article FAQs + A4 intlinks
 
 - **What:**
