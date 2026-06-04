@@ -1,0 +1,4083 @@
+{
+  "gsc": {
+    "windows": {
+      "current": {
+        "start": "2026-05-05",
+        "end": "2026-06-01"
+      },
+      "prior": {
+        "start": "2026-04-07",
+        "end": "2026-05-04"
+      }
+    },
+    "totals_current": {
+      "clicks": 128,
+      "impressions": 14173,
+      "ctr": 0.009031256614689903,
+      "avg_position_weighted": 18.417977845198617,
+      "avg_position_unweighted": 18.417977845198617
+    },
+    "totals_prior": {
+      "clicks": 149,
+      "impressions": 17480,
+      "ctr": 0.008524027459954233,
+      "avg_position_weighted": 13.494450800915331,
+      "avg_position_unweighted": 13.494450800915331
+    },
+    "deltas": {
+      "clicks_delta_pct": -14.093959731543624,
+      "impressions_delta_pct": -18.918764302059497,
+      "ctr_delta_pp": 0.05072291547356701,
+      "position_delta_weighted": 4.923527044283286,
+      "position_delta_unweighted": 4.923527044283286
+    },
+    "top_query_winners": [
+      {
+        "query": "organizing life services",
+        "clicks": 20,
+        "prev_clicks": 15,
+        "clicks_delta": 5,
+        "impressions": 51,
+        "prev_impressions": 59,
+        "position": 2.7,
+        "prev_position": 1,
+        "position_delta": 1.7
+      },
+      {
+        "query": "estate sales companies near me",
+        "clicks": 5,
+        "prev_clicks": 2,
+        "clicks_delta": 3,
+        "impressions": 26,
+        "prev_impressions": 27,
+        "position": 10.4,
+        "prev_position": 5.3,
+        "position_delta": 5.1
+      },
+      {
+        "query": "estate sales pinellas county",
+        "clicks": 3,
+        "prev_clicks": 0,
+        "clicks_delta": 3,
+        "impressions": 9,
+        "prev_impressions": 13,
+        "position": 12.3,
+        "prev_position": 13,
+        "position_delta": -0.7
+      },
+      {
+        "query": "professional garage sale buyers near me",
+        "clicks": 2,
+        "prev_clicks": 0,
+        "clicks_delta": 2,
+        "impressions": 2,
+        "prev_impressions": 0,
+        "position": 2,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sales near me",
+        "clicks": 5,
+        "prev_clicks": 4,
+        "clicks_delta": 1,
+        "impressions": 337,
+        "prev_impressions": 382,
+        "position": 6.8,
+        "prev_position": 6.7,
+        "position_delta": 0.2
+      },
+      {
+        "query": "estate auctions near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 5,
+        "prev_impressions": 2,
+        "position": 1,
+        "prev_position": 2.5,
+        "position_delta": -1.5
+      },
+      {
+        "query": "estate sale",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 77,
+        "prev_impressions": 131,
+        "position": 4.8,
+        "prev_position": 4.0,
+        "position_delta": 0.7
+      },
+      {
+        "query": "estate sale auction near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 1,
+        "prev_impressions": 0,
+        "position": 8,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sale companies tampa",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 22,
+        "prev_impressions": 29,
+        "position": 11.7,
+        "prev_position": 10.8,
+        "position_delta": 1.0
+      },
+      {
+        "query": "estate sale company tampa",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 4,
+        "prev_impressions": 6,
+        "position": 12.2,
+        "prev_position": 15.3,
+        "position_delta": -3.1
+      },
+      {
+        "query": "estate sale person",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 3,
+        "prev_impressions": 0,
+        "position": 5.7,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sale planners near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 21,
+        "prev_impressions": 29,
+        "position": 13.0,
+        "prev_position": 12.9,
+        "position_delta": 0.1
+      },
+      {
+        "query": "estate sales organizer",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 6,
+        "prev_impressions": 2,
+        "position": 1,
+        "prev_position": 45,
+        "position_delta": -44
+      },
+      {
+        "query": "estate sales organizers near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 8,
+        "prev_impressions": 2,
+        "position": 5.8,
+        "prev_position": 12,
+        "position_delta": -6.2
+      },
+      {
+        "query": "estate sales pinellas park",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 21,
+        "prev_impressions": 19,
+        "position": 11.1,
+        "prev_position": 11.8,
+        "position_delta": -0.6
+      },
+      {
+        "query": "estate sales safety harbor",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 24,
+        "prev_impressions": 11,
+        "position": 6,
+        "prev_position": 6.1,
+        "position_delta": -0.1
+      },
+      {
+        "query": "estate sellers",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 3,
+        "prev_impressions": 8,
+        "position": 4.7,
+        "prev_position": 2.4,
+        "position_delta": 2.3
+      },
+      {
+        "query": "how do estate sales work",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 18,
+        "prev_impressions": 71,
+        "position": 2.8,
+        "prev_position": 2.3,
+        "position_delta": 0.5
+      },
+      {
+        "query": "organizing life",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 4,
+        "prev_impressions": 0,
+        "position": 3.8,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "who buys whole house contents near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 1,
+        "prev_impressions": 4,
+        "position": 7,
+        "prev_position": 5.8,
+        "position_delta": 1.2
+      }
+    ],
+    "top_query_losers": [
+      {
+        "query": "estate sale near me",
+        "clicks": 0,
+        "prev_clicks": 2,
+        "clicks_delta": -2,
+        "impressions": 77,
+        "prev_impressions": 74,
+        "position": 3.7,
+        "prev_position": 4.6,
+        "position_delta": -0.9
+      },
+      {
+        "query": "estate sale palm harbor",
+        "clicks": 0,
+        "prev_clicks": 2,
+        "clicks_delta": -2,
+        "impressions": 25,
+        "prev_impressions": 28,
+        "position": 7.9,
+        "prev_position": 6.9,
+        "position_delta": 1.1
+      },
+      {
+        "query": "estate sale companies near me",
+        "clicks": 4,
+        "prev_clicks": 5,
+        "clicks_delta": -1,
+        "impressions": 170,
+        "prev_impressions": 285,
+        "position": 17.6,
+        "prev_position": 13.5,
+        "position_delta": 4.1
+      },
+      {
+        "query": "estate sales near me today",
+        "clicks": 2,
+        "prev_clicks": 3,
+        "clicks_delta": -1,
+        "impressions": 40,
+        "prev_impressions": 30,
+        "position": 5.3,
+        "prev_position": 4.1,
+        "position_delta": 1.2
+      },
+      {
+        "query": "estate sales palm harbor",
+        "clicks": 1,
+        "prev_clicks": 2,
+        "clicks_delta": -1,
+        "impressions": 184,
+        "prev_impressions": 208,
+        "position": 8.9,
+        "prev_position": 8.0,
+        "position_delta": 1.0
+      },
+      {
+        "query": "estate sale companies",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 26,
+        "prev_impressions": 60,
+        "position": 23.2,
+        "prev_position": 27.8,
+        "position_delta": -4.6
+      },
+      {
+        "query": "estate sale company",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 11,
+        "prev_impressions": 16,
+        "position": 2,
+        "prev_position": 15.7,
+        "position_delta": -13.7
+      },
+      {
+        "query": "estate sale professionals",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 7,
+        "prev_impressions": 8,
+        "position": 44.1,
+        "prev_position": 31.6,
+        "position_delta": 12.5
+      },
+      {
+        "query": "estate sale tampa",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 1,
+        "prev_impressions": 3,
+        "position": 9,
+        "prev_position": 2.7,
+        "position_delta": 6.3
+      },
+      {
+        "query": "estate sales",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 73,
+        "prev_impressions": 190,
+        "position": 5.1,
+        "prev_position": 5.6,
+        "position_delta": -0.5
+      },
+      {
+        "query": "estate sales company",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 1,
+        "prev_impressions": 6,
+        "position": 1,
+        "prev_position": 1.5,
+        "position_delta": -0.5
+      },
+      {
+        "query": "estate sales new port richey",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 8,
+        "prev_impressions": 5,
+        "position": 16.9,
+        "prev_position": 7.6,
+        "position_delta": 9.3
+      },
+      {
+        "query": "estate sales palm harbor this weekend",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 17,
+        "prev_impressions": 47,
+        "position": 10.1,
+        "prev_position": 9.1,
+        "position_delta": 1.0
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 74,
+        "prev_impressions": 39,
+        "position": 9.0,
+        "prev_position": 4.6,
+        "position_delta": 4.4
+      },
+      {
+        "query": "estates sales near me",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 7,
+        "prev_impressions": 5,
+        "position": 7.4,
+        "prev_position": 3.2,
+        "position_delta": 4.2
+      },
+      {
+        "query": "how to find estate sales near me",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 1,
+        "prev_impressions": 6,
+        "position": 10,
+        "prev_position": 4.8,
+        "position_delta": 5.2
+      },
+      {
+        "query": "palm harbor estate sales",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 14,
+        "prev_impressions": 22,
+        "position": 10.6,
+        "prev_position": 7.2,
+        "position_delta": 3.3
+      },
+      {
+        "query": "personal property appraiser",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 2,
+        "prev_impressions": 3,
+        "position": 9,
+        "prev_position": 34,
+        "position_delta": -25
+      },
+      {
+        "query": "estate sales near me this weekend",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 26,
+        "prev_impressions": 18,
+        "position": 6.0,
+        "prev_position": 5.7,
+        "position_delta": 0.4
+      },
+      {
+        "query": "estate sellers near me",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 10,
+        "prev_impressions": 22,
+        "position": 6.3,
+        "prev_position": 5.4,
+        "position_delta": 0.9
+      }
+    ],
+    "ctr_opportunities": [
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 163,
+        "ctr": 0.0061,
+        "position": 8.7
+      },
+      {
+        "query": "estate sale companies near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 149,
+        "ctr": 0.0201,
+        "position": 19.6
+      },
+      {
+        "query": "estate organization service",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 122,
+        "ctr": 0,
+        "position": 16.3
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "impressions": 108,
+        "ctr": 0.0185,
+        "position": 7
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 106,
+        "ctr": 0.0283,
+        "position": 3.8
+      },
+      {
+        "query": "estate sale and appraisal services",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 86,
+        "ctr": 0,
+        "position": 5.3
+      },
+      {
+        "query": "difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 84,
+        "ctr": 0,
+        "position": 15.1
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 81,
+        "ctr": 0,
+        "position": 7.8
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "impressions": 76,
+        "ctr": 0,
+        "position": 9.2
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "page": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+        "impressions": 69,
+        "ctr": 0,
+        "position": 8.9
+      },
+      {
+        "query": "downsizing specialist",
+        "page": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+        "impressions": 61,
+        "ctr": 0,
+        "position": 5
+      },
+      {
+        "query": "tampa personal property appraisers",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "impressions": 61,
+        "ctr": 0,
+        "position": 6.9
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "impressions": 59,
+        "ctr": 0,
+        "position": 5.1
+      },
+      {
+        "query": "estate sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 59,
+        "ctr": 0,
+        "position": 7.9
+      },
+      {
+        "query": "estate sale near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 56,
+        "ctr": 0,
+        "position": 2.8
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-planning",
+        "impressions": 56,
+        "ctr": 0,
+        "position": 5.3
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/senior-services",
+        "impressions": 56,
+        "ctr": 0,
+        "position": 5.3
+      },
+      {
+        "query": "estate sale",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 55,
+        "ctr": 0.0182,
+        "position": 5.0
+      },
+      {
+        "query": "estate sales",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 54,
+        "ctr": 0,
+        "position": 4.7
+      },
+      {
+        "query": "estate sale organizers near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 49,
+        "ctr": 0,
+        "position": 9.3
+      },
+      {
+        "query": "organizing life services",
+        "page": "https://organizinglifeservices.com/pages/contact-us",
+        "impressions": 49,
+        "ctr": 0,
+        "position": 1
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-planning",
+        "impressions": 48,
+        "ctr": 0,
+        "position": 7.8
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/senior-services",
+        "impressions": 48,
+        "ctr": 0,
+        "position": 7.8
+      },
+      {
+        "query": "estate sale helpers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 45,
+        "ctr": 0,
+        "position": 10.1
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+        "impressions": 44,
+        "ctr": 0,
+        "position": 5.9
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+        "impressions": 40,
+        "ctr": 0,
+        "position": 7.7
+      },
+      {
+        "query": "estate sale coordinator near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 38,
+        "ctr": 0,
+        "position": 10.8
+      },
+      {
+        "query": "estate cleanout experts",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "impressions": 37,
+        "ctr": 0,
+        "position": 16
+      },
+      {
+        "query": "professional garage sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 37,
+        "ctr": 0,
+        "position": 9.2
+      },
+      {
+        "query": "professional garage sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 36,
+        "ctr": 0,
+        "position": 17.6
+      }
+    ],
+    "striking_distance": [
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 163,
+        "clicks": 1,
+        "position": 8.7
+      },
+      {
+        "query": "estate sale companies near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 149,
+        "clicks": 3,
+        "position": 19.6
+      },
+      {
+        "query": "estate organization service",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 122,
+        "clicks": 0,
+        "position": 16.3
+      },
+      {
+        "query": "difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 84,
+        "clicks": 0,
+        "position": 15.1
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "impressions": 76,
+        "clicks": 0,
+        "position": 9.2
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "page": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+        "impressions": 69,
+        "clicks": 0,
+        "position": 8.9
+      },
+      {
+        "query": "estate sale organizers near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 49,
+        "clicks": 0,
+        "position": 9.3
+      },
+      {
+        "query": "estate sale helpers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 45,
+        "clicks": 0,
+        "position": 10.1
+      },
+      {
+        "query": "estate sale coordinator near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 38,
+        "clicks": 0,
+        "position": 10.8
+      },
+      {
+        "query": "estate cleanout experts",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "impressions": 37,
+        "clicks": 0,
+        "position": 16
+      },
+      {
+        "query": "professional garage sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 37,
+        "clicks": 0,
+        "position": 9.2
+      },
+      {
+        "query": "professional garage sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 36,
+        "clicks": 0,
+        "position": 17.6
+      },
+      {
+        "query": "estate sale coordination",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 33,
+        "clicks": 0,
+        "position": 12.5
+      },
+      {
+        "query": "what's the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 32,
+        "clicks": 0,
+        "position": 13.0
+      },
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "impressions": 31,
+        "clicks": 0,
+        "position": 11.4
+      },
+      {
+        "query": "personal property appraisers blog",
+        "page": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+        "impressions": 31,
+        "clicks": 0,
+        "position": 8.3
+      },
+      {
+        "query": "professional garage sale companies",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 29,
+        "clicks": 0,
+        "position": 8.4
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "impressions": 28,
+        "clicks": 0,
+        "position": 9.1
+      },
+      {
+        "query": "estate settlement appraisals tampa bay",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "impressions": 27,
+        "clicks": 0,
+        "position": 17.1
+      },
+      {
+        "query": "deceased estate house clearing services",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "impressions": 26,
+        "clicks": 0,
+        "position": 11.6
+      },
+      {
+        "query": "what is the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 26,
+        "clicks": 0,
+        "position": 13.9
+      },
+      {
+        "query": "garage vs yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences/",
+        "impressions": 25,
+        "clicks": 0,
+        "position": 12.2
+      },
+      {
+        "query": "senior downsizing service",
+        "page": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+        "impressions": 25,
+        "clicks": 0,
+        "position": 10.4
+      },
+      {
+        "query": "what's the difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 25,
+        "clicks": 0,
+        "position": 14.1
+      },
+      {
+        "query": "estate sale vs yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 15.2
+      },
+      {
+        "query": "personal property estate appraisers near me",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 14.4
+      },
+      {
+        "query": "yard sale vs garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 19.0
+      },
+      {
+        "query": "yard sales near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 23,
+        "clicks": 0,
+        "position": 8.3
+      },
+      {
+        "query": "estate sale realtor pasco county",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "impressions": 22,
+        "clicks": 0,
+        "position": 12.9
+      },
+      {
+        "query": "estate sale companies tampa",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 21,
+        "clicks": 1,
+        "position": 15.6
+      }
+    ]
+  },
+  "ga4": {
+    "windows": {
+      "current": {
+        "start": "2026-05-07",
+        "end": "2026-06-03"
+      },
+      "prior": {
+        "start": "2026-04-09",
+        "end": "2026-05-06"
+      }
+    },
+    "all_traffic_current": {
+      "sessions": 1122.0,
+      "activeUsers": 955.0,
+      "newUsers": 890.0,
+      "screenPageViews": 1685.0,
+      "engagementRate": 0.9741532976827094,
+      "averageSessionDuration": 258.3766330499109,
+      "bounceRate": 0.025846702317290554
+    },
+    "all_traffic_prior": {
+      "sessions": 1863.0,
+      "activeUsers": 1278.0,
+      "newUsers": 1123.0,
+      "screenPageViews": 2853.0,
+      "engagementRate": 0.9774557165861514,
+      "averageSessionDuration": 112.1313898115942,
+      "bounceRate": 0.02254428341384863
+    },
+    "organic_current": {
+      "sessions": 153.0,
+      "activeUsers": 126.0,
+      "screenPageViews": 402.0,
+      "engagementRate": 0.954248366013072,
+      "conversions": 462.0
+    },
+    "organic_prior": {
+      "sessions": 193.0,
+      "activeUsers": 151.0,
+      "screenPageViews": 451.0,
+      "engagementRate": 0.9689119170984456,
+      "conversions": 492.0
+    }
+  },
+  "crawl": {
+    "browser": {
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      "urls_discovered": 90,
+      "urls_crawled": 90,
+      "urls_ok": 40,
+      "status_counts": {
+        "200": 40,
+        "429": 47,
+        "ERR": 3
+      },
+      "avg_response_ms": 741.0,
+      "avg_size_kb": 647.1,
+      "issue_counts": {
+        "low_alt_text_coverage": 7,
+        "multiple_h1": 6,
+        "missing_meta_description": 2,
+        "title_too_long": 1,
+        "meta_description_too_long": 1
+      },
+      "schema_type_coverage": {
+        "AdministrativeArea": 40,
+        "City": 40,
+        "LocalBusiness": 40,
+        "Offer": 40,
+        "OfferCatalog": 40,
+        "OpeningHoursSpecification": 40,
+        "PostalAddress": 40,
+        "Service": 40,
+        "Article": 6,
+        "BreadcrumbList": 6,
+        "ImageObject": 6,
+        "ListItem": 6,
+        "Organization": 6,
+        "WebPage": 6,
+        "Answer": 5,
+        "FAQPage": 5,
+        "Question": 5
+      },
+      "pages": [
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "status": 200,
+          "response_ms": 737.0,
+          "size_kb": 655.1,
+          "ok": true,
+          "title": "Find Reliable Estate Sale Companies Nearby | Guide",
+          "title_len": 50,
+          "meta_description": "Learn how to find trustworthy estate sale companies in your area with our expert guide covering key questions, red flags, and selection tips.",
+          "meta_description_len": 141,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Find Reliable Estate Sale Companies Nearby",
+          "h2_count": 6,
+          "h3_count": 6,
+          "img_total": 14,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 78.6,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1489,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "status": 200,
+          "response_ms": 876.0,
+          "size_kb": 657.3,
+          "ok": true,
+          "title": "How to Plan an Estate Sale: 7 Steps to Maximize Profit",
+          "title_len": 54,
+          "meta_description": "Learn how to plan an estate sale with our 7-step guide to maximize your income and avoid common pitfalls. Get expert tips today.",
+          "meta_description_len": 128,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How to Plan an Estate Sale",
+          "h2_count": 8,
+          "h3_count": 8,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 1811,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "status": 200,
+          "response_ms": 885.0,
+          "size_kb": 632.8,
+          "ok": true,
+          "title": "Why Hire an Estate Sale Company - Maximize Returns",
+          "title_len": 50,
+          "meta_description": "Discover why hiring an estate sale company maximizes your return through expert pricing, marketing, and buyer networks. Get professional results.",
+          "meta_description_len": 145,
+          "canonical": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Why You Should Hire an Estate Sale Company",
+          "h2_count": 0,
+          "h3_count": 6,
+          "img_total": 14,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 78.6,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 773,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news",
+          "status": 200,
+          "response_ms": 887.0,
+          "size_kb": 645.7,
+          "ok": true,
+          "title": "Organizing Life Services: Premier Estate Sale Company's Blog & News",
+          "title_len": 67,
+          "meta_description": "Since 2010, Organizing Life Services has been the top choice for estate sales in Pinellas, Pasco, Hillsborough, Hernando, and Citrus counties. As a trusted, licensed, and insured partner, we specialize in full home content removal and prep for MLS listings. Experience the best estate sale service in the Tampa Bay Area.",
+          "meta_description_len": 320,
+          "canonical": "https://organizinglifeservices.com/blogs/news",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "news",
+          "h2_count": 1,
+          "h3_count": 4,
+          "img_total": 21,
+          "img_no_alt": 4,
+          "alt_coverage_pct": 81.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 642,
+          "issues": [
+            "title_too_long",
+            "meta_description_too_long"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "status": 200,
+          "response_ms": 891.0,
+          "size_kb": 637.1,
+          "ok": true,
+          "title": "Selling a House Empty & Clean: Expert Tips",
+          "title_len": 42,
+          "meta_description": "Learn why selling a house empty and clean maximizes buyer appeal and sale price from estate sale experts. Get proven tips here.",
+          "meta_description_len": 127,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Selling a House Empty & Clean: Expert Tips",
+          "h2_count": 0,
+          "h3_count": 6,
+          "img_total": 14,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 78.6,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 826,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "status": 200,
+          "response_ms": 905.0,
+          "size_kb": 667.5,
+          "ok": true,
+          "title": "Estate Sale Pros and Cons: Complete Florida Guide",
+          "title_len": 49,
+          "meta_description": "Discover the real pros and cons of estate sales with expert insights from Florida's trusted estate sale professionals. Get the facts before you decide.",
+          "meta_description_len": 151,
+          "canonical": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Pros and Cons of Estate Sales",
+          "h2_count": 3,
+          "h3_count": 9,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Answer",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "FAQPage",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Question",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 2080,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "status": 200,
+          "response_ms": 925.0,
+          "size_kb": 651.5,
+          "ok": true,
+          "title": "How Do Estate Sales Work? Complete Guide",
+          "title_len": 40,
+          "meta_description": "Learn how estate sales work with our step-by-step guide. Discover the process, timeline, and tips for a successful sale. Get expert insights today.",
+          "meta_description_len": 147,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How Do Estate Sales Work?",
+          "h2_count": 6,
+          "h3_count": 6,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1600,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "status": 200,
+          "response_ms": 919.0,
+          "size_kb": 635.9,
+          "ok": true,
+          "title": "Estate Sale Services & Client Benefits | Organizing Life",
+          "title_len": 56,
+          "meta_description": "Discover our comprehensive estate sale services including downsizing, liquidation, and cleanouts in Tampa Bay. Learn how we benefit clients.",
+          "meta_description_len": 140,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Our Estate Sale Services & Client Benefits",
+          "h2_count": 0,
+          "h3_count": 6,
+          "img_total": 14,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 78.6,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1141,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "status": 200,
+          "response_ms": 699.0,
+          "size_kb": 654.5,
+          "ok": true,
+          "title": "Best Jewelry Buyer in Tampa Bay, Florida",
+          "title_len": 40,
+          "meta_description": "Find trusted jewelry buyers in Tampa Bay with our expert guide featuring tips, red flags to avoid, and top recommendations. Start selling today.",
+          "meta_description_len": 144,
+          "canonical": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Find the Best Jewelry Buyer in Tampa Bay, Florida",
+          "h2_count": 13,
+          "h3_count": 12,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1599,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "status": 200,
+          "response_ms": 593.0,
+          "size_kb": 667.2,
+          "ok": true,
+          "title": "Cheapest Property for Sale: Expert Tips & Deals",
+          "title_len": 47,
+          "meta_description": "Find the cheapest property for sale with proven strategies from estate sale experts. Learn insider tips for scoring affordable deals today.",
+          "meta_description_len": 139,
+          "canonical": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Cheapest Property for Sale: Tips & Deals",
+          "h2_count": 6,
+          "h3_count": 26,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 2049,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "status": 200,
+          "response_ms": 621.0,
+          "size_kb": 639.6,
+          "ok": true,
+          "title": "Complete Probate Guide: Estate Settlement Explained",
+          "title_len": 51,
+          "meta_description": "Navigate probate with confidence using our comprehensive estate settlement guide. Learn key steps, timelines, and tips. Start today.",
+          "meta_description_len": 132,
+          "canonical": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Probate Guide: Estate Settlement Explained",
+          "h2_count": 8,
+          "h3_count": 15,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1475,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "status": 200,
+          "response_ms": 699.0,
+          "size_kb": 647.9,
+          "ok": true,
+          "title": "Ultimate Guide for Barbie Collector Buyers",
+          "title_len": 42,
+          "meta_description": "Master Barbie collecting with expert tips on evaluating craftsmanship, understanding value, and smart buying strategies. Start building your collection today.",
+          "meta_description_len": 158,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "The Ultimate Guide for Barbie Collector Buyers",
+          "h2_count": 7,
+          "h3_count": 25,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Answer",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "FAQPage",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Question",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 2009,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "status": 200,
+          "response_ms": 672.0,
+          "size_kb": 643.8,
+          "ok": true,
+          "title": "Estate Planning Guide with Estate Attorney",
+          "title_len": 42,
+          "meta_description": "Complete estate planning guide developed with expert estate attorneys to protect your assets and simplify transfers. Start planning today.",
+          "meta_description_len": 138,
+          "canonical": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Estate Planning Guide with an Estate Attorney",
+          "h2_count": 11,
+          "h3_count": 18,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1795,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "status": 200,
+          "response_ms": 731.0,
+          "size_kb": 638.4,
+          "ok": true,
+          "title": "How to Find the Best Antique Buyer | Organizing Life Services",
+          "title_len": 61,
+          "meta_description": "Learn how to find the best antique buyer for your valuable items with expert tips on research, evaluation, and negotiation strategies.",
+          "meta_description_len": 134,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Uncover Hidden Treasures: How to Find the Best Antique Buyer",
+          "h2_count": 2,
+          "h3_count": 16,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1424,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "status": 200,
+          "response_ms": 707.0,
+          "size_kb": 641.5,
+          "ok": true,
+          "title": "5 Tips to Help Clients Prepare for Estate Sales",
+          "title_len": 47,
+          "meta_description": "Learn 5 essential tips to help your clients prepare for successful estate sales. Expert advice for smooth transitions and maximum value.",
+          "meta_description_len": 136,
+          "canonical": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "5 Tips to Help Clients Prepare for Estate Sales",
+          "h2_count": 6,
+          "h3_count": 17,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1458,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "status": 200,
+          "response_ms": 683.0,
+          "size_kb": 640.9,
+          "ok": true,
+          "title": "How Estate Sales Boost Real Estate Listings",
+          "title_len": 43,
+          "meta_description": "Discover how estate sale companies elevate real estate listings by clearing properties faster and increasing buyer appeal. Learn the proven strategies today.",
+          "meta_description_len": 157,
+          "canonical": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How Estate Sales Boost Real Estate Listings",
+          "h2_count": 7,
+          "h3_count": 19,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1472,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "status": 200,
+          "response_ms": 629.0,
+          "size_kb": 643.1,
+          "ok": true,
+          "title": "Wills and Estate Planning Guide | Organizing Life",
+          "title_len": 49,
+          "meta_description": "Complete guide to wills and estate planning basics, legal requirements, and expert tips to protect your assets and family's future.",
+          "meta_description_len": 131,
+          "canonical": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "A Comprehensive Guide to Wills and Estate Planning",
+          "h2_count": 8,
+          "h3_count": 15,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1547,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "status": 200,
+          "response_ms": 663.0,
+          "size_kb": 650.2,
+          "ok": true,
+          "title": "How to Increase Your Home Appraisal Value",
+          "title_len": 41,
+          "meta_description": "Learn proven strategies to boost your home appraisal value before selling, from decluttering to key improvements that appraisers notice most.",
+          "meta_description_len": 141,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How to Increase Your Home Appraisal Value",
+          "h2_count": 7,
+          "h3_count": 27,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Answer",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "FAQPage",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Question",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 2032,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "status": 200,
+          "response_ms": 649.0,
+          "size_kb": 642.0,
+          "ok": true,
+          "title": "How to Buy Probate Real Estate | Organizing Life Services",
+          "title_len": 57,
+          "meta_description": "Learn how to buy probate real estate and find discounted properties through estate settlements. Get expert tips on navigating the probate process successfully.",
+          "meta_description_len": 159,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How to buy probate real estate",
+          "h2_count": 8,
+          "h3_count": 10,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1606,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "status": 200,
+          "response_ms": 651.0,
+          "size_kb": 644.5,
+          "ok": true,
+          "title": "Home Auctions Guide: Tips & Strategies",
+          "title_len": 38,
+          "meta_description": "Master home auctions with expert tips on bidding strategies, preparation, and legal considerations to secure winning deals. Read the full guide.",
+          "meta_description_len": 144,
+          "canonical": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "Home Auctions Guide: Tips & Strategies",
+          "h2_count": 8,
+          "h3_count": 13,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1993,
+          "issues": [
+            "multiple_h1"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "status": 200,
+          "response_ms": 666.0,
+          "size_kb": 640.9,
+          "ok": true,
+          "title": "Top 3 Things to Consider When Buying a House",
+          "title_len": 44,
+          "meta_description": "Discover the 3 essential factors for buying a house including budget planning, location selection, and property evaluation. Get expert insights now.",
+          "meta_description_len": 148,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "The Top 3 Things to Consider When buying a house",
+          "h2_count": 10,
+          "h3_count": 8,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1562,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "status": 200,
+          "response_ms": 624.0,
+          "size_kb": 641.0,
+          "ok": true,
+          "title": "Florida Home Auctions: Expert Tips for Success",
+          "title_len": 46,
+          "meta_description": "Master Florida home auctions with proven strategies for strategic bidding, property research, and maximizing your success rate. Get expert tips now.",
+          "meta_description_len": 148,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Home Auctions in Florida: Tips for Success",
+          "h2_count": 7,
+          "h3_count": 11,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1479,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "status": 200,
+          "response_ms": 621.0,
+          "size_kb": 639.0,
+          "ok": true,
+          "title": "Foreclosure Homes Guide: Tips & Opportunities",
+          "title_len": 45,
+          "meta_description": "Navigate foreclosure homes with expert tips on finding deals, avoiding pitfalls, and maximizing opportunities. Start your search today.",
+          "meta_description_len": 135,
+          "canonical": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Foreclosure Homes & Listings: A Buyer\u2019s Guide",
+          "h2_count": 4,
+          "h3_count": 6,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1245,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "status": 200,
+          "response_ms": 640.0,
+          "size_kb": 648.7,
+          "ok": true,
+          "title": "Estate Auction vs Estate Sale: Pros, Cons & Which Pays More",
+          "title_len": 59,
+          "meta_description": "Compare estate auctions vs estate sales to discover which option maximizes your returns and fits your timeline. Learn the key differences today.",
+          "meta_description_len": 144,
+          "canonical": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Estate Auction vs. Estate Sale: Pros, Cons & Which Pays More",
+          "h2_count": 9,
+          "h3_count": 14,
+          "img_total": 17,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 82.4,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Answer",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "FAQPage",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Question",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 1944,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "status": 200,
+          "response_ms": 659.0,
+          "size_kb": 647.9,
+          "ok": true,
+          "title": "Estate Sale vs Garage Sale: Key Differences Explained",
+          "title_len": 53,
+          "meta_description": "Learn the key differences between estate sales vs garage sales, including pricing, scope, and which option works best for your situation.",
+          "meta_description_len": 137,
+          "canonical": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Estate Sale vs. Garage Sale: Which Is Right for You?",
+          "h2_count": 7,
+          "h3_count": 17,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "Answer",
+            "Article",
+            "BreadcrumbList",
+            "City",
+            "FAQPage",
+            "ImageObject",
+            "ListItem",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "Organization",
+            "PostalAddress",
+            "Question",
+            "Service",
+            "WebPage"
+          ],
+          "word_count": 1954,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "status": 200,
+          "response_ms": 701.0,
+          "size_kb": 641.3,
+          "ok": true,
+          "title": "Ultimate Guide to Estate Sale Services | Organizing Life",
+          "title_len": 56,
+          "meta_description": "Complete guide to estate sale services including planning, pricing, and execution tips from Florida experts. Get your estate sale right.",
+          "meta_description_len": 136,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Ultimate Guide to Estate Sale Services",
+          "h2_count": 13,
+          "h3_count": 23,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1438,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "status": 200,
+          "response_ms": 775.0,
+          "size_kb": 638.9,
+          "ok": true,
+          "title": "Estate Liquidation Made Easy | Organizing Life Services",
+          "title_len": 55,
+          "meta_description": "Master estate liquidation with proven strategies for planning, advertising, and maximizing proceeds. Get expert tips for success.",
+          "meta_description_len": 129,
+          "canonical": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Estate Liquidation: Maximize Your Proceeds",
+          "h2_count": 4,
+          "h3_count": 14,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1245,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "status": 200,
+          "response_ms": 670.0,
+          "size_kb": 640.1,
+          "ok": true,
+          "title": "Sell Furniture When Moving: Tips for Maximum Value",
+          "title_len": 50,
+          "meta_description": "Learn proven strategies to sell furniture when moving and maximize your returns. Get expert tips on pricing, timing, and preparation. Start planning today.",
+          "meta_description_len": 155,
+          "canonical": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "How to Sell Furniture When Moving: Tips for Maximum Value",
+          "h2_count": 11,
+          "h3_count": 11,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1467,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "status": 200,
+          "response_ms": 709.0,
+          "size_kb": 638.2,
+          "ok": true,
+          "title": "Psychology of Estate Liquidation & Decluttering",
+          "title_len": 47,
+          "meta_description": "Learn how estate liquidation improves mental well-being through decluttering\u2014discover the psychology behind tidy spaces and peace of mind.",
+          "meta_description_len": 138,
+          "canonical": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Psychology of Estate Liquidation & Decluttering",
+          "h2_count": 5,
+          "h3_count": 6,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1286,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "status": 200,
+          "response_ms": 853.0,
+          "size_kb": 638.8,
+          "ok": true,
+          "title": "Personal Property Appraisals: 10 Expert Tips",
+          "title_len": 44,
+          "meta_description": "Get 10 expert tips for accurate personal property appraisals from Florida's trusted estate sale professionals. Learn proven strategies today.",
+          "meta_description_len": 141,
+          "canonical": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Personal Property Appraisals: 10 Expert Tips",
+          "h2_count": 13,
+          "h3_count": 12,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1216,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "status": 200,
+          "response_ms": 785.0,
+          "size_kb": 640.9,
+          "ok": true,
+          "title": "How to Get Rid of Furniture Fast | Organizing Life Services",
+          "title_len": 59,
+          "meta_description": "Discover quick ways to get rid of furniture through sales, donations & professional services. Get expert tips from Florida's trusted downsizing company.",
+          "meta_description_len": 152,
+          "canonical": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Get Rid of Furniture Fast: Sale & Donation Tips",
+          "h2_count": 16,
+          "h3_count": 12,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1423,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "status": 200,
+          "response_ms": 797.0,
+          "size_kb": 637.9,
+          "ok": true,
+          "title": "What to Expect at an Estate Sale | Organizing Life Services",
+          "title_len": 59,
+          "meta_description": "Learn what happens at an estate sale with our professional team in Tampa Bay - from pricing to checkout and everything in between.",
+          "meta_description_len": 130,
+          "canonical": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "What to Expect at an Organizing Life Services Estate Sale",
+          "h2_count": 6,
+          "h3_count": 6,
+          "img_total": 16,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 81.2,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1214,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "status": 200,
+          "response_ms": 670.0,
+          "size_kb": 669.0,
+          "ok": true,
+          "title": "Estate Sales Near Me: Tampa Bay Local Finds Guide",
+          "title_len": 49,
+          "meta_description": "Discover estate sales near you in Tampa Bay with insider tips, schedules, and the best local finds. Get expert guidance today.",
+          "meta_description_len": 126,
+          "canonical": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "Estate Sales Near Me: Best Deals in Tampa Bay",
+          "h2_count": 9,
+          "h3_count": 29,
+          "img_total": 14,
+          "img_no_alt": 3,
+          "alt_coverage_pct": 78.6,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 5285,
+          "issues": [
+            "multiple_h1",
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "status": 200,
+          "response_ms": 773.0,
+          "size_kb": 640.7,
+          "ok": true,
+          "title": "Expert Estate Sale Organizers in Tampa Bay Guide",
+          "title_len": 48,
+          "meta_description": "Complete guide to expert estate sale organizers in Tampa Bay. Learn how professionals help maximize returns and simplify downsizing. Read more.",
+          "meta_description_len": 143,
+          "canonical": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Expert Estate Sale Organizers in Tampa Bay | Complete Guide",
+          "h2_count": 7,
+          "h3_count": 12,
+          "img_total": 16,
+          "img_no_alt": 5,
+          "alt_coverage_pct": 68.8,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1511,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/faqs",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/faqs",
+          "status": 200,
+          "response_ms": 677.0,
+          "size_kb": 625.1,
+          "ok": true,
+          "title": "Estate Sale FAQs | Organizing Life Services",
+          "title_len": 43,
+          "meta_description": "Get answers to common estate sale questions from Florida's trusted downsizing experts. Learn about our process, pricing, and timeline. Contact us today.",
+          "meta_description_len": 152,
+          "canonical": "https://organizinglifeservices.com/pages/faqs",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Estate Sale FAQs | Common Questions | Organizing Life Services",
+          "h2_count": 1,
+          "h3_count": 4,
+          "img_total": 9,
+          "img_no_alt": 0,
+          "alt_coverage_pct": 100.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 431,
+          "issues": []
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "status": 200,
+          "response_ms": 852.0,
+          "size_kb": 641.1,
+          "ok": true,
+          "title": "Yard Sale vs Estate Sale: Key Differences Guide",
+          "title_len": 47,
+          "meta_description": "Discover the key differences between yard sales and estate sales, from pricing strategies to profit potential. Make the right choice for your needs.",
+          "meta_description_len": 148,
+          "canonical": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "robots": "",
+          "h1_count": 1,
+          "h1_first": "Yard Sale vs Estate Sale: Key Differences Florida Homeowners Should Know",
+          "h2_count": 9,
+          "h3_count": 9,
+          "img_total": 14,
+          "img_no_alt": 5,
+          "alt_coverage_pct": 64.3,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 1492,
+          "issues": [
+            "low_alt_text_coverage"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/about-us",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/about-us",
+          "status": 200,
+          "response_ms": 713.0,
+          "size_kb": 625.6,
+          "ok": true,
+          "title": "About Us | Organizing Life Services",
+          "title_len": 35,
+          "meta_description": "Learn about Organizing Life Services, trusted estate sale experts serving Florida's Gulf Coast since 2010. Get stress-free estate liquidation help.",
+          "meta_description_len": 147,
+          "canonical": "https://organizinglifeservices.com/pages/about-us",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "About Organizing Life Services | Trusted Estate Liquidation Since 2010",
+          "h2_count": 0,
+          "h3_count": 4,
+          "img_total": 9,
+          "img_no_alt": 0,
+          "alt_coverage_pct": 100.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 662,
+          "issues": [
+            "multiple_h1"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/all",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/collections/all",
+          "status": 200,
+          "response_ms": 822.0,
+          "size_kb": 693.9,
+          "ok": true,
+          "title": "Products \u2013 Organizing Life Services - Estate Sale Company",
+          "title_len": 57,
+          "meta_description": "",
+          "meta_description_len": 0,
+          "canonical": "https://organizinglifeservices.com/collections/all",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "Products",
+          "h2_count": 0,
+          "h3_count": 4,
+          "img_total": 19,
+          "img_no_alt": 0,
+          "alt_coverage_pct": 100.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 432,
+          "issues": [
+            "missing_meta_description",
+            "multiple_h1"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/testimonials",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/testimonials",
+          "status": 200,
+          "response_ms": 738.0,
+          "size_kb": 665.3,
+          "ok": true,
+          "title": "Client Reviews & Estate Sale Testimonials | Tampa Bay",
+          "title_len": 53,
+          "meta_description": "Read 100+ five-star client reviews of Organizing Life Services \u2014 Tampa Bay's most trusted estate sale company since 2010. See why families pick us.",
+          "meta_description_len": 147,
+          "canonical": "https://organizinglifeservices.com/pages/testimonials",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "Client Reviews & Testimonials | Organizing Life Services Estate Sales",
+          "h2_count": 0,
+          "h3_count": 4,
+          "img_total": 16,
+          "img_no_alt": 0,
+          "alt_coverage_pct": 100.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 6955,
+          "issues": [
+            "multiple_h1"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/contact-us",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/contact-us",
+          "status": 429,
+          "response_ms": 508.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/fees-products",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/collections/fees-products",
+          "status": 200,
+          "response_ms": 862.0,
+          "size_kb": 694.2,
+          "ok": true,
+          "title": "Fees products \u2013 Organizing Life Services - Estate Sale Company",
+          "title_len": 62,
+          "meta_description": "",
+          "meta_description_len": 0,
+          "canonical": "https://organizinglifeservices.com/collections/fees-products",
+          "robots": "",
+          "h1_count": 2,
+          "h1_first": "Fees products",
+          "h2_count": 0,
+          "h3_count": 4,
+          "img_total": 19,
+          "img_no_alt": 0,
+          "alt_coverage_pct": 100.0,
+          "og_present": true,
+          "twitter_card": true,
+          "hreflang_count": 0,
+          "schema_types": [
+            "AdministrativeArea",
+            "City",
+            "LocalBusiness",
+            "Offer",
+            "OfferCatalog",
+            "OpeningHoursSpecification",
+            "PostalAddress",
+            "Service"
+          ],
+          "word_count": 436,
+          "issues": [
+            "missing_meta_description",
+            "multiple_h1"
+          ]
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/organizing-life-estate-sale-company-successful-sales",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/organizing-life-estate-sale-company-successful-sales",
+          "status": 429,
+          "response_ms": 392.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-planning",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-planning",
+          "status": 429,
+          "response_ms": 311.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/how-it-works",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/how-it-works",
+          "status": 429,
+          "response_ms": 347.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/senior-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/senior-services",
+          "status": 429,
+          "response_ms": 267.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/vintage-palm-harbor-coming-up-soon",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/vintage-palm-harbor-coming-up-soon",
+          "status": 429,
+          "response_ms": 263.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida",
+          "status": 429,
+          "response_ms": 269.0,
+          "size_kb": 9.6,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+          "status": 429,
+          "response_ms": 304.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+          "status": 429,
+          "response_ms": 313.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/sell-your-house-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/sell-your-house-florida",
+          "status": 429,
+          "response_ms": 278.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/moon-lake-estate-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/moon-lake-estate-sale",
+          "status": 429,
+          "response_ms": 274.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+          "status": 429,
+          "response_ms": 268.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-jewelry-sell",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-jewelry-sell",
+          "status": 429,
+          "response_ms": 311.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+          "status": 429,
+          "response_ms": 302.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-liquidation",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-liquidation",
+          "status": 429,
+          "response_ms": 270.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+          "status": 429,
+          "response_ms": 251.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+          "status": 429,
+          "response_ms": 315.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+          "status": 429,
+          "response_ms": 262.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+          "status": 429,
+          "response_ms": 262.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+          "status": 429,
+          "response_ms": 274.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023",
+          "status": 429,
+          "response_ms": 315.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/pimberton-drive-hudson",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/pimberton-drive-hudson",
+          "status": 429,
+          "response_ms": 323.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/new-port-richey-appointment-only-sale-april-2024",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/new-port-richey-appointment-only-sale-april-2024",
+          "status": 429,
+          "response_ms": 310.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+          "status": 429,
+          "response_ms": 281.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/odessa-estate-sale-june-2024",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/odessa-estate-sale-june-2024",
+          "status": 429,
+          "response_ms": 279.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+          "status": 429,
+          "response_ms": 254.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+          "status": 429,
+          "response_ms": 262.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+          "status": 429,
+          "response_ms": 239.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+          "status": 429,
+          "response_ms": 240.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-companies-near-me",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-companies-near-me",
+          "status": 429,
+          "response_ms": 263.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/what-is-an-estate-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/what-is-an-estate-sale",
+          "status": 429,
+          "response_ms": 253.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-liquidators-tampa-bay",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-liquidators-tampa-bay",
+          "status": 429,
+          "response_ms": 233.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-appraisal-services",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-appraisal-services",
+          "status": 429,
+          "response_ms": 298.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+          "status": 429,
+          "response_ms": 253.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+          "status": 429,
+          "response_ms": 286.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+          "status": 429,
+          "response_ms": 331.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+          "status": 429,
+          "response_ms": 278.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+          "status": 429,
+          "response_ms": 285.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+          "status": 429,
+          "response_ms": 306.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+          "status": 429,
+          "response_ms": 319.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/45ef8d84aec44642bb5fbe6504df5d0b",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/pages/45ef8d84aec44642bb5fbe6504df5d0b",
+          "status": 429,
+          "response_ms": 348.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/bel-air-estate-sale-wednesday-11-9-22-and-thursday-11-10-22",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/products/bel-air-estate-sale-wednesday-11-9-22-and-thursday-11-10-22",
+          "status": 429,
+          "response_ms": 401.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/",
+          "status": 429,
+          "response_ms": 408.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/processing-fee",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/products/processing-fee",
+          "status": 429,
+          "response_ms": 260.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/products/product-cc-2-7-fee",
+          "status": 429,
+          "response_ms": 264.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2",
+          "status": 429,
+          "response_ms": 276.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/agents.md",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "final_url": "https://organizinglifeservices.com/agents.md",
+          "status": 429,
+          "response_ms": 256.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "error": "HTTPSConnectionPool(host='organizinglifeservices.com', port=443): Read timed out. (read timeout=20)",
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "error": "HTTPSConnectionPool(host='organizinglifeservices.com', port=443): Read timed out. (read timeout=20)",
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+          "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+          "error": "HTTPSConnectionPool(host='organizinglifeservices.com', port=443): Read timed out. (read timeout=20)",
+          "ok": false
+        }
+      ]
+    },
+    "googlebot": {
+      "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "urls_discovered": 90,
+      "urls_crawled": 90,
+      "urls_ok": 0,
+      "status_counts": {
+        "429": 90
+      },
+      "avg_response_ms": 0,
+      "avg_size_kb": 0,
+      "issue_counts": {},
+      "schema_type_coverage": {},
+      "pages": [
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "status": 429,
+          "response_ms": 266.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news",
+          "status": 429,
+          "response_ms": 285.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "status": 429,
+          "response_ms": 307.0,
+          "size_kb": 9.6,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "status": 429,
+          "response_ms": 321.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "status": 429,
+          "response_ms": 348.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "status": 429,
+          "response_ms": 354.0,
+          "size_kb": 9.6,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "status": 429,
+          "response_ms": 358.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "status": 429,
+          "response_ms": 359.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "status": 429,
+          "response_ms": 298.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "status": 429,
+          "response_ms": 323.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "status": 429,
+          "response_ms": 299.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "status": 429,
+          "response_ms": 293.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "status": 429,
+          "response_ms": 295.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "status": 429,
+          "response_ms": 313.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "status": 429,
+          "response_ms": 321.0,
+          "size_kb": 9.6,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "status": 429,
+          "response_ms": 324.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "status": 429,
+          "response_ms": 264.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "status": 429,
+          "response_ms": 267.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "status": 429,
+          "response_ms": 246.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "status": 429,
+          "response_ms": 286.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "status": 429,
+          "response_ms": 283.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "status": 429,
+          "response_ms": 266.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "status": 429,
+          "response_ms": 291.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "status": 429,
+          "response_ms": 327.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "status": 429,
+          "response_ms": 313.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "status": 429,
+          "response_ms": 328.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "status": 429,
+          "response_ms": 328.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "status": 429,
+          "response_ms": 307.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "status": 429,
+          "response_ms": 385.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "status": 429,
+          "response_ms": 405.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "status": 429,
+          "response_ms": 410.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "status": 429,
+          "response_ms": 387.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "status": 429,
+          "response_ms": 329.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "status": 429,
+          "response_ms": 378.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "status": 429,
+          "response_ms": 371.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/all",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/collections/all",
+          "status": 429,
+          "response_ms": 356.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/fees-products",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/collections/fees-products",
+          "status": 429,
+          "response_ms": 278.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/faqs",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/faqs",
+          "status": 429,
+          "response_ms": 289.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/about-us",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/about-us",
+          "status": 429,
+          "response_ms": 289.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/testimonials",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/testimonials",
+          "status": 429,
+          "response_ms": 308.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/contact-us",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/contact-us",
+          "status": 429,
+          "response_ms": 270.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-planning",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-planning",
+          "status": 429,
+          "response_ms": 249.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/organizing-life-estate-sale-company-successful-sales",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/organizing-life-estate-sale-company-successful-sales",
+          "status": 429,
+          "response_ms": 313.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/how-it-works",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/how-it-works",
+          "status": 429,
+          "response_ms": 311.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/vintage-palm-harbor-coming-up-soon",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/vintage-palm-harbor-coming-up-soon",
+          "status": 429,
+          "response_ms": 241.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida",
+          "status": 429,
+          "response_ms": 298.0,
+          "size_kb": 9.5,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/senior-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/senior-services",
+          "status": 429,
+          "response_ms": 322.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+          "status": 429,
+          "response_ms": 259.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+          "status": 429,
+          "response_ms": 238.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/sell-your-house-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/sell-your-house-florida",
+          "status": 429,
+          "response_ms": 281.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-jewelry-sell",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-jewelry-sell",
+          "status": 429,
+          "response_ms": 272.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/moon-lake-estate-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/moon-lake-estate-sale",
+          "status": 429,
+          "response_ms": 284.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+          "status": 429,
+          "response_ms": 300.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+          "status": 429,
+          "response_ms": 231.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+          "status": 429,
+          "response_ms": 252.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-liquidation",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-liquidation",
+          "status": 429,
+          "response_ms": 288.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+          "status": 429,
+          "response_ms": 278.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+          "status": 429,
+          "response_ms": 251.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+          "status": 429,
+          "response_ms": 277.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+          "status": 429,
+          "response_ms": 271.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/pimberton-drive-hudson",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/pimberton-drive-hudson",
+          "status": 429,
+          "response_ms": 343.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/new-port-richey-appointment-only-sale-april-2024",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/new-port-richey-appointment-only-sale-april-2024",
+          "status": 429,
+          "response_ms": 334.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+          "status": 429,
+          "response_ms": 315.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023",
+          "status": 429,
+          "response_ms": 387.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/odessa-estate-sale-june-2024",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/odessa-estate-sale-june-2024",
+          "status": 429,
+          "response_ms": 361.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+          "status": 429,
+          "response_ms": 315.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+          "status": 429,
+          "response_ms": 319.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+          "status": 429,
+          "response_ms": 285.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+          "status": 429,
+          "response_ms": 392.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-companies-near-me",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-companies-near-me",
+          "status": 429,
+          "response_ms": 248.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+          "status": 429,
+          "response_ms": 284.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+          "status": 429,
+          "response_ms": 312.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/what-is-an-estate-sale",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/what-is-an-estate-sale",
+          "status": 429,
+          "response_ms": 284.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-liquidators-tampa-bay",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-liquidators-tampa-bay",
+          "status": 429,
+          "response_ms": 293.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-appraisal-services",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-appraisal-services",
+          "status": 429,
+          "response_ms": 234.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+          "status": 429,
+          "response_ms": 242.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+          "status": 429,
+          "response_ms": 247.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+          "status": 429,
+          "response_ms": 273.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+          "status": 429,
+          "response_ms": 254.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+          "status": 429,
+          "response_ms": 261.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+          "status": 429,
+          "response_ms": 272.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+          "status": 429,
+          "response_ms": 249.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+          "status": 429,
+          "response_ms": 274.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/45ef8d84aec44642bb5fbe6504df5d0b",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/pages/45ef8d84aec44642bb5fbe6504df5d0b",
+          "status": 429,
+          "response_ms": 238.0,
+          "size_kb": 9.3,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/",
+          "status": 429,
+          "response_ms": 255.0,
+          "size_kb": 9.1,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/bel-air-estate-sale-wednesday-11-9-22-and-thursday-11-10-22",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/products/bel-air-estate-sale-wednesday-11-9-22-and-thursday-11-10-22",
+          "status": 429,
+          "response_ms": 255.0,
+          "size_kb": 9.4,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/products/product-cc-2-7-fee",
+          "status": 429,
+          "response_ms": 253.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/processing-fee",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/products/processing-fee",
+          "status": 429,
+          "response_ms": 275.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2",
+          "status": 429,
+          "response_ms": 279.0,
+          "size_kb": 9.2,
+          "ok": false
+        },
+        {
+          "url": "https://organizinglifeservices.com/agents.md",
+          "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+          "final_url": "https://organizinglifeservices.com/agents.md",
+          "status": 429,
+          "response_ms": 276.0,
+          "size_kb": 9.2,
+          "ok": false
+        }
+      ]
+    },
+    "diff": {
+      "urls_compared": 90,
+      "status_mismatch_count": 43,
+      "browser_blocked_but_googlebot_ok": [],
+      "googlebot_blocked_but_browser_ok": [
+        "https://organizinglifeservices.com/blogs/news",
+        "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+        "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+        "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+        "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+        "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+        "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+        "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+        "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+        "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+        "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+        "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+        "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+        "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+        "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+        "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+        "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+        "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+        "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+        "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+        "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+        "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+        "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+        "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+        "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+        "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+        "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+        "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+        "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+        "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+        "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+        "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+        "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+        "https://organizinglifeservices.com/collections/all",
+        "https://organizinglifeservices.com/collections/fees-products",
+        "https://organizinglifeservices.com/pages/faqs",
+        "https://organizinglifeservices.com/pages/about-us",
+        "https://organizinglifeservices.com/pages/testimonials"
+      ],
+      "status_mismatches": [
+        {
+          "url": "https://organizinglifeservices.com/blogs/news",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-do-estate-sales-work",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-advantages-of-selling-a-house-empty-and-clean-insights-from-an-estate-sale-company-owner",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-wide-range-of-services-offered-by-organizing-life-services-and-how-they-can-benefit-clients",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/why-hire-estate-sale-company",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/find-the-best-jewelry-buyer-in-tampa-florida",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/finding-the-cheapest-property-for-sale",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/navigating-probate-a-comprehensive-guide-to-estate-settlement-with-a-skilled-probate-attorney",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/listing-boost-how-estate-sale-companies-elevate-your-real-estate-sales-and-listings",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/legacy-mastery-a-step-by-step-estate-planning-guide-with-expert-trusted-estate-attorney",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/a-comprehensive-guide-to-wills-and-estate-planning",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-buy-probate-real-estate",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/ultimate-guide-to-home-auctions",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-top-3-things-to-consider-when-buying-a-house",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-mastering-home-auctions-in-florida-for-maximum-success",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/unlocking-opportunities-exploring-foreclosure-homes-and-listings",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-liquidation-made-easy-key-strategies-for-a-successful-sale",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-to-organizing-life-services",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/the-psychology-of-estate-liquidation-why-a-tidy-space-equals-a-tidy-mind",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sale-with-organizing-life-services",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/estate-sales-near-me-your-ultimate-guide-to-local-finds",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/expert-estate-sale-organizers-tampa-bay-complete-guide",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/all",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/collections/fees-products",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/faqs",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/about-us",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/testimonials",
+          "browser_status": 200,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+          "browser_status": null,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+          "browser_status": null,
+          "googlebot_status": 429
+        },
+        {
+          "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+          "browser_status": null,
+          "googlebot_status": 429
+        }
+      ],
+      "title_mismatch_count": 0,
+      "title_mismatches": []
+    }
+  }
+}

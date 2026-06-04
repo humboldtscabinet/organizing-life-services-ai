@@ -1,0 +1,1395 @@
+{
+  "windows": {
+    "post": [
+      "2026-05-28",
+      "2026-06-03"
+    ],
+    "pre": [
+      "2026-05-21",
+      "2026-05-27"
+    ],
+    "base": [
+      "2026-04-30",
+      "2026-05-27"
+    ]
+  },
+  "gsc": {
+    "per_url": [
+      {
+        "url": "https://organizinglifeservices.com/",
+        "post_clicks": 23,
+        "pre_clicks": 16,
+        "base_clicks_28d": 78,
+        "post_impr": 758,
+        "pre_impr": 1146,
+        "base_impr_28d": 4743,
+        "post_ctr": 0.030343007915567283,
+        "pre_ctr": 0.013961605584642234,
+        "post_pos": 10.61873350923483,
+        "pre_pos": 13.56020942408377
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "post_clicks": 3,
+        "pre_clicks": 1,
+        "base_clicks_28d": 4,
+        "post_impr": 122,
+        "pre_impr": 136,
+        "base_impr_28d": 415,
+        "post_ctr": 0.02459016393442623,
+        "pre_ctr": 0.007352941176470588,
+        "post_pos": 6.131147540983607,
+        "pre_pos": 9.816176470588236
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 3,
+        "post_impr": 0,
+        "pre_impr": 49,
+        "base_impr_28d": 143,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 9.224489795918368
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "post_clicks": 3,
+        "pre_clicks": 1,
+        "base_clicks_28d": 3,
+        "post_impr": 108,
+        "pre_impr": 93,
+        "base_impr_28d": 448,
+        "post_ctr": 0.027777777777777776,
+        "pre_ctr": 0.010752688172043012,
+        "post_pos": 13.49074074074074,
+        "pre_pos": 16.29032258064516
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 25,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 13.8,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "post_clicks": 1,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 51,
+        "pre_impr": 32,
+        "base_impr_28d": 187,
+        "post_ctr": 0.0196078431372549,
+        "pre_ctr": 0,
+        "post_pos": 8.392156862745098,
+        "pre_pos": 8.875
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 3,
+        "post_impr": 41,
+        "pre_impr": 51,
+        "base_impr_28d": 246,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 10.390243902439025,
+        "pre_pos": 9.862745098039216
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 1,
+        "post_impr": 411,
+        "pre_impr": 241,
+        "base_impr_28d": 1502,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 11.732360097323602,
+        "pre_pos": 19.800829875518673
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+        "post_clicks": 0,
+        "pre_clicks": 1,
+        "base_clicks_28d": 1,
+        "post_impr": 269,
+        "pre_impr": 274,
+        "base_impr_28d": 767,
+        "post_ctr": 0,
+        "pre_ctr": 0.0036496350364963502,
+        "post_pos": 7.152416356877324,
+        "pre_pos": 26.087591240875913
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 65,
+        "pre_impr": 258,
+        "base_impr_28d": 713,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 25.476923076923075,
+        "pre_pos": 25.930232558139537
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+        "post_clicks": 1,
+        "pre_clicks": 0,
+        "base_clicks_28d": 1,
+        "post_impr": 51,
+        "pre_impr": 112,
+        "base_impr_28d": 574,
+        "post_ctr": 0.0196078431372549,
+        "pre_ctr": 0,
+        "post_pos": 25.764705882352942,
+        "pre_pos": 39.1875
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 76,
+        "pre_impr": 79,
+        "base_impr_28d": 526,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 22.763157894736842,
+        "pre_pos": 28.60759493670886
+      },
+      {
+        "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 54,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 2,
+        "post_impr": 54,
+        "pre_impr": 129,
+        "base_impr_28d": 673,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 15.962962962962964,
+        "pre_pos": 25.775193798449614
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/faqs",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 0,
+        "post_impr": 0,
+        "pre_impr": 0,
+        "base_impr_28d": 0,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 0,
+        "pre_pos": 0
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 2,
+        "post_impr": 71,
+        "pre_impr": 63,
+        "base_impr_28d": 300,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 30.56338028169014,
+        "pre_pos": 21.666666666666668
+      },
+      {
+        "url": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+        "post_clicks": 0,
+        "pre_clicks": 0,
+        "base_clicks_28d": 1,
+        "post_impr": 31,
+        "pre_impr": 45,
+        "base_impr_28d": 207,
+        "post_ctr": 0,
+        "pre_ctr": 0,
+        "post_pos": 10.35483870967742,
+        "pre_pos": 15.355555555555556
+      }
+    ],
+    "new_wins_top30": [
+      {
+        "query": "estate sales organizer",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 1,
+        "impressions": 6,
+        "ctr": 0.16666666666666666,
+        "position": 1
+      },
+      {
+        "query": "difference between estate sale and yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 10.333333333333334
+      },
+      {
+        "query": "garage sale near me",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 6.166666666666667
+      },
+      {
+        "query": "what is the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 6,
+        "ctr": 0,
+        "position": 13
+      },
+      {
+        "query": "estate sales",
+        "page": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 4.2
+      },
+      {
+        "query": "estate sales organizers",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 1.4
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 11
+      },
+      {
+        "query": "what is the difference between a yard sale and an estate sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 5,
+        "ctr": 0,
+        "position": 11
+      },
+      {
+        "query": "estate sales organizers",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 13.75
+      },
+      {
+        "query": "estate valuation of personal property",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 43.25
+      },
+      {
+        "query": "personal property appraisal services southern fl",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 22.5
+      },
+      {
+        "query": "personal property appraiser near me",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 40.75
+      },
+      {
+        "query": "private home appraisal near me",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 59
+      },
+      {
+        "query": "what is an estate sale",
+        "page": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 3
+      },
+      {
+        "query": "what's the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 12.75
+      },
+      {
+        "query": "what's the difference between an estate sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 4,
+        "ctr": 0,
+        "position": 12.25
+      },
+      {
+        "query": "appraisal services for real estate",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 82.66666666666667
+      },
+      {
+        "query": "difference between garage and yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 9
+      },
+      {
+        "query": "estate clean outs",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 11.666666666666666
+      },
+      {
+        "query": "estate sale and appraisal services",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 62.333333333333336
+      },
+      {
+        "query": "estate sale near me today",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 3.6666666666666665
+      },
+      {
+        "query": "estate sales pinellas county this weekend",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 10.333333333333334
+      },
+      {
+        "query": "evaluate the collectibles company barbie signature on collectible figures",
+        "page": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 10
+      },
+      {
+        "query": "evaluate the collectibles company barbie signature on fashion dolls",
+        "page": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 10.666666666666666
+      },
+      {
+        "query": "how much does it cost to have an estate sale",
+        "page": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 3
+      },
+      {
+        "query": "organizing life services",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 1
+      },
+      {
+        "query": "personal property appraisers near me",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 25.666666666666668
+      },
+      {
+        "query": "what's the difference between an estate sale and a yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 11.666666666666666
+      },
+      {
+        "query": "yard sale near me today",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 3,
+        "ctr": 0,
+        "position": 9.333333333333334
+      },
+      {
+        "query": "auction house near me",
+        "page": "https://organizinglifeservices.com/",
+        "clicks": 0,
+        "impressions": 2,
+        "ctr": 0,
+        "position": 1
+      }
+    ]
+  },
+  "inspection": [
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-02T02:33:48Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-04T15:23:04Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "last_crawl": "?",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "last_crawl": "?",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "last_crawl": "?",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "last_crawl": "?",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-31T12:04:25Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-28T06:35:25Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "last_crawl": "?",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-04T07:26:06Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-26T06:12:15Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-31T07:17:48Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-31T12:48:27Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-05-29T08:56:49Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-01T23:52:33Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-01T12:39:16Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "PASS",
+      "rich_results_items": [
+        "Breadcrumbs",
+        "FAQ"
+      ]
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+      "verdict": "NEUTRAL",
+      "coverage": "Crawled - currently not indexed",
+      "last_crawl": "2026-05-19T00:11:51Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    },
+    {
+      "url": "https://organizinglifeservices.com/",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "last_crawl": "2026-06-04T06:10:59Z",
+      "indexing_state": "INDEXING_ALLOWED",
+      "rich_results_verdict": "?",
+      "rich_results_items": []
+    }
+  ],
+  "noindex_inspection": [
+    {
+      "url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexing_state": "INDEXING_ALLOWED",
+      "last_crawl": "2026-05-26T01:42:42Z",
+      "robots_txt_state": "ALLOWED",
+      "page_fetch_state": "SUCCESSFUL"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "last_crawl": "?",
+      "robots_txt_state": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "page_fetch_state": "PAGE_FETCH_STATE_UNSPECIFIED"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+      "verdict": "NEUTRAL",
+      "coverage": "Excluded by \u2018noindex\u2019 tag",
+      "indexing_state": "BLOCKED_BY_META_TAG",
+      "last_crawl": "2026-06-04T04:05:59Z",
+      "robots_txt_state": "ALLOWED",
+      "page_fetch_state": "SUCCESSFUL"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexing_state": "INDEXING_ALLOWED",
+      "last_crawl": "2026-05-24T00:53:16Z",
+      "robots_txt_state": "ALLOWED",
+      "page_fetch_state": "SUCCESSFUL"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "last_crawl": "?",
+      "robots_txt_state": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "page_fetch_state": "PAGE_FETCH_STATE_UNSPECIFIED"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+      "verdict": "NEUTRAL",
+      "coverage": "Discovered - currently not indexed",
+      "indexing_state": "INDEXING_STATE_UNSPECIFIED",
+      "last_crawl": "?",
+      "robots_txt_state": "ROBOTS_TXT_STATE_UNSPECIFIED",
+      "page_fetch_state": "PAGE_FETCH_STATE_UNSPECIFIED"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexing_state": "INDEXING_ALLOWED",
+      "last_crawl": "2026-05-22T19:08:45Z",
+      "robots_txt_state": "ALLOWED",
+      "page_fetch_state": "SUCCESSFUL"
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+      "verdict": "PASS",
+      "coverage": "Submitted and indexed",
+      "indexing_state": "INDEXING_ALLOWED",
+      "last_crawl": "2026-05-14T19:44:22Z",
+      "robots_txt_state": "ALLOWED",
+      "page_fetch_state": "SUCCESSFUL"
+    }
+  ],
+  "schema": [
+    {
+      "url": "https://organizinglifeservices.com/",
+      "label": "homepage",
+      "status": 200,
+      "markers": {
+        "LocalBusiness": true,
+        "SCHEMA-LB-V2": true,
+        "SEO-INTLINKS-A5-V1": false
+      },
+      "all_ok": false
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+      "label": "geo:estate-sale-palm-harbor-pinell",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+      "label": "geo:tarpon-springs-estate-sale-in-",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+      "label": "geo:estate-sale-clearwater-florida",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+      "label": "geo:estate-sale-dunedin-florida",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+      "label": "geo:estate-sale-st-petersburg-flor",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+      "label": "geo:estate-sale-largo-florida",
+      "status": 200,
+      "markers": {
+        "FAQ-SCHEMA-V1": true,
+        "FAQPage": true,
+        "BreadcrumbList": true,
+        "GEO-CROSSLINKS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+      "label": "article:estate-sale-vs-garage-sale-kno",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/pros-and-cons-of-estate-sales",
+      "label": "article:pros-and-cons-of-estate-sales",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+      "label": "article:how-to-increase-your-home-appr",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+      "label": "article:estate-auction-vs-estate-sale-",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+      "label": "article:the-ultimate-guide-for-barbie-",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/blogs/news/how-to-plan-estate-sale",
+      "label": "article:how-to-plan-estate-sale",
+      "status": 200,
+      "markers": {
+        "ARTICLE-SCHEMA-V1": true,
+        "\"@type\":\"Article\"": true,
+        "BreadcrumbList": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+      "label": "hub:estate-cleanout-services",
+      "status": 200,
+      "markers": {
+        "SERVICE-AREAS-V1": true
+      },
+      "all_ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/faqs",
+      "label": "hub:faqs",
+      "status": 200,
+      "markers": {
+        "SERVICE-AREAS-V1": true
+      },
+      "all_ok": true
+    }
+  ],
+  "noindex_live": [
+    {
+      "url": "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-1",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/estate-sale-westchase-tampa-fl-33626-hillsborough-county",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/highland-lakes-estate-sale",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/lansbrook-myrtle-point-estate-sale-part-two",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/myrtle-point-estate-sale",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/moon-lake-estate-sale",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/new-port-richey-appointment-only-sale-april-2024",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/odessa-estate-sale-june-2024",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/organizing-life-estate-sale-company-successful-sales",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/pimberton-drive-hudson",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/successful-high-quality-estate-sale-ridge-lane-palm-harbor-pinellas-county-florida",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/vintage-coca-cola-estate-sale-in-dunedin-florida-march-2023",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    },
+    {
+      "url": "https://organizinglifeservices.com/pages/vintage-palm-harbor-coming-up-soon",
+      "status": 200,
+      "robots": "noindex,follow",
+      "ok": true
+    }
+  ],
+  "ga4": {
+    "post": [
+      {
+        "page": "/",
+        "sessions": 22,
+        "conversions": 61.0
+      },
+      {
+        "page": "/pages/estate-sale-tampa-hillsborough-county",
+        "sessions": 5,
+        "conversions": 30.0
+      },
+      {
+        "page": "/blogs/news/estate-sale-vs-garage-sale-know-the-differences/",
+        "sessions": 4,
+        "conversions": 4.0
+      },
+      {
+        "page": "(not set)",
+        "sessions": 3,
+        "conversions": 0.0
+      },
+      {
+        "page": "/blogs/news/yard-sale-vs-estate-sale-key-differences",
+        "sessions": 2,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 2,
+        "conversions": 2.0
+      },
+      {
+        "page": "/blogs/news/estate-auction-vs-estate-sale-pros-and-cons",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/13925-pathfinder-drive-tampa-florida",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/about-us",
+        "sessions": 1,
+        "conversions": 6.0
+      },
+      {
+        "page": "/pages/estate-liquidation",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/testimonials",
+        "sessions": 1,
+        "conversions": 2.0
+      }
+    ],
+    "pre": [
+      {
+        "page": "/",
+        "sessions": 22,
+        "conversions": 75.0
+      },
+      {
+        "page": "/blogs/news/how-to-find-the-best-antique-buyer/",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/pros-and-cons-of-estate-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/ultimate-guide-to-home-auctions",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/yard-sale-vs-estate-sale-key-differences",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/13925-pathfinder-drive-tampa-florida",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/about-us",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/downsizing-moving-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/estate-sale-planning",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/estate-sale-tampa-hillsborough-county",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/organizing-life-estate-sale-company-successful-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/sell-your-house-florida",
+        "sessions": 1,
+        "conversions": 3.0
+      }
+    ],
+    "base_28d": [
+      {
+        "page": "/",
+        "sessions": 90,
+        "conversions": 331.0
+      },
+      {
+        "page": "(not set)",
+        "sessions": 7,
+        "conversions": 0.0
+      },
+      {
+        "page": "/pages/contact-us",
+        "sessions": 5,
+        "conversions": 21.0
+      },
+      {
+        "page": "/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+        "sessions": 4,
+        "conversions": 4.0
+      },
+      {
+        "page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 4,
+        "conversions": 6.0
+      },
+      {
+        "page": "/pages/estate-sale-planning",
+        "sessions": 4,
+        "conversions": 5.0
+      },
+      {
+        "page": "/blogs/news/how-to-find-the-best-antique-buyer/",
+        "sessions": 3,
+        "conversions": 3.0
+      },
+      {
+        "page": "/pages/estate-cleanout-services",
+        "sessions": 3,
+        "conversions": 3.0
+      },
+      {
+        "page": "/pages/estate-sale-tampa-hillsborough-county",
+        "sessions": 3,
+        "conversions": 16.0
+      },
+      {
+        "page": "/pages/personal-property-appraisal",
+        "sessions": 3,
+        "conversions": 4.0
+      },
+      {
+        "page": "/pages/pinellas-park-estate-sale-in-the-mainlands-9841-41st-street-north",
+        "sessions": 3,
+        "conversions": 4.0
+      },
+      {
+        "page": "/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "sessions": 2,
+        "conversions": 2.0
+      },
+      {
+        "page": "/blogs/news/yard-sale-vs-estate-sale-key-differences",
+        "sessions": 2,
+        "conversions": 3.0
+      },
+      {
+        "page": "/pages/about-us",
+        "sessions": 2,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/estate-sale-citrus-county",
+        "sessions": 2,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/estate-sale-safety-harbor-florida-pinellas-county-34695",
+        "sessions": 2,
+        "conversions": 4.0
+      },
+      {
+        "page": "/pages/tarpon-springs-estate-sale-in-woodfield",
+        "sessions": 2,
+        "conversions": 3.0
+      },
+      {
+        "page": "/blogs/news",
+        "sessions": 1,
+        "conversions": 4.0
+      },
+      {
+        "page": "/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/how-to-quickly-and-easily-get-rid-of-furniture-with-organizing-life-services",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/pros-and-cons-of-estate-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/the-ultimate-guide-for-barbie-collector-buyers",
+        "sessions": 1,
+        "conversions": 4.0
+      },
+      {
+        "page": "/blogs/news/the-ultimate-guide-to-finding-reliable-estate-sale-companies-nearby",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/blogs/news/tips-for-a-successful-sale-furniture-when-moving",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/blogs/news/ultimate-guide-to-home-auctions",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/13925-pathfinder-drive-tampa-florida",
+        "sessions": 1,
+        "conversions": 2.0
+      },
+      {
+        "page": "/pages/downsizing-moving-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/estate-liquidation",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/new-port-richey-sale-huge-do-not-miss-this-one",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/organizing-life-estate-sale-company-successful-sales",
+        "sessions": 1,
+        "conversions": 1.0
+      },
+      {
+        "page": "/pages/sell-your-house-florida",
+        "sessions": 1,
+        "conversions": 3.0
+      },
+      {
+        "page": "/pages/vintage-palm-harbor-coming-up-soon",
+        "sessions": 1,
+        "conversions": 1.0
+      }
+    ]
+  }
+}

@@ -10,6 +10,35 @@ Each entry should answer:
 
 ---
 
+## 2026-06-04 — Post-change impact audit (Phases 4–8)
+
+**What**
+- Built [`data/post_change_audit.py`](../../data/post_change_audit.py): 6-section measurement script comparing 7-day post-change window (May 28 → Jun 3) vs 7-day pre-change window (May 21 → May 27) across the 22 priority URLs touched in Phases 4–8.
+- Ran [`data/deep_seo_audit.py`](../../data/deep_seo_audit.py) for a fresh site-wide 28-day baseline.
+- Compiled the comprehensive report at [`docs/seo-audits/2026-06-04_post-change_impact_audit.md`](2026-06-04_post-change_impact_audit.md).
+
+**Headline results (22 priority URLs, 7d POST vs 7d PRE)**
+- **Clicks: 19 → 31 (+63.2%)**
+- **CTR: 0.70% → 1.45% (+0.75pp, more than doubled)**
+- **Organic sessions (GA4): 34 → 45 (+32.4%)**
+- **Organic conversions (GA4): 91 → 114 (+25.3%)**
+- **12 of 18 priority URLs indexed** (PASS verdict); **11 of 18 with FAQ + Breadcrumb rich results** (was 0 pre-change)
+- **6 net new geo pages progressed** from "URL is unknown to Google" → either indexed (1: New Port Richey) or "Discovered – currently not indexed" (5: Clearwater, Dunedin, St. Petersburg, Largo, Wesley Chapel)
+- **18 of 18 dead pages serve `noindex,follow`** (verified after rate-limit retries)
+- **14 of 15 schema markers verified live** (1 false miss = Shopify minification stripped an HTML comment, but the underlying feature — 24 geo-anchor links on homepage — is present)
+
+**Outputs**
+- Raw data: [`data/audit_output/post_change_audit_20260604.json`](../../data/audit_output/post_change_audit_20260604.json)
+- Fresh site-wide baseline: [`data/audit_output/deep_seo_audit_20260604_195553.{md,json}`](../../data/audit_output/deep_seo_audit_20260604_195553.md)
+- Full report: [`docs/seo-audits/2026-06-04_post-change_impact_audit.md`](2026-06-04_post-change_impact_audit.md)
+
+**Recommendation**
+- No new SEO push required this week — every Phase 4–8 deliverable is live and producing measurable lift.
+- Recheck 2026-06-18 to confirm the 5 pending geo pages have moved from Discovered → Indexed and the 8 noindex pages have dropped from Google's index.
+- Phase 9 candidates: Personal Property Appraisal page rebuild, FAQs page expansion, homepage above-the-fold service-area block.
+
+---
+
 ## 2026-05-28 — FAQ + Article schema + IndexNow integration
 
 **What**
