@@ -12,7 +12,6 @@ Writes to: seo_reports (Postgres) → Google Sheets "SEO Audit" tabs
 import os
 from datetime import datetime, timedelta
 
-from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.models import (
@@ -22,7 +21,6 @@ from app.db.models import (
     SEOReport,
     WorkflowLog,
 )
-
 
 # ===================== Core Audit Runner =====================
 
@@ -617,7 +615,6 @@ def _generate_recommendations(findings: dict) -> list:
 
 from app.services import seo_crawler  # noqa: E402
 
-
 # ---------- Math helpers ----------------------------------------------------
 
 def weighted_avg_position(rows: list[dict]) -> float:
@@ -881,12 +878,16 @@ def _ga4_period_block(cur_start, cur_end, prv_start, prv_end) -> dict | None:
     if not prop_id:
         return None
     try:
-        from google.oauth2 import service_account
         from google.analytics.data_v1beta import BetaAnalyticsDataClient
         from google.analytics.data_v1beta.types import (
-            DateRange, Dimension, Metric, RunReportRequest, FilterExpression,
+            DateRange,
+            Dimension,
             Filter,
+            FilterExpression,
+            Metric,
+            RunReportRequest,
         )
+        from google.oauth2 import service_account
     except ImportError:
         return {"error": "google-analytics-data not installed"}
 

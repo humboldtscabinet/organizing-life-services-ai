@@ -11,12 +11,12 @@ This service drives the weekly n8n automation that schedules new blog content.
 
 import logging
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from typing import Dict, List
 
-from sqlalchemy import and_, func
+from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
-from app.db.models import GSCData, DashboardTask
+from app.db.models import DashboardTask
 from app.services.content_engine import (
     analyze_content_gaps,
     create_content_task,

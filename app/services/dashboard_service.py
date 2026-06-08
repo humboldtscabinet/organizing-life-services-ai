@@ -12,6 +12,7 @@ Manual-approval mode: generates tasks, waits for human approval before execution
 
 from datetime import datetime, timedelta
 from typing import Optional
+
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 
@@ -22,7 +23,6 @@ from app.db.models import (
     GSCData,
     SEOReport,
 )
-
 
 # Geographic service area terms for Organizing Life Services
 # Based in Greater Tampa Bay Area, Florida

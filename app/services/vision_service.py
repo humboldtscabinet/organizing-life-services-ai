@@ -21,13 +21,11 @@ import csv
 import io
 import os
 import re
-from datetime import datetime
 
 import httpx
 from sqlalchemy.orm import Session
 
 from app.db.models import ImageAnalysis, WorkflowLog
-
 
 # ===================== Shopify Files API =====================
 
@@ -153,7 +151,6 @@ def pull_theme_assets(filter_prefix: str = "photo", limit: int = 250) -> list:
     assets = resp.json().get("assets", [])
 
     # Filter for image assets (XO Gallery photos)
-    store = os.getenv("SHOPIFY_STORE")
     images = []
     image_extensions = (".jpg", ".jpeg", ".png", ".webp", ".gif")
 
@@ -972,7 +969,7 @@ def bulk_push_alt_text(db: Session, batch_size: int = 50, force: bool = False, p
                 if attempt < 2:
                     time.sleep(5 * (attempt + 1))  # Backoff: 5s, 10s
                 else:
-                    logger.error(f"Fetch page failed after 3 attempts, stopping.")
+                    logger.error("Fetch page failed after 3 attempts, stopping.")
                     return {
                         "status": "partial",
                         "detail": f"Stopped after fetch error: {e}",
@@ -1221,10 +1218,6 @@ def compare_alt_text(db: Session, sample_size: int = 10) -> dict:
 
     Returns side-by-side comparison for matched files.
     """
-    import logging
-
-    logger = logging.getLogger("vision_alt_compare")
-
     # Load analyzed images keyed by filename
     analyzed = db.query(ImageAnalysis).filter(
         ImageAnalysis.status == "analyzed",

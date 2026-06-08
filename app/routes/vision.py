@@ -9,8 +9,9 @@ All endpoints are manual-trigger:
 
 import json
 import os
+import threading
 
-from fastapi import APIRouter, BackgroundTasks, Depends, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
@@ -290,7 +291,7 @@ def analyze_images(
                 local_data = json.load(f)
             base_url = local_data.get("base_url", "")
             images = []
-            for gid, gallery in local_data.get("galleries", {}).items():
+            for _gid, gallery in local_data.get("galleries", {}).items():
                 for fname in gallery.get("filenames", []):
                     images.append(
                         {
@@ -353,8 +354,6 @@ def bulk_analyze(
     except Exception as e:
         return {"status": "error", "detail": str(e)}
 
-
-import threading
 
 # Global status tracker for background alt text push
 _alt_push_status = {"running": False, "result": None}
@@ -481,7 +480,7 @@ def debug_test_mutation():
     """
     import httpx as _httpx
 
-    from app.services.vision_service import _shopify_graphql, _fetch_shopify_file_ids
+    from app.services.vision_service import _fetch_shopify_file_ids
 
     try:
         # Step 1: Get the token info
@@ -693,6 +692,7 @@ def store_token(t: str = ""):
     with open(token_path, "w") as f:
         f.write(t)
     import base64
+
     from fastapi.responses import Response
     pixel = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
     return Response(content=pixel, media_type="image/png")
@@ -701,8 +701,8 @@ def store_token(t: str = ""):
 @router.get("/get-token")
 def get_stored_token():
     """Return the stored XO Gallery session token."""
-    import time
     import base64 as b64
+    import time
     token_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_session_token.txt")
     token_path = os.path.normpath(token_path)
     if not os.path.exists(token_path):
@@ -729,8 +729,9 @@ async def xo_proxy(request: Request):
             "token": "...", "body": {...}, "login": true/false,
             "params": {"hmac": "...", "session": "...", "timestamp": "..."} }
     """
-    import httpx
     import pickle
+
+    import httpx
 
     body = await request.json()
     target_url = body.get("url", "")

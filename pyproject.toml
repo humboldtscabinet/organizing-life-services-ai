@@ -1,0 +1,31 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-q --strict-markers"
+asyncio_default_fixture_loop_scope = "function"
+filterwarnings = [
+    # google-api-core warns on Python < 3.10; harmless in CI (3.11) but quiet it
+    "ignore::FutureWarning",
+]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+# data/ holds one-off, throwaway SEO scripts; linting them is noise. The app
+# package and the test suite are the surfaces worth keeping clean.
+extend-exclude = [".venv", "data", "dashboard"]
+
+[tool.ruff.lint]
+# A pragmatic starter set: real bugs (F), undefined names, bad imports (E/I),
+# bugbears (B). Not style-nitpicking — this is a brownfield codebase.
+select = ["E", "F", "I", "B"]
+ignore = [
+    "E501",  # line length handled by formatter, not enforced here
+    "B008",  # FastAPI uses `Depends()` in defaults by design
+]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]  # re-exports
+"tests/*" = ["F401", "F811"]  # fixtures/imports patterns

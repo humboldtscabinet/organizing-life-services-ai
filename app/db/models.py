@@ -12,12 +12,10 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
-    UniqueConstraint,
 )
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.database import Base
-
 
 # ---------- Core tables ----------
 

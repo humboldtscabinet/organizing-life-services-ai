@@ -11,7 +11,7 @@ import gspread
 from google.oauth2 import service_account
 from sqlalchemy.orm import Session
 
-from app.db.models import GA4Data, GBPInsight, GoogleAdsData, GSCData, SEOReport
+from app.db.models import GA4Data, GBPInsight, GoogleAdsData, GSCData
 
 SHEETS_SCOPES = [
     "https://www.googleapis.com/auth/spreadsheets",

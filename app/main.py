@@ -13,12 +13,12 @@ from sqlalchemy import text
 
 from app.auth import require_api_key
 from app.db.database import SessionLocal
+from app.routes.content import router as content_router
+from app.routes.dashboard import router as dashboard_router
+from app.routes.lifecycle import router as lifecycle_router
 from app.routes.seo import router as seo_router
 from app.routes.shopify import router as shopify_router
 from app.routes.vision import router as vision_router
-from app.routes.lifecycle import router as lifecycle_router
-from app.routes.dashboard import router as dashboard_router
-from app.routes.content import router as content_router
 
 # Configure logging
 logging.basicConfig(

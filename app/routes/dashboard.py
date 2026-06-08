@@ -22,13 +22,13 @@ from app.services.dashboard_service import (
     get_task_by_id,
     get_tasks,
 )
-from app.services.gsc_service import pull_gsc_data
 from app.services.ga4_service import pull_ga4_data
 from app.services.google_ads_service import pull_google_ads_data
+from app.services.gsc_service import pull_gsc_data
 from app.services.sheets_service import (
-    push_gsc_to_sheets,
     push_ga4_to_sheets,
     push_google_ads_to_sheets,
+    push_gsc_to_sheets,
 )
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])

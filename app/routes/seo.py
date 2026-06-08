@@ -282,7 +282,8 @@ def ads_account_overview():
 def ads_conversion_audit():
     """Flag bogus / misconfigured conversion actions (direct API)."""
     from app.services.google_ads_service import (
-        audit_conversion_actions, direct_api_available,
+        audit_conversion_actions,
+        direct_api_available,
     )
     if not direct_api_available():
         return {
@@ -299,7 +300,8 @@ def ads_conversion_audit():
 def ads_campaigns():
     """List all campaigns with budget + bidding strategy (direct API)."""
     from app.services.google_ads_service import (
-        list_campaigns, direct_api_available,
+        direct_api_available,
+        list_campaigns,
     )
     if not direct_api_available():
         return {
@@ -318,7 +320,9 @@ def ads_campaigns():
 def gtm_discover(account_id: str | None = None):
     """List GTM accounts (and containers if account_id given) the SA can see."""
     from app.services.gtm_service import (
-        direct_api_available, discover_gtm_accounts, discover_gtm_containers,
+        direct_api_available,
+        discover_gtm_accounts,
+        discover_gtm_containers,
     )
     if not direct_api_available():
         return {"status": "unavailable", "detail": "GTM credentials not configured."}

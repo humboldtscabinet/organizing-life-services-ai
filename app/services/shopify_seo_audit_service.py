@@ -22,7 +22,6 @@ import httpx
 
 from app.services import seo_crawler, shopify_service
 
-
 TITLE_LIMIT = 60
 META_LIMIT = 155
 

@@ -14,13 +14,11 @@ the transition between lifecycle stages.
 Manual-approval mode: all stage transitions require explicit trigger.
 """
 
-import os
 from datetime import datetime
 
 from sqlalchemy.orm import Session
 
 from app.db.models import WorkflowLog
-
 
 # ===================== County Page Mapping =====================
 
@@ -226,7 +224,6 @@ def update_sale_status(
     if sale_dates:
         # Update meta description with new dates
         title = current_page.get("title", "")
-        city = title.split(",")[-1].strip() if "," in title else "Tampa Bay"
         updates["meta_description"] = (
             f"Estate sale on {sale_dates} - {title}. "
             f"Professional estate liquidation by Organizing Life Services. "
@@ -338,7 +335,7 @@ def archive_estate_sale(
 
     # Step 4: Delete the old page
     try:
-        delete_result = delete_page(page_id)
+        delete_page(page_id)
         results["steps"].append({
             "step": "delete_page",
             "status": "success",

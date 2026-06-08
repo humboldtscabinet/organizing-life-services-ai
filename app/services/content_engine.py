@@ -14,21 +14,19 @@ Manual-approval mode: generates tasks, waits for human approval before publishin
 """
 
 import json
+import logging
 import os
 import re
-import logging
 from datetime import datetime, timedelta
-from typing import Optional, List, Dict
-
-import base64
+from typing import Dict, List, Optional
 
 import anthropic
 import httpx
 import openai
-from sqlalchemy import and_, func, desc
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.db.models import GSCData, DashboardTask, WorkflowLog
+from app.db.models import DashboardTask, GSCData
 
 logger = logging.getLogger(__name__)
 

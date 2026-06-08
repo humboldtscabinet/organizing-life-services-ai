@@ -13,25 +13,24 @@ All routes require X-API-Key authentication.
 import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, Query, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.db.models import DashboardTask
 from app.services.content_engine import (
-    analyze_content_gaps,
-    create_content_task,
-    generate_blog_post,
-    publish_to_shopify,
+    SHOPIFY_BLOG_ID,
     _generate_blog_image,
     _shopify_headers,
     _shopify_url,
-    SHOPIFY_BLOG_ID,
+    analyze_content_gaps,
+    generate_blog_post,
+    publish_to_shopify,
 )
 from app.services.content_scheduler import (
     get_content_calendar,
-    schedule_weekly_content,
     get_content_status,
+    schedule_weekly_content,
 )
 
 logger = logging.getLogger(__name__)
@@ -78,7 +77,7 @@ def analyze_gaps(
 
     except Exception as e:
         logger.error(f"Error analyzing content gaps: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/schedule-next")
@@ -127,7 +126,7 @@ def schedule_next(
 
     except Exception as e:
         logger.error(f"Error scheduling weekly content: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/generate-and-publish")
@@ -173,7 +172,7 @@ def generate_and_publish(
         raise
     except Exception as e:
         logger.error(f"Error publishing task: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/calendar")
@@ -215,7 +214,7 @@ def calendar(
 
     except Exception as e:
         logger.error(f"Error getting content calendar: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.get("/status")
@@ -246,7 +245,7 @@ def status(db: Session = Depends(get_db)):
 
     except Exception as e:
         logger.error(f"Error getting content status: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/generate-preview")
@@ -318,7 +317,7 @@ def generate_preview(
         raise
     except Exception as e:
         logger.error(f"Error generating preview: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/add-image")
@@ -372,7 +371,7 @@ def add_image_to_article(
         raise
     except Exception as e:
         logger.error(f"Error adding image to article: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e
 
 
 @router.post("/fix-article-content")
@@ -582,4 +581,4 @@ def fix_article_content(
         raise
     except Exception as e:
         logger.error(f"Error fixing article content: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=str(e)) from e

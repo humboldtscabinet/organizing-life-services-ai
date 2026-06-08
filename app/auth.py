@@ -12,11 +12,11 @@ Usage in routes:
         ...
 """
 
+import logging
 import os
 import secrets
-import logging
 
-from fastapi import Depends, HTTPException, Security, status
+from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
 logger = logging.getLogger(__name__)
