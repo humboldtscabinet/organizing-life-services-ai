@@ -5,10 +5,12 @@ name: Weekly SEO Audit
 #
 # Required repo secrets (Settings -> Secrets and variables -> Actions):
 #   GOOGLE_SERVICE_ACCOUNT_JSON  - full contents of credentials/google-service-account.json
-#   SHOPIFY_STORE_DOMAIN         - e.g. organizinglifeservices.myshopify.com
-#   SHOPIFY_ADMIN_API_TOKEN      - Shopify Admin API access token (read scope is fine for audit)
 #   GA4_PROPERTY_ID              - 396184354
-#   SEARCH_CONSOLE_SITE_URL      - sc-domain:organizinglifeservices.com (or https URL form)
+#   GSC_SITE_URL                 - https://organizinglifeservices.com/ (sitemap + URL Inspection target)
+#
+# The audit script (data/deep_seo_audit.py) reads GA4_PROPERTY_ID and
+# GSC_SITE_URL from the environment and authenticates everything else with
+# the service account. It does NOT use any Shopify credentials.
 #
 # A maintainer should review the PR, synthesize a human-readable audit in
 # docs/seo-audits/ if it's a notable run, update the CHANGELOG, then merge.
@@ -53,10 +55,8 @@ jobs:
       - name: Run deep SEO audit
         env:
           GOOGLE_APPLICATION_CREDENTIALS: credentials/google-service-account.json
-          SHOPIFY_STORE_DOMAIN: ${{ secrets.SHOPIFY_STORE_DOMAIN }}
-          SHOPIFY_ADMIN_API_TOKEN: ${{ secrets.SHOPIFY_ADMIN_API_TOKEN }}
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
-          SEARCH_CONSOLE_SITE_URL: ${{ secrets.SEARCH_CONSOLE_SITE_URL }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
         run: |
           python data/deep_seo_audit.py
 

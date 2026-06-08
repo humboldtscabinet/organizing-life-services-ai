@@ -1,12 +1,20 @@
 """
-SEO Crawler — Dual-UA technical crawler.
+SEO Crawler — single-UA storefront technical crawler.
 
-Crawls every URL discovered from the Shopify sitemap with:
-  - A "browser" user-agent (what users + our auditor see)
-  - A "Googlebot" user-agent (what Google sees)
+Crawls every URL discovered from the Shopify sitemap with a normal
+browser user-agent and extracts on-page SEO signals.
 
-The comparison surfaces cloaking / bot-blocking issues (e.g. Shopify
-rate-limit pages serving 403 to non-browser UAs while Google gets 200).
+**Why not a "Googlebot" pass?** We used to crawl twice — once as a
+browser, once spoofing the Googlebot UA — and diff the two to detect
+cloaking. That comparison is worthless from any IP we control:
+Shopify (and Google) verify Googlebot by *reverse DNS*, not by the
+User-Agent string, so a spoofed Googlebot UA from a non-Google IP is
+always served Shopify's 429 "Verifying your connection…" bot-challenge.
+The result was a 100%-false-positive "blocked to Googlebot, CRITICAL"
+signal. The authoritative "what does Google see" answer now comes from
+the Google URL Inspection API (see `app/services/gsc_url_inspection.py`),
+which reports Google's own crawl/index verdict per URL. Do NOT
+reintroduce a spoofed-Googlebot crawl.
 
 Per-page checks:
   - HTTP status, response time, page size
@@ -49,18 +57,36 @@ MAX_URLS_DEFAULT = 250
 _NS = {"sm": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
 
-def discover_urls(site_url: str, ua: str = UA_BROWSER) -> list[str]:
-    """Walk the sitemap index and return every URL listed."""
+def discover_urls_verbose(
+    site_url: str, ua: str = UA_BROWSER
+) -> tuple[list[str], dict]:
+    """
+    Walk the sitemap index and return (urls, diagnostics).
+
+    Diagnostics surface failures that would otherwise be silently swallowed
+    (e.g. Shopify's 429 "Verifying your connection" bot-challenge), so an
+    empty crawl never looks identical to a real empty sitemap.
+    """
     seeds = [urljoin(site_url.rstrip("/") + "/", "sitemap.xml")]
     seen_sitemaps: set[str] = set()
     urls: list[str] = []
+    sitemap_errors: list[dict] = []
+    bot_challenge_detected = False
 
-    def fetch(u: str) -> str:
+    def fetch(u: str) -> tuple[str, dict | None]:
         try:
-            r = requests.get(u, timeout=CRAWL_TIMEOUT, headers={"User-Agent": ua})
-            return r.text if r.ok else ""
-        except Exception:
-            return ""
+            r = requests.get(
+                u, timeout=CRAWL_TIMEOUT, headers={"User-Agent": ua}
+            )
+        except Exception as e:
+            return "", {"url": u, "status": None, "reason": f"exception: {e}"}
+        if not r.ok:
+            return "", {
+                "url": u,
+                "status": r.status_code,
+                "reason": f"http {r.status_code}",
+            }
+        return r.text, None
 
     queue = list(seeds)
     while queue:
@@ -68,12 +94,24 @@ def discover_urls(site_url: str, ua: str = UA_BROWSER) -> list[str]:
         if sm in seen_sitemaps:
             continue
         seen_sitemaps.add(sm)
-        text = fetch(sm)
-        if not text:
+        text, err = fetch(sm)
+        if err:
+            sitemap_errors.append(err)
             continue
         try:
             root = ET.fromstring(text.encode())
-        except ET.ParseError:
+        except ET.ParseError as e:
+            # Most common cause here is Shopify returning an HTML
+            # bot-challenge page (status 200 with HTML body) instead of XML.
+            snippet = text[:120].replace("\n", " ")
+            looks_html = "<html" in text[:200].lower() or "doctype html" in text[:200].lower()
+            if looks_html:
+                bot_challenge_detected = True
+            sitemap_errors.append({
+                "url": sm,
+                "status": 200,
+                "reason": f"xml parse error ({e}); body starts: {snippet!r}",
+            })
             continue
         tag = root.tag.split("}", 1)[-1]
         if tag == "sitemapindex":
@@ -92,7 +130,20 @@ def discover_urls(site_url: str, ua: str = UA_BROWSER) -> list[str]:
             continue
         seen.add(u)
         out.append(u)
-    return out
+
+    diagnostics = {
+        "sitemaps_fetched": sorted(seen_sitemaps),
+        "sitemap_errors": sitemap_errors,
+        "bot_challenge_detected": bot_challenge_detected,
+        "urls_found": len(out),
+    }
+    return out, diagnostics
+
+
+def discover_urls(site_url: str, ua: str = UA_BROWSER) -> list[str]:
+    """Walk the sitemap index and return every URL listed."""
+    urls, _ = discover_urls_verbose(site_url, ua=ua)
+    return urls
 
 
 def audit_page(url: str, ua: str = UA_BROWSER) -> dict:
@@ -295,70 +346,41 @@ def crawl_site(
     }
 
 
-def dual_ua_crawl(
+def storefront_crawl(
     site_url: str, max_urls: int = MAX_URLS_DEFAULT
 ) -> dict:
     """
-    Crawl every URL twice — once as a browser, once as Googlebot — and
-    diff the results.
+    Crawl every sitemap URL once with a browser UA and return the
+    per-page + aggregate results plus sitemap-discovery diagnostics.
 
     Returns:
         {
-          "browser": <crawl_site result>,
-          "googlebot": <crawl_site result>,
-          "diff": {
-              "browser_blocked_but_googlebot_ok": [...],
-              "googlebot_blocked_but_browser_ok": [...],
-              "status_mismatches": [...],
-              "title_mismatches": [...],
-          }
+          "browser": <crawl_site result>,   # primary crawl payload
+          "sitemap_diagnostics": {...},     # surfaces 429 / bot-challenge
         }
+
+    NOTE: the key is named "browser" (not "crawl") for backward
+    compatibility with downstream consumers that previously read the
+    browser arm of the old dual-UA result.
     """
-    urls = discover_urls(site_url, ua=UA_BROWSER)
+    urls, sitemap_diagnostics = discover_urls_verbose(site_url, ua=UA_BROWSER)
     urls = urls[:max_urls]
 
     browser = crawl_site(site_url, ua=UA_BROWSER, urls=urls)
-    googlebot = crawl_site(site_url, ua=UA_GOOGLEBOT, urls=urls)
-
-    b_by_url = {p["url"]: p for p in browser["pages"]}
-    g_by_url = {p["url"]: p for p in googlebot["pages"]}
-
-    browser_blocked_googlebot_ok = []
-    googlebot_blocked_browser_ok = []
-    status_mismatches = []
-    title_mismatches = []
-
-    for url in urls:
-        b = b_by_url.get(url, {})
-        g = g_by_url.get(url, {})
-        bs, gs = b.get("status"), g.get("status")
-        if bs != gs:
-            status_mismatches.append({
-                "url": url,
-                "browser_status": bs,
-                "googlebot_status": gs,
-            })
-            if bs and bs >= 400 and gs == 200:
-                browser_blocked_googlebot_ok.append(url)
-            if gs and gs >= 400 and bs == 200:
-                googlebot_blocked_browser_ok.append(url)
-        if b.get("title") and g.get("title") and b["title"] != g["title"]:
-            title_mismatches.append({
-                "url": url,
-                "browser_title": b["title"],
-                "googlebot_title": g["title"],
-            })
 
     return {
         "browser": browser,
-        "googlebot": googlebot,
-        "diff": {
-            "urls_compared": len(urls),
-            "status_mismatch_count": len(status_mismatches),
-            "browser_blocked_but_googlebot_ok": browser_blocked_googlebot_ok,
-            "googlebot_blocked_but_browser_ok": googlebot_blocked_browser_ok,
-            "status_mismatches": status_mismatches[:50],
-            "title_mismatch_count": len(title_mismatches),
-            "title_mismatches": title_mismatches[:50],
-        },
+        "sitemap_diagnostics": sitemap_diagnostics,
     }
+
+
+def dual_ua_crawl(
+    site_url: str, max_urls: int = MAX_URLS_DEFAULT
+) -> dict:
+    """Deprecated alias for `storefront_crawl`.
+
+    Kept so existing callers keep working. The Googlebot pass was removed
+    (it produced only false positives — see the module docstring), so this
+    now performs a single browser-UA crawl.
+    """
+    return storefront_crawl(site_url, max_urls=max_urls)

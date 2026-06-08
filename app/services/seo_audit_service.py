@@ -1054,18 +1054,9 @@ def build_executive_summary(gsc: dict, ga4: dict | None,
         }
 
     if crawl:
-        diff = crawl.get("diff", {})
         summary["crawl"] = {
             "urls_crawled": crawl.get("browser", {}).get("urls_crawled", 0),
             "urls_ok_browser": crawl.get("browser", {}).get("urls_ok", 0),
-            "urls_ok_googlebot": crawl.get("googlebot", {}).get("urls_ok", 0),
-            "status_mismatches": diff.get("status_mismatch_count", 0),
-            "browser_blocked_googlebot_ok": len(
-                diff.get("browser_blocked_but_googlebot_ok", [])
-            ),
-            "googlebot_blocked_browser_ok": len(
-                diff.get("googlebot_blocked_but_browser_ok", [])
-            ),
         }
 
     if shopify_overrides:

@@ -628,12 +628,6 @@ def push_deep_audit_to_sheets(
         c = exec_sum["crawl"]
         summary_rows.append(["Crawl — URLs OK (browser)",
                              c.get("urls_ok_browser", 0), ""])
-        summary_rows.append(["Crawl — URLs OK (Googlebot)",
-                             c.get("urls_ok_googlebot", 0), ""])
-        summary_rows.append(["Crawl — browser blocked / Googlebot OK",
-                             c.get("browser_blocked_googlebot_ok", 0), ""])
-        summary_rows.append(["Crawl — Googlebot blocked / browser OK",
-                             c.get("googlebot_blocked_browser_ok", 0), ""])
     if exec_sum.get("shopify_overrides"):
         s = exec_sum["shopify_overrides"]
         summary_rows.append(["Shopify resources audited",

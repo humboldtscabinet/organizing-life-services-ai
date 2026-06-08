@@ -32,6 +32,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from app.services import seo_crawler  # noqa: E402
+from app.services import gsc_url_inspection  # noqa: E402
 
 from google.oauth2 import service_account  # noqa: E402
 from googleapiclient.discovery import build  # noqa: E402
@@ -56,14 +57,22 @@ def load_env(path: Path) -> dict:
 
 
 ENV = load_env(ENV_PATH)
-SITE_URL = ENV.get("GSC_SITE_URL", "https://organizinglifeservices.com/").rstrip("/") + "/"
-GA4_PROPERTY_ID = ENV.get("GA4_PROPERTY_ID", "")
+
+
+def _cfg(key: str, default: str = "") -> str:
+    """Prefer a real environment variable (CI), fall back to .env (laptop)."""
+    return os.getenv(key) or ENV.get(key, default)
+
+
+SITE_URL = _cfg("GSC_SITE_URL", "https://organizinglifeservices.com/").rstrip("/") + "/"
+GA4_PROPERTY_ID = _cfg("GA4_PROPERTY_ID", "")
 CREDS_PATH = PROJECT_ROOT / "credentials" / "google-service-account.json"
 
 GSC_SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
 GA4_SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"]
 
 MAX_URLS = int(os.getenv("DEEP_AUDIT_MAX_URLS", "250"))
+INSPECT_TOP_N = int(os.getenv("DEEP_AUDIT_INSPECT_TOP_N", "50"))
 
 TODAY = datetime.now(timezone.utc).date()
 GSC_END = TODAY - timedelta(days=3)
@@ -220,6 +229,17 @@ def run_gsc_block() -> dict:
         if 8 <= r.get("position", 0) <= 20 and r.get("impressions", 0) >= 10
     ], key=lambda x: x["impressions"], reverse=True)
 
+    cur_p = gsc_query(svc, GSC_CUR_START, GSC_END, ["page"])
+    top_pages = sorted([
+        {
+            "page": r["keys"][0],
+            "impressions": r.get("impressions", 0),
+            "clicks": r.get("clicks", 0),
+            "position": round(r.get("position", 0), 1),
+        }
+        for r in cur_p
+    ], key=lambda x: x["impressions"], reverse=True)
+
     return {
         "windows": {
             "current": {"start": str(GSC_CUR_START), "end": str(GSC_END)},
@@ -232,6 +252,7 @@ def run_gsc_block() -> dict:
         "top_query_losers": top_losers,
         "ctr_opportunities": opp[:30],
         "striking_distance": striking[:30],
+        "top_pages": top_pages,
     }
 
 
@@ -309,9 +330,36 @@ def run_ga4_block() -> dict | None:
 
 # ---- Dual-UA crawl (delegated to shared module) ----------------------------
 def run_dual_crawl() -> dict:
-    print(f"[CRAWL] Dual-UA crawl (browser + Googlebot), cap {MAX_URLS}…",
+    print(f"[CRAWL] Storefront crawl (browser UA), cap {MAX_URLS}…",
           file=sys.stderr)
-    return seo_crawler.dual_ua_crawl(SITE_URL, max_urls=MAX_URLS)
+    return seo_crawler.storefront_crawl(SITE_URL, max_urls=MAX_URLS)
+
+
+# ---- URL Inspection (authoritative Googlebot view) -------------------------
+def run_inspection_block(gsc: dict) -> dict | None:
+    """
+    Inspect the top-N pages by impressions through the Google URL Inspection
+    API — the authoritative "what does Google see" signal that replaces the
+    old (false-positive) spoofed-Googlebot crawl.
+    """
+    top_pages = (gsc or {}).get("top_pages") or []
+    urls = [p["page"] for p in top_pages if p.get("page")][:INSPECT_TOP_N]
+    if not urls:
+        return None
+
+    print(f"[INSPECT] Google URL Inspection on top {len(urls)} pages "
+          f"by impressions…", file=sys.stderr)
+    try:
+        svc = gsc_url_inspection.build_inspection_service(str(CREDS_PATH))
+        results = gsc_url_inspection.inspect_urls(
+            svc, SITE_URL, urls, max_calls=INSPECT_TOP_N
+        )
+    except Exception as e:  # noqa: BLE001
+        return {"error": str(e), "requested": len(urls)}
+
+    summary = gsc_url_inspection.summarize(results)
+    summary["results"] = results
+    return summary
 
 
 # ---- Report renderer -------------------------------------------------------
@@ -326,7 +374,7 @@ def fmt_int(v):
         return str(v)
 
 
-def render_md(gsc, ga4, crawl) -> str:
+def render_md(gsc, ga4, crawl, inspection) -> str:
     L = []
     add = L.append
     add("# Deep SEO Audit — organizinglifeservices.com")
@@ -378,36 +426,82 @@ def render_md(gsc, ga4, crawl) -> str:
                 f"{fmt_pct(pct_change(org_c.get(key,0), org_p.get(key,0)))} |")
         add("")
 
-    add("## 3. Dual-UA Technical Crawl\n")
-    b, g, diff = crawl["browser"], crawl["googlebot"], crawl["diff"]
-    add(f"- URLs crawled: {b['urls_crawled']}")
-    add(f"- 200 OK as **browser**: {b['urls_ok']}")
-    add(f"- 200 OK as **Googlebot**: {g['urls_ok']}")
-    add(f"- Status mismatches: {diff['status_mismatch_count']}")
-    add(f"- **Blocked to browser, OK to Googlebot:** "
-        f"{len(diff['browser_blocked_but_googlebot_ok'])}  "
-        f"(usually Shopify bot-protection, not a real SEO issue)")
-    add(f"- **Blocked to Googlebot, OK to browser:** "
-        f"{len(diff['googlebot_blocked_but_browser_ok'])}  "
-        f"(CRITICAL if > 0)")
-    add(f"- Title mismatches between UAs: {diff['title_mismatch_count']}\n")
-
-    if diff["googlebot_blocked_but_browser_ok"]:
-        add("### ⚠️ URLs blocked to Googlebot (sample)")
-        for u in diff["googlebot_blocked_but_browser_ok"][:20]:
-            add(f"- `{u}`")
+    add("## 3. Storefront SEO Crawl\n")
+    b = crawl["browser"]
+    sm_diag = crawl.get("sitemap_diagnostics") or {}
+    if b["urls_crawled"] == 0:
+        add("> ⚠️ **No URLs were crawled.** Sitemap discovery returned an "
+            "empty list — this is almost always an infrastructure issue "
+            "(Shopify bot-challenge / IP rate-limit), not a real SEO finding.")
+        if sm_diag.get("bot_challenge_detected"):
+            add("> ")
+            add("> Detected: Shopify served an HTML bot-challenge page "
+                "(\"Verifying your connection…\") instead of `sitemap.xml`. "
+                "Re-run from a different IP, or wait ~15 min for the rate-limit "
+                "to clear.")
+        errs = sm_diag.get("sitemap_errors") or []
+        if errs:
+            add("> ")
+            add("> Sitemap fetch errors:")
+            for e in errs[:10]:
+                add(f"> - `{e.get('url')}` → {e.get('reason')}")
         add("")
+    add("_Crawled with a browser user-agent. This reflects what a normal "
+        "visitor (and our auditor) sees on the storefront. For Google's own "
+        "crawl/index verdict, see Section 3a._\n")
+    add(f"- URLs crawled: {b['urls_crawled']}")
+    add(f"- 200 OK: {b['urls_ok']}")
+    add(f"- Status counts: {b['status_counts']}")
+    add(f"- Avg response: {b['avg_response_ms']} ms — Avg size: "
+        f"{b['avg_size_kb']} KB\n")
 
-    add("### Status counts")
-    add(f"- Browser: {b['status_counts']}")
-    add(f"- Googlebot: {g['status_counts']}\n")
-
-    add("### Issue counts (Googlebot view = what Google sees)")
+    add("### Issue counts (browser view)")
     add("| Issue | # pages |")
     add("|---|---:|")
-    for iss, n in g["issue_counts"].items():
+    for iss, n in b["issue_counts"].items():
         add(f"| {iss} | {n} |")
     add("")
+
+    add("## 3a. Google URL Inspection — authoritative index status\n")
+    if not inspection:
+        add("_No URL inspection data this run (no top pages available)._\n")
+    elif inspection.get("error"):
+        add(f"> ⚠️ URL Inspection failed: `{inspection['error']}` "
+            f"(requested {inspection.get('requested', 0)} URLs).\n")
+    else:
+        add(f"_Inspected the top {inspection['inspected']} pages by "
+            f"impressions via the Google Search Console URL Inspection API — "
+            f"this is Google's own verdict, not a spoofed crawl._\n")
+        add(f"- Verdicts: {inspection['verdict_counts']}")
+        if inspection.get("errors"):
+            add(f"- Inspection errors: {inspection['errors']}")
+        add("")
+        add("**Coverage states**")
+        add("| State | # pages |")
+        add("|---|---:|")
+        for state, n in sorted(
+            inspection["coverage_counts"].items(), key=lambda x: -x[1]
+        ):
+            add(f"| {state} | {n} |")
+        add("")
+        problems = inspection.get("problems") or []
+        if problems:
+            add(f"### ⚠️ Pages needing attention ({len(problems)})")
+            add("| Page | Verdict | Coverage | Canonical mismatch | "
+                "Last crawl |")
+            add("|---|---|---|:--:|---|")
+            for p in problems[:30]:
+                if p.get("error"):
+                    add(f"| `{p['url']}` | ERROR | {p['error']} | | |")
+                    continue
+                mismatch = "⚠️" if p.get("canonical_mismatch") else ""
+                add(f"| `{p['url']}` | {p.get('verdict','')} | "
+                    f"{p.get('coverage_state','')} | {mismatch} | "
+                    f"{p.get('last_crawl_time','')} |")
+            add("")
+        else:
+            add("✅ All inspected pages are indexed with no canonical "
+                "mismatches.\n")
 
     add("## 4. Top Click Gainers (current vs prior 28d)")
     add("| Query | Clicks | Δ | Position |")
@@ -451,11 +545,13 @@ def main():
     gsc = run_gsc_block()
     ga4 = run_ga4_block()
     crawl = run_dual_crawl()
+    inspection = run_inspection_block(gsc)
 
-    md = render_md(gsc, ga4, crawl)
+    md = render_md(gsc, ga4, crawl, inspection)
     out_md.write_text(md)
     out_json.write_text(
-        json.dumps({"gsc": gsc, "ga4": ga4, "crawl": crawl},
+        json.dumps({"gsc": gsc, "ga4": ga4, "crawl": crawl,
+                    "inspection": inspection},
                    indent=2, default=str)
     )
 
