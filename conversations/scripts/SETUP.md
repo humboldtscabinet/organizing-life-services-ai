@@ -164,3 +164,67 @@ If they're elsewhere, set the env var in the plist:
 ```
 
 Then reload the job.
+
+---
+
+# GitHub Copilot Chat backup (VS Code)
+
+The section above backs up **Claude desktop** transcripts. Copilot Chat sessions
+in VS Code are stored separately, so they have their own pipeline:
+
+- **Source:** `~/Library/Application Support/Code/User/workspaceStorage/<hash>/GitHub.copilot-chat/transcripts/<session>.jsonl`
+- **Converter:** `copilot_jsonl_to_markdown.py` (Copilot's event-based format)
+- **Backup script:** `backup_copilot_conversations.sh`
+- **Launchd job:** `com.humboldtscabinet.copilot-conversation-backup.plist` (daily 2:20am)
+
+The backup script only archives transcripts whose `workspace.json` points at
+**this repo**, so each project keeps its own chat history. Output lands in the
+same `conversations/raw/` + `conversations/markdown/` folders, named
+`YYYY-MM-DD_copilot_<session8>.{jsonl.gz,md}`.
+
+> Note: Copilot transcripts record user/assistant text, the model's reasoning,
+> and tool calls (name + inputs + success), but **not** full tool outputs — those
+> aren't stored by Copilot. The gzipped raw `.jsonl` is the lossless record.
+
+## 1. Test it manually
+
+```bash
+cd "$HOME/organizing-life-services-ai"
+bash conversations/scripts/backup_copilot_conversations.sh
+tail -20 conversations/scripts/copilot-backup.log
+```
+
+## 2. Install the daily launchd job
+
+```bash
+cp "$HOME/organizing-life-services-ai/conversations/scripts/com.humboldtscabinet.copilot-conversation-backup.plist" \
+   "$HOME/Library/LaunchAgents/"
+launchctl load -w "$HOME/Library/LaunchAgents/com.humboldtscabinet.copilot-conversation-backup.plist"
+launchctl list | grep copilot-conversation-backup
+```
+
+## 3. Trigger a backup on demand
+
+Any of these work:
+
+```bash
+# A — run the script directly
+bash conversations/scripts/backup_copilot_conversations.sh
+
+# B — fire the launchd job
+launchctl start com.humboldtscabinet.copilot-conversation-backup
+
+# C — touch the trigger file (also works mid-chat: "back up our conversations")
+touch "$HOME/organizing-life-services-ai/conversations/.trigger"
+```
+
+## Notes for the Mac mini migration
+
+When this repo moves to the Mac mini, the plist's hard-coded paths
+(`/Users/hc707consultinggroup/...`) and `WatchPaths` must be updated to the
+mini's username/clone location, then reloaded. The backup script itself needs no
+changes — it resolves the repo root from its own location.
+
+If you use **VS Code Insiders**, set `CODE_STORAGE` to the Insiders storage path
+(`.../Code - Insiders/User/workspaceStorage`) via the plist's
+`EnvironmentVariables`.

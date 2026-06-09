@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.humboldtscabinet.copilot-conversation-backup</string>
+
+    <key>ProgramArguments</key>
+    <array>
+        <string>/bin/bash</string>
+        <string>-lc</string>
+        <!-- -l ensures Homebrew's git/python are on PATH when launchd runs us -->
+        <string>"$HOME/organizing-life-services-ai/conversations/scripts/backup_copilot_conversations.sh"</string>
+    </array>
+
+    <!-- Run daily at 2:20am local time (offset from the Claude job at 2:15). -->
+    <key>StartCalendarInterval</key>
+    <dict>
+        <key>Hour</key>
+        <integer>2</integer>
+        <key>Minute</key>
+        <integer>20</integer>
+    </dict>
+
+    <!-- Manual trigger: touching this file fires a backup immediately. -->
+    <key>WatchPaths</key>
+    <array>
+        <string>/Users/hc707consultinggroup/organizing-life-services-ai/conversations/.trigger</string>
+    </array>
+
+    <!-- Don't run on load/login; only on schedule or trigger. -->
+    <key>RunAtLoad</key>
+    <false/>
+
+    <key>StandardOutPath</key>
+    <string>/tmp/copilot-conversation-backup.stdout.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/copilot-conversation-backup.stderr.log</string>
+
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin</string>
+    </dict>
+</dict>
+</plist>
