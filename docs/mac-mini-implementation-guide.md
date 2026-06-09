@@ -18,6 +18,24 @@
 
 ---
 
+## Section 0 — Pre-flight (do before unboxing) 👤 HUMAN
+**Estimated time: ~15 min, no Mac mini required.** Doing these now removes the
+main human-only bottlenecks so Sections 1–3 run in one smooth ~1.5-hour sitting.
+
+| # | Step | Notes |
+|---|------|-------|
+| 0.1 | Gather secrets in one safe place | `.env` (already in repo root on the iMac) + `credentials/google-service-account.json`. |
+| 0.2 | Collect Stage 4 API keys | Anthropic, OpenAI, and Grok/xAI. Confirm billing is active so keys work when tested. |
+| 0.3 | Pick a transfer method for secrets | AirDrop (easiest Mac-to-Mac) or `scp`. Never email/commit them. |
+| 0.4 | Confirm GitHub access | Already proven from the iMac. Have a PAT/SSH key ready for the mini's clone. |
+| 0.5 | (Optional) Create a Tailscale account | Free; only if you want remote access later (Section 5). |
+| 0.6 | Plan physical placement + networking | Where the mini sits; run the 10 GbE port to the router if possible. |
+
+**On unboxing day:** run Apple's macOS setup + software updates **first**
+(~20–30 min on a fresh machine), *then* begin Section 1.
+
+---
+
 ## Section 1 — Server foundation
 **Estimated time: ~20–30 min** (mostly downloads). Must be done physically at the
 mini (or via Screen Sharing) until SSH is enabled.
