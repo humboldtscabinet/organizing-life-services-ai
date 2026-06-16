@@ -10,6 +10,27 @@ Each entry should answer:
 
 ---
 
+## 2026-06-15 — Strip public street address from LocalBusiness schema (Option A)
+
+**What**
+- Built [`data/session9_strip_street_address.py`](../../data/session9_strip_street_address.py): replaces the live `SCHEMA-LB-V2` homepage JSON-LD block (injected by [session5](../../data/session5_schema_intlinks_noindex.py)) with `SCHEMA-LB-V3` — identical except the `address` object is reduced from a full street address (`E LAKE RD S`, Palm Harbor, FL 34685) to **region only** (`addressRegion: FL`, `addressCountry: US`). The rich `areaServed` (9 cities + 5 counties) is unchanged.
+- Updated [`data/fix_contact_page.py`](../../data/fix_contact_page.py): writes a real NAP block to `/pages/contact-us` (phone, email, **labeled mailing address** = Tampa PMB, hours, regional service-area map) and creates a `/pages/contact → /pages/contact-us` redirect (the bare URL was 404ing).
+
+**Why**
+- Google denied GBP API access on 2026-04-21 ("did not pass our internal quality checks"). Root-cause audit found the live schema pinned a public street address even though OLS is a **service-area business** with no public storefront (every sale runs on-site). Google's structured-data guidance says service-area businesses should omit the street address and rely on `areaServed` — which we already publish richly.
+- The Tampa PMB (`5005 W Laurel St, Suite 100 PMB1048, Tampa, FL 33607`) is retained **only** as a labeled mailing address on the contact page, never as a schema `streetAddress`.
+
+**How**
+- Scripts: `data/session9_strip_street_address.py` (idempotent: skips if `SCHEMA-LB-V3` present; snapshots theme to `data/audit_output/theme_layout_snapshot_pre_session9.liquid`; `--dry-run` supported), `data/fix_contact_page.py`.
+- **Re-run guard:** the V3 block deliberately keeps the literal `SCHEMA-LB-V2` token in an HTML comment so session5's `if 'SCHEMA-LB-V2' in theme` idempotency check still no-ops and cannot re-append the old street-address block.
+- Logic validated offline against the real session5 block — **13/13 assertions pass** (no `streetAddress`, region kept, `areaServed` kept, single ld+json block, idempotent re-run).
+- **Deploy status:** code ready & validated; **deployment pending** the gitignored `.env` (Shopify creds), which is absent from this checkout.
+
+**Result**
+- Pending deploy + follow-up audit. Recheck schema with the Rich Results test after deploy; reapply for GBP API access ~30 days after the listing + site are confirmed consistent.
+
+---
+
 ## 2026-06-04 — Post-change impact audit (Phases 4–8)
 
 **What**
