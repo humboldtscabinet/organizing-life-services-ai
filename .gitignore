@@ -61,7 +61,9 @@ data/xo_*.json
 data/xo_*.js
 data/test.txt
 data/*.pkl
-data/*session*
+# Narrowed from data/*session* — that glob also matched the tracked
+# sessionN_*.py SEO deploy scripts (session5-9). Only ignore session *token* files.
+data/*session_token*
 data/*token*
 data/*cookies*
 
