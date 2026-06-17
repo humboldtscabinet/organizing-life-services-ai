@@ -11,6 +11,7 @@ def test_operational_shell_scripts_parse():
         ROOT / "infra" / "backup" / "backup_n8n.sh",
         ROOT / "infra" / "backup" / "verify_n8n_backup.sh",
         ROOT / "infra" / "backup" / "run_all_backups.sh",
+        ROOT / "infra" / "backup" / "sync_offsite_backups.sh",
         ROOT / "infra" / "backup" / "install_launchd_backups.sh",
         ROOT / "infra" / "postgres" / "apply_migrations.sh",
         ROOT / "infra" / "server" / "deploy_server.sh",

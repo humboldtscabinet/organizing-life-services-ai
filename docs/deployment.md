@@ -90,6 +90,27 @@ For a full manual backup run, including Postgres and n8n verification:
 infra/backup/run_all_backups.sh
 ```
 
+The backup runner also supports an optional off-machine sync step. Set
+`OFFSITE_BACKUP_DIR` in `.env` to copy encrypted backup artifacts and n8n
+manifests after each successful local backup run.
+
+External drive example:
+
+```bash
+OFFSITE_BACKUP_DIR="/Volumes/G-DRIVE/OLS Backups"
+```
+
+iCloud Drive example:
+
+```bash
+OFFSITE_BACKUP_DIR="$HOME/Library/Mobile Documents/com~apple~CloudDocs/OLS Backups"
+```
+
+If neither path is configured, the off-machine sync step no-ops and local
+encrypted backups still run normally. Use one destination first; add a private
+target-list file with `OFFSITE_BACKUP_TARGETS_FILE` later if you want both the
+external drive and iCloud in the same run.
+
 Individual backup commands are also available:
 
 ```bash
@@ -97,6 +118,7 @@ infra/backup/backup_postgres.sh
 infra/backup/verify_postgres_backup.sh
 infra/backup/backup_n8n.sh
 infra/backup/verify_n8n_backup.sh
+infra/backup/sync_offsite_backups.sh
 ```
 
 For recurring backups on the Mac mini, install the launchd job:

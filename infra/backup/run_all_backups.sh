@@ -21,4 +21,6 @@ if [[ "$VERIFY_BACKUPS_AFTER_CREATE" == "true" ]]; then
   infra/backup/verify_n8n_backup.sh
 fi
 
+infra/backup/sync_offsite_backups.sh
+
 echo "OLS backup run complete."

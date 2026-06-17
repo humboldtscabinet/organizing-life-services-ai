@@ -33,9 +33,15 @@ Implementation status after the first hardening pass:
   and SSH remote.
 - Completed: added a history-rewrite runbook for optional old-commit transcript
   purging.
-- Still open: Git history rewrite decision, session rotation for any exposed
-  legacy transcript material, one-off mutator sprawl, and off-machine backup
-  destination.
+- Completed: Git history rewrite removed legacy conversation transcript paths
+  from reachable history.
+- Completed: added high-confidence secret scanning and repo hygiene tests.
+- Completed: added default runtime blocking for direct `data/` script
+  production mutations.
+- Completed: added optional off-machine backup sync support.
+- Still open: session rotation for any exposed legacy transcript material,
+  deeper one-off mutator consolidation into guarded API routes, and choosing
+  the actual off-machine backup destination.
 
 ## Phase 0 - Containment And Access Freeze
 
@@ -329,6 +335,14 @@ Acceptance gates:
 - No top-level `data/*.py` direct mutator can execute writes by default.
 - Static test fails on a new mutator missing dry-run/apply controls.
 - Runbooks point to guarded API routes where possible.
+
+Current status:
+
+- `data/` scripts now get a runtime mutation guard through `sitecustomize.py`.
+- Direct Shopify Admin API and IndexNow writes require
+  `OLS_ALLOW_DATA_MUTATION=1`.
+- The detailed inventory is recorded in
+  `docs/audits/2026-06-17-data-script-safety-audit.md`.
 
 ## Phase 5 - Secrets, GitHub, And Repo Hygiene
 

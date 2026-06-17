@@ -40,6 +40,9 @@ jobs:
       - name: Lint (ruff)
         run: ruff check app tests
 
+      - name: Secret scan
+        run: python scripts/scan_secrets.py
+
       - name: Byte-compile
         run: python -m compileall -q app
 
