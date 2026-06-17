@@ -1,0 +1,982 @@
+{
+  "gsc": {
+    "windows": {
+      "current": {
+        "start": "2026-05-09",
+        "end": "2026-06-05"
+      },
+      "prior": {
+        "start": "2026-04-11",
+        "end": "2026-05-08"
+      }
+    },
+    "totals_current": {
+      "clicks": 128,
+      "impressions": 13996,
+      "ctr": 0.009145470134324093,
+      "avg_position_weighted": 18.296156044584166,
+      "avg_position_unweighted": 18.296156044584166
+    },
+    "totals_prior": {
+      "clicks": 149,
+      "impressions": 15981,
+      "ctr": 0.009323571741442964,
+      "avg_position_weighted": 14.77886239909893,
+      "avg_position_unweighted": 14.77886239909893
+    },
+    "deltas": {
+      "clicks_delta_pct": -14.093959731543624,
+      "impressions_delta_pct": -12.420999937425693,
+      "ctr_delta_pp": -0.017810160711887076,
+      "position_delta_weighted": 3.5172936454852355,
+      "position_delta_unweighted": 3.5172936454852355
+    },
+    "top_query_winners": [
+      {
+        "query": "organizing life services",
+        "clicks": 20,
+        "prev_clicks": 13,
+        "clicks_delta": 7,
+        "impressions": 50,
+        "prev_impressions": 54,
+        "position": 2.8,
+        "prev_position": 1,
+        "position_delta": 1.8
+      },
+      {
+        "query": "estate sales pinellas county",
+        "clicks": 3,
+        "prev_clicks": 0,
+        "clicks_delta": 3,
+        "impressions": 12,
+        "prev_impressions": 11,
+        "position": 11.6,
+        "prev_position": 13.5,
+        "position_delta": -2.0
+      },
+      {
+        "query": "estate sales near me",
+        "clicks": 6,
+        "prev_clicks": 4,
+        "clicks_delta": 2,
+        "impressions": 351,
+        "prev_impressions": 318,
+        "position": 6.8,
+        "prev_position": 6.6,
+        "position_delta": 0.2
+      },
+      {
+        "query": "professional garage sale buyers near me",
+        "clicks": 2,
+        "prev_clicks": 0,
+        "clicks_delta": 2,
+        "impressions": 2,
+        "prev_impressions": 0,
+        "position": 2,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate auctions near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 4,
+        "prev_impressions": 3,
+        "position": 1,
+        "prev_position": 2,
+        "position_delta": -1
+      },
+      {
+        "query": "estate sale",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 70,
+        "prev_impressions": 95,
+        "position": 4.7,
+        "prev_position": 3.9,
+        "position_delta": 0.8
+      },
+      {
+        "query": "estate sale auction near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 1,
+        "prev_impressions": 0,
+        "position": 8,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sale companies tampa",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 22,
+        "prev_impressions": 31,
+        "position": 12.2,
+        "prev_position": 10.9,
+        "position_delta": 1.2
+      },
+      {
+        "query": "estate sale person",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 3,
+        "prev_impressions": 0,
+        "position": 5.7,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sale planners near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 17,
+        "prev_impressions": 31,
+        "position": 11.8,
+        "prev_position": 13.7,
+        "position_delta": -1.9
+      },
+      {
+        "query": "estate sales near ne",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 1,
+        "prev_impressions": 0,
+        "position": 3,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "estate sales organizer",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 6,
+        "prev_impressions": 2,
+        "position": 1,
+        "prev_position": 45,
+        "position_delta": -44
+      },
+      {
+        "query": "estate sales organizers near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 8,
+        "prev_impressions": 2,
+        "position": 5.8,
+        "prev_position": 12,
+        "position_delta": -6.2
+      },
+      {
+        "query": "estate sales palm harbor today",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 13,
+        "prev_impressions": 25,
+        "position": 8.6,
+        "prev_position": 8.8,
+        "position_delta": -0.2
+      },
+      {
+        "query": "estate sales pinellas park",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 20,
+        "prev_impressions": 17,
+        "position": 10.9,
+        "prev_position": 12.3,
+        "position_delta": -1.3
+      },
+      {
+        "query": "estate sales safety harbor",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 26,
+        "prev_impressions": 12,
+        "position": 5.9,
+        "prev_position": 6.2,
+        "position_delta": -0.2
+      },
+      {
+        "query": "estate sellers",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 3,
+        "prev_impressions": 5,
+        "position": 4.7,
+        "prev_position": 2.6,
+        "position_delta": 2.1
+      },
+      {
+        "query": "how do estate sales work",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 22,
+        "prev_impressions": 34,
+        "position": 2.7,
+        "prev_position": 3,
+        "position_delta": -0.3
+      },
+      {
+        "query": "organizing life",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 4,
+        "prev_impressions": 0,
+        "position": 3.8,
+        "prev_position": null,
+        "position_delta": null
+      },
+      {
+        "query": "who buys whole house contents near me",
+        "clicks": 1,
+        "prev_clicks": 0,
+        "clicks_delta": 1,
+        "impressions": 1,
+        "prev_impressions": 3,
+        "position": 7,
+        "prev_position": 6.7,
+        "position_delta": 0.3
+      }
+    ],
+    "top_query_losers": [
+      {
+        "query": "estate sale companies near me",
+        "clicks": 3,
+        "prev_clicks": 6,
+        "clicks_delta": -3,
+        "impressions": 170,
+        "prev_impressions": 268,
+        "position": 17.7,
+        "prev_position": 14.2,
+        "position_delta": 3.5
+      },
+      {
+        "query": "estate sales companies near me",
+        "clicks": 2,
+        "prev_clicks": 5,
+        "clicks_delta": -3,
+        "impressions": 22,
+        "prev_impressions": 30,
+        "position": 11.2,
+        "prev_position": 5.4,
+        "position_delta": 5.7
+      },
+      {
+        "query": "estate sale near me",
+        "clicks": 0,
+        "prev_clicks": 2,
+        "clicks_delta": -2,
+        "impressions": 78,
+        "prev_impressions": 66,
+        "position": 3.9,
+        "prev_position": 4.6,
+        "position_delta": -0.7
+      },
+      {
+        "query": "estate sale palm harbor",
+        "clicks": 0,
+        "prev_clicks": 2,
+        "clicks_delta": -2,
+        "impressions": 22,
+        "prev_impressions": 29,
+        "position": 8.0,
+        "prev_position": 6.6,
+        "position_delta": 1.4
+      },
+      {
+        "query": "estate sales near me today",
+        "clicks": 2,
+        "prev_clicks": 3,
+        "clicks_delta": -1,
+        "impressions": 40,
+        "prev_impressions": 30,
+        "position": 5.2,
+        "prev_position": 3.8,
+        "position_delta": 1.4
+      },
+      {
+        "query": "estate sale companies",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 27,
+        "prev_impressions": 60,
+        "position": 12.1,
+        "prev_position": 31.7,
+        "position_delta": -19.6
+      },
+      {
+        "query": "estate sale company",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 15,
+        "prev_impressions": 18,
+        "position": 2,
+        "prev_position": 14.5,
+        "position_delta": -12.5
+      },
+      {
+        "query": "estate sale company tampa",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 4,
+        "prev_impressions": 7,
+        "position": 13,
+        "prev_position": 13.6,
+        "position_delta": -0.6
+      },
+      {
+        "query": "estate sale tampa",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 1,
+        "prev_impressions": 3,
+        "position": 9,
+        "prev_position": 2.7,
+        "position_delta": 6.3
+      },
+      {
+        "query": "estate sales company",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 1,
+        "prev_impressions": 4,
+        "position": 1,
+        "prev_position": 1.5,
+        "position_delta": -0.5
+      },
+      {
+        "query": "estate sales new port richey",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 12,
+        "prev_impressions": 6,
+        "position": 14.6,
+        "prev_position": 11.2,
+        "position_delta": 3.4
+      },
+      {
+        "query": "estate sales palm harbor this weekend",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 12,
+        "prev_impressions": 42,
+        "position": 10.2,
+        "prev_position": 9.2,
+        "position_delta": 1.0
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 73,
+        "prev_impressions": 31,
+        "position": 8.9,
+        "prev_position": 5.3,
+        "position_delta": 3.6
+      },
+      {
+        "query": "estates sales near me",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 7,
+        "prev_impressions": 5,
+        "position": 7.4,
+        "prev_position": 3.2,
+        "position_delta": 4.2
+      },
+      {
+        "query": "palm harbor estate sales",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 15,
+        "prev_impressions": 21,
+        "position": 11,
+        "prev_position": 7.2,
+        "position_delta": 3.8
+      },
+      {
+        "query": "personal property appraiser",
+        "clicks": 0,
+        "prev_clicks": 1,
+        "clicks_delta": -1,
+        "impressions": 2,
+        "prev_impressions": 3,
+        "position": 9,
+        "prev_position": 34,
+        "position_delta": -25
+      },
+      {
+        "query": "estate sales",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 77,
+        "prev_impressions": 150,
+        "position": 5,
+        "prev_position": 5.5,
+        "position_delta": -0.5
+      },
+      {
+        "query": "estate sales near me this weekend",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 28,
+        "prev_impressions": 13,
+        "position": 5.9,
+        "prev_position": 5.8,
+        "position_delta": 0.0
+      },
+      {
+        "query": "estate sales palm harbor",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 171,
+        "prev_impressions": 204,
+        "position": 8.8,
+        "prev_position": 8.3,
+        "position_delta": 0.5
+      },
+      {
+        "query": "estate sellers near me",
+        "clicks": 1,
+        "prev_clicks": 1,
+        "clicks_delta": 0,
+        "impressions": 9,
+        "prev_impressions": 23,
+        "position": 3.3,
+        "prev_position": 6.6,
+        "position_delta": -3.2
+      }
+    ],
+    "ctr_opportunities": [
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 232,
+        "ctr": 0,
+        "position": 19.0
+      },
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 152,
+        "ctr": 0.0066,
+        "position": 8.7
+      },
+      {
+        "query": "estate organization service",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 119,
+        "ctr": 0,
+        "position": 15.4
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "impressions": 111,
+        "ctr": 0.018,
+        "position": 7.0
+      },
+      {
+        "query": "estate sale and appraisal services",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 89,
+        "ctr": 0,
+        "position": 5.5
+      },
+      {
+        "query": "difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 74,
+        "ctr": 0,
+        "position": 15.2
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "impressions": 70,
+        "ctr": 0,
+        "position": 9.2
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 68,
+        "ctr": 0,
+        "position": 6.2
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "page": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+        "impressions": 66,
+        "ctr": 0,
+        "position": 8.8
+      },
+      {
+        "query": "estate sale planners",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 63,
+        "ctr": 0,
+        "position": 17.3
+      },
+      {
+        "query": "downsizing specialist",
+        "page": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+        "impressions": 62,
+        "ctr": 0,
+        "position": 5.3
+      },
+      {
+        "query": "tampa personal property appraisers",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "impressions": 62,
+        "ctr": 0,
+        "position": 6.9
+      },
+      {
+        "query": "estate sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 58,
+        "ctr": 0,
+        "position": 6.3
+      },
+      {
+        "query": "estate sales",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 56,
+        "ctr": 0.0179,
+        "position": 4.6
+      },
+      {
+        "query": "estate sale near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 56,
+        "ctr": 0,
+        "position": 2.8
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-planning",
+        "impressions": 53,
+        "ctr": 0,
+        "position": 8
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/senior-services",
+        "impressions": 53,
+        "ctr": 0,
+        "position": 8
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "impressions": 50,
+        "ctr": 0,
+        "position": 4.1
+      },
+      {
+        "query": "estate sale organizers near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 48,
+        "ctr": 0,
+        "position": 9.2
+      },
+      {
+        "query": "organizing life services",
+        "page": "https://organizinglifeservices.com/pages/contact-us",
+        "impressions": 48,
+        "ctr": 0,
+        "position": 1
+      },
+      {
+        "query": "estate sale",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 47,
+        "ctr": 0.0213,
+        "position": 4.9
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-planning",
+        "impressions": 47,
+        "ctr": 0,
+        "position": 4.3
+      },
+      {
+        "query": "estate sale organizer",
+        "page": "https://organizinglifeservices.com/pages/senior-services",
+        "impressions": 47,
+        "ctr": 0,
+        "position": 4.3
+      },
+      {
+        "query": "estate sale helpers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 44,
+        "ctr": 0,
+        "position": 10.1
+      },
+      {
+        "query": "professional garage sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 40,
+        "ctr": 0,
+        "position": 9.4
+      },
+      {
+        "query": "estate sale management",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 39,
+        "ctr": 0,
+        "position": 19.3
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "impressions": 39,
+        "ctr": 0,
+        "position": 9.1
+      },
+      {
+        "query": "professional garage sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 38,
+        "ctr": 0,
+        "position": 17.8
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/613-severs-landing-palm-harbor-fl-estate-sale-part-2",
+        "impressions": 37,
+        "ctr": 0,
+        "position": 7.5
+      },
+      {
+        "query": "organizing life services",
+        "page": "https://organizinglifeservices.com/pages/sell-your-house-florida",
+        "impressions": 35,
+        "ctr": 0,
+        "position": 1
+      }
+    ],
+    "striking_distance": [
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 232,
+        "clicks": 0,
+        "position": 19.0
+      },
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 152,
+        "clicks": 1,
+        "position": 8.7
+      },
+      {
+        "query": "estate organization service",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 119,
+        "clicks": 0,
+        "position": 15.4
+      },
+      {
+        "query": "difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 74,
+        "clicks": 0,
+        "position": 15.2
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "impressions": 70,
+        "clicks": 0,
+        "position": 9.2
+      },
+      {
+        "query": "estate sales tarpon springs",
+        "page": "https://organizinglifeservices.com/pages/tarpon-springs-estate-sale-in-woodfield",
+        "impressions": 66,
+        "clicks": 0,
+        "position": 8.8
+      },
+      {
+        "query": "estate sale planners",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 63,
+        "clicks": 0,
+        "position": 17.3
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-planning",
+        "impressions": 53,
+        "clicks": 0,
+        "position": 8
+      },
+      {
+        "query": "estate sale organizers",
+        "page": "https://organizinglifeservices.com/pages/senior-services",
+        "impressions": 53,
+        "clicks": 0,
+        "position": 8
+      },
+      {
+        "query": "estate sale organizers near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 48,
+        "clicks": 0,
+        "position": 9.2
+      },
+      {
+        "query": "estate sale helpers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 44,
+        "clicks": 0,
+        "position": 10.1
+      },
+      {
+        "query": "professional garage sale organizer near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 40,
+        "clicks": 0,
+        "position": 9.4
+      },
+      {
+        "query": "estate sale management",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 39,
+        "clicks": 0,
+        "position": 19.3
+      },
+      {
+        "query": "estate sales near me",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-pasco-county",
+        "impressions": 39,
+        "clicks": 0,
+        "position": 9.1
+      },
+      {
+        "query": "professional garage sale organizers",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 38,
+        "clicks": 0,
+        "position": 17.8
+      },
+      {
+        "query": "estate sale coordinator near me",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 34,
+        "clicks": 0,
+        "position": 11.2
+      },
+      {
+        "query": "estate sale coordination",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 32,
+        "clicks": 0,
+        "position": 13.3
+      },
+      {
+        "query": "personal property appraisers blog",
+        "page": "https://organizinglifeservices.com/blogs/news/10-key-insights-into-personal-property-appraisals-expert-tips-and-strategies",
+        "impressions": 31,
+        "clicks": 0,
+        "position": 10.5
+      },
+      {
+        "query": "professional garage sale companies",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 30,
+        "clicks": 0,
+        "position": 8.5
+      },
+      {
+        "query": "estate sales palm harbor",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "impressions": 28,
+        "clicks": 0,
+        "position": 10.7
+      },
+      {
+        "query": "what is the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 27,
+        "clicks": 0,
+        "position": 14.1
+      },
+      {
+        "query": "what's the difference between a yard sale and a garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 26,
+        "clicks": 0,
+        "position": 13.0
+      },
+      {
+        "query": "yard sale vs garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 26,
+        "clicks": 0,
+        "position": 18.9
+      },
+      {
+        "query": "estate sale companies",
+        "page": "https://organizinglifeservices.com/",
+        "impressions": 25,
+        "clicks": 0,
+        "position": 12.8
+      },
+      {
+        "query": "garage vs yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences/",
+        "impressions": 25,
+        "clicks": 0,
+        "position": 12.2
+      },
+      {
+        "query": "difference between estate sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 19.9
+      },
+      {
+        "query": "estate cleanout experts",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 16.2
+      },
+      {
+        "query": "estate sale vs yard sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 15.0
+      },
+      {
+        "query": "estate settlement appraisals tampa bay",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 17.0
+      },
+      {
+        "query": "what's the difference between yard sale and garage sale",
+        "page": "https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "impressions": 24,
+        "clicks": 0,
+        "position": 14.2
+      }
+    ]
+  },
+  "ga4": {
+    "windows": {
+      "current": {
+        "start": "2026-05-11",
+        "end": "2026-06-07"
+      },
+      "prior": {
+        "start": "2026-04-13",
+        "end": "2026-05-10"
+      }
+    },
+    "all_traffic_current": {
+      "sessions": 1127.0,
+      "activeUsers": 965.0,
+      "newUsers": 894.0,
+      "screenPageViews": 1644.0,
+      "engagementRate": 0.976929902395741,
+      "averageSessionDuration": 257.39414090683226,
+      "bounceRate": 0.023070097604259095
+    },
+    "all_traffic_prior": {
+      "sessions": 1652.0,
+      "activeUsers": 1166.0,
+      "newUsers": 1014.0,
+      "screenPageViews": 2558.0,
+      "engagementRate": 0.9776029055690073,
+      "averageSessionDuration": 115.23182929600485,
+      "bounceRate": 0.022397094430992737
+    },
+    "organic_current": {
+      "sessions": 159.0,
+      "activeUsers": 128.0,
+      "screenPageViews": 398.0,
+      "engagementRate": 0.9622641509433962,
+      "conversions": 454.0
+    },
+    "organic_prior": {
+      "sessions": 181.0,
+      "activeUsers": 140.0,
+      "screenPageViews": 398.0,
+      "engagementRate": 0.9668508287292817,
+      "conversions": 435.0
+    }
+  },
+  "crawl": {
+    "browser": {
+      "ua": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36",
+      "urls_discovered": 0,
+      "urls_crawled": 0,
+      "urls_ok": 0,
+      "status_counts": {},
+      "avg_response_ms": 0,
+      "avg_size_kb": 0,
+      "issue_counts": {},
+      "schema_type_coverage": {},
+      "pages": []
+    },
+    "googlebot": {
+      "ua": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
+      "urls_discovered": 0,
+      "urls_crawled": 0,
+      "urls_ok": 0,
+      "status_counts": {},
+      "avg_response_ms": 0,
+      "avg_size_kb": 0,
+      "issue_counts": {},
+      "schema_type_coverage": {},
+      "pages": []
+    },
+    "diff": {
+      "urls_compared": 0,
+      "status_mismatch_count": 0,
+      "browser_blocked_but_googlebot_ok": [],
+      "googlebot_blocked_but_browser_ok": [],
+      "status_mismatches": [],
+      "title_mismatch_count": 0,
+      "title_mismatches": []
+    }
+  }
+}
