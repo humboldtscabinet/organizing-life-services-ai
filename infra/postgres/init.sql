@@ -105,6 +105,30 @@ CREATE TABLE IF NOT EXISTS google_ads_data (
     created_at      TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS image_analysis (
+    id              SERIAL PRIMARY KEY,
+    image_url       VARCHAR(1000) NOT NULL,
+    filename        VARCHAR(500),
+    gallery_name    VARCHAR(300),
+    alt_text        TEXT,
+    title           VARCHAR(500),
+    item_tags       JSONB,
+    description     TEXT,
+    confidence      DOUBLE PRECISION,
+    status          VARCHAR(50) DEFAULT 'pending',
+    data            JSONB,
+    created_at      TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS ix_image_analysis_status
+    ON image_analysis (status);
+CREATE INDEX IF NOT EXISTS ix_image_analysis_gallery_name
+    ON image_analysis (gallery_name);
+CREATE INDEX IF NOT EXISTS ix_image_analysis_image_url
+    ON image_analysis (image_url);
+CREATE INDEX IF NOT EXISTS ix_image_analysis_status_gallery
+    ON image_analysis (status, gallery_name);
+
 CREATE TABLE IF NOT EXISTS shopify_orders (
     id              SERIAL PRIMARY KEY,
     shopify_order_id VARCHAR(100) UNIQUE NOT NULL,

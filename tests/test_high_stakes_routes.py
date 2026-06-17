@@ -98,3 +98,102 @@ def test_bulk_alt_push_requires_confirmation(client, auth_headers, monkeypatch):
 
     assert response.status_code == 409
     assert called is False
+
+
+def test_vision_debug_tools_disabled_by_default(client, auth_headers):
+    endpoints = [
+        ("GET", "/api/vision/debug/test-mutation"),
+        ("GET", "/api/vision/debug/alt-text-audit"),
+        ("POST", "/api/vision/save-file"),
+        ("GET", "/api/vision/store-token?t=example"),
+        ("GET", "/api/vision/get-token"),
+        ("POST", "/api/vision/xo-proxy"),
+    ]
+
+    for method, path in endpoints:
+        response = client.request(method, path, headers=auth_headers)
+        assert response.status_code == 404, (method, path, response.text)
+
+
+def test_content_publish_requires_high_stakes_confirmation(
+    client, auth_headers, monkeypatch
+):
+    from app.db.database import get_db
+    from app.main import app
+
+    class _FakeTask:
+        id = 123
+        status = "approved"
+
+    class _FakeQuery:
+        def filter(self, *_args, **_kwargs):
+            return self
+
+        def first(self):
+            return _FakeTask()
+
+    class _FakeDb:
+        def query(self, _model):
+            return _FakeQuery()
+
+    called = False
+
+    def fake_publish_to_shopify(db, task_id):
+        nonlocal called
+        called = True
+        return {"status": "success", "task_id": task_id, "article_id": "1"}
+
+    app.dependency_overrides[get_db] = lambda: _FakeDb()
+    monkeypatch.setattr("app.routes.content.publish_to_shopify", fake_publish_to_shopify)
+    try:
+        response = client.post(
+            "/api/content/generate-and-publish",
+            params={"task_id": "123"},
+            headers=auth_headers,
+        )
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+
+    assert response.status_code == 409
+    assert called is False
+
+
+def test_content_publish_runs_after_gate_pass(client, auth_headers, monkeypatch):
+    from app.db.database import get_db
+    from app.main import app
+
+    class _FakeTask:
+        id = 123
+        status = "approved"
+
+    class _FakeQuery:
+        def filter(self, *_args, **_kwargs):
+            return self
+
+        def first(self):
+            return _FakeTask()
+
+    class _FakeDb:
+        def query(self, _model):
+            return _FakeQuery()
+
+    def fake_publish_to_shopify(db, task_id):
+        return {"status": "success", "task_id": task_id, "article_id": "1"}
+
+    app.dependency_overrides[get_db] = lambda: _FakeDb()
+    monkeypatch.setattr("app.routes.content.publish_to_shopify", fake_publish_to_shopify)
+    try:
+        response = client.post(
+            "/api/content/generate-and-publish",
+            params={
+                "task_id": "123",
+                "human_confirmed": "true",
+                "judge_verdict": "PASS",
+            },
+            headers=auth_headers,
+        )
+    finally:
+        app.dependency_overrides.pop(get_db, None)
+
+    assert response.status_code == 200
+    assert response.json() == {"status": "success", "task_id": 123, "article_id": "1"}

@@ -28,6 +28,12 @@ def test_openapi_schema_builds(client):
     assert "paths" in r.json()
 
 
+def test_data_directory_is_not_static_served(client):
+    """The private data directory must not be mounted as public static files."""
+    r = client.get("/static/image_analysis_export.csv")
+    assert r.status_code == 404
+
+
 def _api_routes(client) -> list[Route]:
     app = client.app
     return [

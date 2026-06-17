@@ -8,7 +8,6 @@ import os
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy import text
 
 from app.auth import require_api_key
@@ -60,12 +59,6 @@ app.include_router(lifecycle_router, dependencies=[Depends(require_api_key)])
 app.include_router(dashboard_router, dependencies=[Depends(require_api_key)])
 app.include_router(content_router, dependencies=[Depends(require_api_key)])
 app.include_router(llm_router, dependencies=[Depends(require_api_key)])
-
-# Serve static data files (gallery JSON, etc.)
-_data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-if os.path.isdir(_data_dir):
-    app.mount("/static", StaticFiles(directory=_data_dir), name="static")
-
 
 @app.get("/health")
 def health_check():

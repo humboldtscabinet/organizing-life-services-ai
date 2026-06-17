@@ -133,6 +133,8 @@ def schedule_next(
 @router.post("/generate-and-publish")
 def generate_and_publish(
     task_id: int = Query(..., description="DashboardTask ID to publish"),
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -161,6 +163,12 @@ def generate_and_publish(
                 status_code=400,
                 detail=f"Task status is '{task.status}', must be 'approved'",
             )
+
+        require_high_stakes_confirmation(
+            task_type="content_publish",
+            human_confirmed=human_confirmed,
+            judge_verdict=judge_verdict,
+        )
 
         result = publish_to_shopify(db=db, task_id=task_id)
 

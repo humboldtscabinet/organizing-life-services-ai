@@ -10,8 +10,9 @@ All endpoints are manual-trigger:
 import json
 import os
 import threading
+from urllib.parse import urlparse
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
@@ -33,6 +34,26 @@ from app.services.vision_service import (
 )
 
 router = APIRouter(prefix="/api/vision", tags=["Vision AI"])
+
+
+def require_vision_debug_tools_enabled() -> None:
+    """Keep temporary/token-bearing vision utilities out of production by default."""
+    enabled = os.getenv("ENABLE_VISION_DEBUG_TOOLS", "").strip().lower()
+    if enabled not in {"1", "true", "yes"}:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vision debug tools are disabled",
+        )
+
+
+def _require_allowed_xo_proxy_url(target_url: str) -> None:
+    parsed = urlparse(target_url)
+    allowed_hosts = {"gallery.xopify.com"}
+    if parsed.scheme != "https" or parsed.hostname not in allowed_hosts:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="XO proxy target is not allowed",
+        )
 
 
 @router.get("/images")
@@ -494,7 +515,9 @@ def get_results(db: Session = Depends(get_db)):
 
 
 @router.get("/debug/test-mutation")
-def debug_test_mutation():
+def debug_test_mutation(
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
     """
     Test a single Shopify fileUpdate mutation and return the FULL raw response.
 
@@ -509,9 +532,6 @@ def debug_test_mutation():
         # Step 1: Get the token info
         from app.services.shopify_service import _get_access_token
         token = _get_access_token()
-        token_preview = f"{token[:8]}...{token[-4:]}" if token and len(token) > 12 else "MISSING"
-        token_prefix = token[:5] if token else "NONE"
-
         # Step 2: Fetch one file
         page = _fetch_shopify_file_ids(limit=1)
         if not page["files"]:
@@ -567,8 +587,6 @@ def debug_test_mutation():
 
         return {
             "status": "diagnostic",
-            "token_preview": token_preview,
-            "token_prefix": token_prefix,
             "file_id": file_id,
             "filename": filename,
             "current_alt": current_alt,
@@ -586,7 +604,9 @@ def debug_test_mutation():
 
 
 @router.get("/debug/alt-text-audit")
-def debug_alt_text_audit():
+def debug_alt_text_audit(
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
     """
     Scan all Shopify files and count how many have empty vs non-empty alt text.
     Returns counts and a sample of files with empty alt text.
@@ -689,7 +709,10 @@ def get_gallery_structure():
 
 
 @router.post("/save-file")
-async def save_file(request: Request):
+async def save_file(
+    request: Request,
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
     """Save uploaded base64 file to data directory."""
     import base64
     body = await request.json()
@@ -706,7 +729,10 @@ async def save_file(request: Request):
 
 
 @router.get("/store-token")
-def store_token(t: str = ""):
+def store_token(
+    t: str = "",
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
     """Store a session token sent via image beacon from the Shopify admin page."""
     if not t:
         return {"status": "error", "detail": "No token"}
@@ -722,8 +748,10 @@ def store_token(t: str = ""):
 
 
 @router.get("/get-token")
-def get_stored_token():
-    """Return the stored XO Gallery session token."""
+def get_stored_token(
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
+    """Return XO Gallery session token status without exposing the token."""
     import base64 as b64
     import time
     token_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_session_token.txt")
@@ -739,12 +767,15 @@ def get_stored_token():
         payload_json = json.loads(payload)
         exp = payload_json.get("exp", 0)
         now = int(time.time())
-        return {"status": "ok", "token": token, "exp": exp, "now": now, "expired": now > exp}
-    return {"status": "ok", "token": token}
+        return {"status": "ok", "present": True, "exp": exp, "now": now, "expired": now > exp}
+    return {"status": "ok", "present": True, "expired": None}
 
 
 @router.post("/xo-proxy")
-async def xo_proxy(request: Request):
+async def xo_proxy(
+    request: Request,
+    _debug_tools: None = Depends(require_vision_debug_tools_enabled),
+):
     """
     Server-side proxy for XO Gallery API calls.
     Atomic login+fetch: logs in with token, captures cookies, immediately fetches data.
@@ -766,6 +797,8 @@ async def xo_proxy(request: Request):
 
     if not target_url:
         return {"status": "error", "detail": "No url provided"}
+    if target_url != "LOGIN_ONLY":
+        _require_allowed_xo_proxy_url(target_url)
 
     cookies_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_cookies.pkl")
     cookies_path = os.path.normpath(cookies_path)
@@ -805,11 +838,9 @@ async def xo_proxy(request: Request):
                 login_info = {
                     "login_status": login_resp.status_code,
                     "cookies_saved": len(saved_cookies),
-                    "response_headers": dict(login_resp.headers),
                 }
                 # If only login requested, return
                 if target_url == "LOGIN_ONLY":
-                    login_info["text"] = login_resp.text[:3000]
                     return {"status": "ok", **login_info}
 
             # Make the actual API request with cookies
