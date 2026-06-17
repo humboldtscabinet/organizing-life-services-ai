@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 VERIFY_BACKUPS_AFTER_CREATE="${VERIFY_BACKUPS_AFTER_CREATE:-true}"
 
+export PATH="/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:$HOME/.orbstack/bin:$PATH"
+
 cd "$ROOT_DIR"
 
 echo "Starting OLS backup run..."

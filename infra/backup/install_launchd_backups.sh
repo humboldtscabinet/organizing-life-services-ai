@@ -8,6 +8,7 @@ START_HOUR="${START_HOUR:-3}"
 START_MINUTE="${START_MINUTE:-15}"
 BACKUP_LOG_DIR="${BACKUP_LOG_DIR:-$ROOT_DIR/infra/backup/out}"
 LOAD_NOW="${LOAD_NOW:-true}"
+LAUNCHD_PATH="${LAUNCHD_PATH:-/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/local/sbin:$HOME/.orbstack/bin:/usr/bin:/bin:/usr/sbin:/sbin}"
 
 if [[ "$(uname -s)" != "Darwin" ]]; then
   echo "ERROR: launchd backup installation is only supported on macOS." >&2
@@ -32,6 +33,12 @@ cat > "$PLIST_PATH" <<PLIST
 
   <key>WorkingDirectory</key>
   <string>$ROOT_DIR</string>
+
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>$LAUNCHD_PATH</string>
+  </dict>
 
   <key>StartCalendarInterval</key>
   <dict>
