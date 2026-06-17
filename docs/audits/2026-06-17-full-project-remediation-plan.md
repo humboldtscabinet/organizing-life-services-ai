@@ -29,6 +29,10 @@ Implementation status after the first hardening pass:
   the repo.
 - Completed: moved the local IndexNow key out of repo data and tightened local
   `.env` permissions.
+- Completed: configured Mac mini GitHub pull access with a read-only deploy key
+  and SSH remote.
+- Completed: added a history-rewrite runbook for optional old-commit transcript
+  purging.
 - Still open: Git history rewrite decision, session rotation for any exposed
   legacy transcript material, one-off mutator sprawl, and off-machine backup
   destination.
@@ -333,11 +337,14 @@ deployment.
 
 Implementation:
 
-- Configure GitHub SSH auth on the mini:
+- Configure GitHub SSH auth on the mini: **completed**
   - create a dedicated deploy/dev SSH key
   - add it to GitHub with least privilege available
   - switch mini remote to SSH or configure credential helper deliberately
   - run `git fetch origin` and verify `origin/main` updates
+- Decide whether to run the optional history rewrite:
+  - follow `docs/runbooks/git-history-secret-purge.md`
+  - requires explicit approval and a force-push window
 - Clean dev clone state:
   - decide whether to commit or discard untracked audit outputs
   - do not commit `indexnow_key.txt`

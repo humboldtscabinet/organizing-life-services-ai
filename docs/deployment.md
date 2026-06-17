@@ -18,6 +18,16 @@ Use the server compose file on the always-on Mac mini:
 docker compose -f docker-compose.server.yml up -d --build
 ```
 
+Prefer connecting to the mini by mDNS name instead of a changing DHCP address:
+
+```bash
+ssh aiagentecosystem@agent-eco-mini.local
+```
+
+The mini has previously moved between `192.168.1.73` and `192.168.1.19`.
+Reserve a DHCP lease in the router before documenting or automating a numeric
+LAN IP.
+
 Server behavior:
 
 - FastAPI runs without the development reloader.
