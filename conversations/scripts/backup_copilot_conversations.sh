@@ -1,27 +1,26 @@
 #!/usr/bin/env bash
-# Backup GitHub Copilot Chat transcripts for THIS repo into conversations/.
+# Backup GitHub Copilot Chat transcripts for THIS repo into a private archive.
 #
 # What it does (idempotent):
 #   1. Finds Copilot Chat transcripts under VS Code's workspaceStorage whose
 #      workspace.json folder == this repo's root.
-#   2. Copies each raw transcript (gzipped) into conversations/raw/
-#   3. Converts each to readable Markdown in conversations/markdown/
+#   2. Copies each raw transcript (gzipped) into a private archive
+#   3. Converts each to readable Markdown in the private archive
 #      via copilot_jsonl_to_markdown.py
-#   4. Regenerates conversations/INDEX.md (covers both Claude + Copilot archives)
-#   5. If anything changed, git add + commit + push
+#   4. Regenerates a private INDEX.md
 #
 # Safe to run repeatedly. A transcript is only re-synced when its source file
 # is newer than the stored copy.
 #
-# Exit codes: 0 success · 1 setup error · 2 git push failed
+# Exit codes: 0 success · 1 setup error
 
 set -euo pipefail
 
 # ── Resolve repo root from this script's own location ──────────────
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
-BRANCH="${BRANCH:-main}"
-LOG_FILE="${LOG_FILE:-$SCRIPT_DIR/copilot-backup.log}"
+ARCHIVE_ROOT="${OLS_CONVERSATION_ARCHIVE_DIR:-$HOME/.ols/private/conversations}"
+LOG_FILE="${LOG_FILE:-$ARCHIVE_ROOT/logs/copilot-backup.log}"
 
 # VS Code chat storage root (override with CODE_STORAGE if you use Insiders, etc.)
 CODE_STORAGE="${CODE_STORAGE:-$HOME/Library/Application Support/Code/User/workspaceStorage}"
@@ -32,33 +31,20 @@ log() {
   echo "$msg" >> "$LOG_FILE"
 }
 
-mkdir -p "$(dirname "$LOG_FILE")"
+mkdir -p "$ARCHIVE_ROOT" "$(dirname "$LOG_FILE")"
+chmod 700 "$ARCHIVE_ROOT" "$(dirname "$LOG_FILE")"
 log "── Copilot backup run starting ──"
 
 command -v python3 >/dev/null 2>&1 || { log "ERROR: python3 not on PATH"; exit 1; }
-command -v git >/dev/null 2>&1     || { log "ERROR: git not on PATH"; exit 1; }
 [[ -d "$REPO_ROOT/.git" ]]         || { log "ERROR: not a git repo: $REPO_ROOT"; exit 1; }
 [[ -d "$CODE_STORAGE" ]]           || { log "ERROR: VS Code storage not found: $CODE_STORAGE"; exit 1; }
 
 cd "$REPO_ROOT"
 
-CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
-if [[ "$CURRENT_BRANCH" != "$BRANCH" ]]; then
-  log "WARNING: on branch $CURRENT_BRANCH, expected $BRANCH. Will commit but not push."
-  PUSH_ENABLED=false
-else
-  PUSH_ENABLED=true
-fi
-
-if $PUSH_ENABLED; then
-  log "Pulling latest from origin/$BRANCH..."
-  git pull --rebase --autostash origin "$BRANCH" >> "$LOG_FILE" 2>&1 \
-    || log "WARNING: git pull failed; continuing with local state"
-fi
-
-RAW_DIR="$REPO_ROOT/conversations/raw"
-MD_DIR="$REPO_ROOT/conversations/markdown"
+RAW_DIR="$ARCHIVE_ROOT/raw"
+MD_DIR="$ARCHIVE_ROOT/markdown"
 mkdir -p "$RAW_DIR" "$MD_DIR"
+chmod 700 "$RAW_DIR" "$MD_DIR"
 
 # The repo's own folder URI, as VS Code records it in workspace.json
 REPO_URI="file://$REPO_ROOT"
@@ -105,8 +91,8 @@ done < <(find "$CODE_STORAGE" -maxdepth 3 -type d -name transcripts -path '*/Git
 
 log "Found $COUNT transcript(s) for this repo, $NEW_OR_UPDATED new or updated."
 
-# ── Regenerate INDEX.md (covers every .md in markdown/, Claude + Copilot) ──
-INDEX="$REPO_ROOT/conversations/INDEX.md"
+# ── Regenerate private INDEX.md (covers every .md in markdown/) ──
+INDEX="$ARCHIVE_ROOT/INDEX.md"
 {
   echo "# Conversation Archive Index"
   echo ""
@@ -132,33 +118,14 @@ INDEX="$REPO_ROOT/conversations/INDEX.md"
         md_rel="markdown/${base}.md"
         raw_rel="raw/${base}.jsonl.gz"
         if [[ -f "$RAW_DIR/${base}.jsonl.gz" ]]; then
-          raw_cell="[view]($raw_rel)"
+          raw_cell="$raw_rel"
         else
-          raw_cell="—"
+          raw_cell="-"
         fi
-        echo "| $date_part | \`$sess_part\` | $size | [view]($md_rel) | $raw_cell |"
+        echo "| $date_part | \`$sess_part\` | $size | $md_rel | $raw_cell |"
       done
 } > "$INDEX"
+chmod -R go-rwx "$ARCHIVE_ROOT"
 
-git add conversations/ >> "$LOG_FILE" 2>&1
-
-if git diff --cached --quiet; then
-  log "No changes to commit."
-  log "── Copilot backup run complete (no-op) ──"
-  exit 0
-fi
-
-COMMIT_MSG="archive: sync $NEW_OR_UPDATED Copilot conversation(s) $(date '+%Y-%m-%d %H:%M')"
-git commit -m "$COMMIT_MSG" >> "$LOG_FILE" 2>&1 || { log "ERROR: git commit failed"; exit 1; }
-log "Committed: $COMMIT_MSG"
-
-if $PUSH_ENABLED; then
-  if git push origin "$BRANCH" >> "$LOG_FILE" 2>&1; then
-    log "Pushed to origin/$BRANCH"
-  else
-    log "ERROR: git push failed. Commit is local only."
-    exit 2
-  fi
-fi
-
+log "Private archive updated at $ARCHIVE_ROOT"
 log "── Copilot backup run complete ──"

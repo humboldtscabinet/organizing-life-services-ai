@@ -24,8 +24,13 @@ Implementation status after the first hardening pass:
 - Completed: added and applied an idempotent `image_analysis` migration.
 - Completed: disabled vision debug/token/proxy/file-write tools by default.
 - Completed: aligned content publish with the shared high-stakes confirmation gate.
-- Still open: sensitive tracked conversation archives, local secret hygiene,
-  one-off mutator sprawl, GitHub auth on the Mac mini, and off-machine backup
+- Completed: removed transcript artifacts from the current tree, moved the
+  local copy to a private archive, and changed backup scripts to write outside
+  the repo.
+- Completed: moved the local IndexNow key out of repo data and tightened local
+  `.env` permissions.
+- Still open: Git history rewrite decision, session rotation for any exposed
+  legacy transcript material, one-off mutator sprawl, and off-machine backup
   destination.
 
 ## Phase 0 - Containment And Access Freeze
@@ -92,8 +97,8 @@ Acceptance gates:
 - Redacted token scan across tracked files finds no sensitive conversation hits.
 - Conversation backup scripts write outside this repo or to an ignored private
   path.
-- Decision recorded: history rewritten or explicitly accepted as private-risk
-  debt.
+- Decision recorded: current tree is cleaned; Git history rewrite remains a
+  separate private-risk debt until explicitly approved.
 
 ### 1.2 Remove Broad Static Data Mount
 

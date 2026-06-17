@@ -80,7 +80,7 @@ credentials/        Service-account JSON (gitignored)
 | Add a new API integration | [docs/google_ads_api_design_doc.md](google_ads_api_design_doc.md) is the template |
 | Understand which Google APIs are live | [`/memories/repo/google_apis_status.md`](../memories/repo/google_apis_status.md) |
 | Add agents / skills | [docs/agents.md](agents.md), `app/skills/` |
-| Find conversation history with the AI assistant | [conversations/INDEX.md](../conversations/INDEX.md) |
+| Understand private AI conversation backups | [conversations/README.md](../conversations/README.md) |
 
 ## Contributing
 

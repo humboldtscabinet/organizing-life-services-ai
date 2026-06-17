@@ -38,6 +38,9 @@ infra/backup/out/
 # ---------- SEO audit raw outputs ----------
 # Historical audits are committed for trend analysis.
 # (Was previously `data/audit_output/` — un-ignored 2026-05-25.)
+data/audit_output/*key*
+data/audit_output/*token*
+data/audit_output/*secret*
 
 # ---------- n8n local data ----------
 n8n_data/
@@ -69,10 +72,11 @@ data/*token*
 data/*cookies*
 
 # ---------- Conversation archive ----------
-# Raw transcripts must be gzipped (GitHub rejects files >100MB).
-# Block any uncompressed .jsonl from accidentally being committed.
-conversations/raw/*.jsonl
-conversations/scripts/backup.log
+# Transcript contents are private artifacts, not source code.
+conversations/raw/
+conversations/markdown/
+conversations/private/
+conversations/scripts/*.log
 # Trigger file for WatchPaths-based manual backup (never commit)
 conversations/.trigger
 
