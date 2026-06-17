@@ -10,15 +10,16 @@ running Ollama with both Gemma models, and producing verified Postgres/n8n
 backups. A real oversight was found and fixed during the audit: the launchd
 backup job lacked Homebrew/OrbStack paths, so scheduled backups failed even
 though manual backups worked. After remediation, launchd backup kickstart exited
-0 and completed Postgres + n8n backup verification.
+0 and completed Postgres + n8n backup verification. The live mini repo was then
+reconciled to the pushed GitHub commit containing the fix and this report.
 
 ## Evidence Summary
 
 | Area | Status | Evidence |
 | --- | --- | --- |
 | SSH and live repo path | Pass | SSH key login works for `aiagentecosystem@192.168.1.73`; repo path is `/Users/aiagentecosystem/services/ols`. |
-| Repo identity | Warning | Mini is on `main` at `2d115562e8442795171bd37128e9e7b51f139927`; remote is `https://github.com/humboldtscabinet/organizing-life-services-ai.git`. Mini-side `git ls-remote` cannot authenticate to GitHub noninteractively. |
-| Working tree | Warning | Live mini repo has audited hotfix edits in `infra/backup/run_all_backups.sh` and `infra/backup/install_launchd_backups.sh`; these must be committed/pushed from the iMac and reconciled on the mini. |
+| Repo identity | Pass with caveat | Mini is on `main`; live repo was reconciled to pushed commit `6d7f07a`. Remote is `https://github.com/humboldtscabinet/organizing-life-services-ai.git`. Mini-side `git ls-remote` cannot authenticate to GitHub noninteractively. |
+| Working tree | Pass | `git status --short` was clean after reconciliation. |
 | Host identity | Pass | `whoami=aiagentecosystem`, `ComputerName=agent-eco-mini`, hostname `agent-eco-mini.attwifi.manager`, en0 IP `192.168.1.73`. |
 | Always-on basics | Warning | `pmset` shows `sleep 0`, but `autorestart 0`; FileVault is on, so fully unattended recovery after power loss is not guaranteed. |
 | Firewall | Warning | macOS application firewall is disabled. Current Docker services are localhost-only, so exposure is contained, but this should be reviewed before LAN/Tailscale changes. |
@@ -45,7 +46,6 @@ though manual backups worked. After remediation, launchd backup kickstart exited
 ### Medium
 
 - **Mini cannot authenticate to GitHub noninteractively.** Future `git pull` from the mini may fail until GitHub SSH/PAT auth is configured.
-- **Uncommitted live hotfix on the mini.** The launchd PATH fix is active on the mini and present in this iMac worktree, but it must be committed/pushed and reconciled on the live repo.
 - **Unattended power recovery is not guaranteed.** `autorestart 0` and FileVault being on mean a power-loss scenario likely requires human intervention.
 - **No mini-side Python test environment.** Runtime is healthy, but the mini itself cannot run `pytest` until a venv/test setup is created.
 
@@ -59,19 +59,15 @@ though manual backups worked. After remediation, launchd backup kickstart exited
 
 ## Remediation Checklist
 
-1. Commit and push the launchd PATH fix:
-   - `infra/backup/run_all_backups.sh`
-   - `infra/backup/install_launchd_backups.sh`
-2. Reconcile the live mini repo after that commit so `git status --short` is clean and HEAD matches `origin/main`.
-3. Configure noninteractive GitHub auth on the mini, preferably SSH key auth.
-4. Decide power-loss policy:
+1. Configure noninteractive GitHub auth on the mini, preferably SSH key auth.
+2. Decide power-loss policy:
    - keep FileVault on and accept manual unlock, or
    - disable FileVault only if the mini is physically secure and unattended recovery is more important.
-5. Enable `autorestart` / "Start up automatically after a power failure" if unattended recovery is desired.
-6. Reserve `192.168.1.73` for `agent-eco-mini` in router DHCP settings.
-7. Add a mini-side Python test environment or document that tests are run only from the iMac/CI.
-8. Configure an off-machine backup copy target for `infra/backup/out/`.
-9. Decide dashboard/n8n remote access path: SSH tunnel, Tailscale, or intentional LAN binding.
+3. Enable `autorestart` / "Start up automatically after a power failure" if unattended recovery is desired.
+4. Reserve `192.168.1.73` for `agent-eco-mini` in router DHCP settings.
+5. Add a mini-side Python test environment or document that tests are run only from the iMac/CI.
+6. Configure an off-machine backup copy target for `infra/backup/out/`.
+7. Decide dashboard/n8n remote access path: SSH tunnel, Tailscale, or intentional LAN binding.
 
 ## Commands Proven During Audit
 
