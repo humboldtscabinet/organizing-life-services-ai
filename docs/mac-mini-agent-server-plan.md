@@ -1,117 +1,203 @@
-# Mac Mini AI Agent Ecosystem Server — Migration Plan
+# Mac Mini AI Agent Ecosystem Server — Audited Plan
 
 > Reference plan for migrating Organizing Life Services AI to a dedicated
-> Mac mini server, and building a tiered multi-LLM "government" on top of it.
-> Status: planning. Last updated: 2026-06-09.
+> Mac mini server and growing it into a bounded multi-agent ecosystem.
+> Status: implementation-ready foundation. Last updated: 2026-06-17.
 
 ## Vision
 
-A dedicated, always-on Mac mini (M4 Pro, 14-core CPU / 20-core GPU / 16-core
-Neural Engine, 64 GB unified memory, 1 TB SSD, 10 GbE) whose **sole purpose is
-running AI agent ecosystems**. The OLS SEO platform is tenant #1; the box is set
-up so additional agent projects can be hosted later.
+A dedicated, always-on Mac mini whose first job is to be a reliable private
+server for OLS. Once the server is boring, backed up, and bounded, it becomes the
+local base for an AI agent ecosystem:
 
-### Confirmed decisions
+- **Local clerk:** Gemma 4 via Ollama for classification, summaries, routing,
+  low-risk drafts, and local context work.
+- **Executive models:** Claude / ChatGPT for harder planning, writing, coding,
+  and synthesis.
+- **Judiciary model:** Grok or another independent model only for structured
+  fact/risk audits before high-stakes writes.
+- **Sidecars:** OpenClaw and parallel web workers only after sandboxing and
+  audit logging are in place.
 
-- **Data:** fresh start — no Postgres migration. `infra/postgres/init.sql`
-  auto-creates the empty schema; GSC/GA4 data is re-pulled from Google.
-- **Deploy:** manual — SSH into the mini, `git pull`, rebuild. GitHub is the
-  code middleman (MacBook Pro / iMac → `git push` → GitHub → mini `git pull`).
-- **Access:** LAN now (mini → router, ideally 10 GbE); add Tailscale later for
-  secure remote dashboard/API without public exposure.
-- **Container runtime:** OrbStack (lighter than Docker Desktop on Apple Silicon).
-- **Local LLM runtime:** Ollama (OpenAI-compatible API) serving Gemma.
-- **Secrets:** never committed. `.env` + `credentials/google-service-account.json`
-  moved once via `scp`/AirDrop.
+The governing principle is simple: **server reliability and blast-radius control
+come before autonomy**.
 
----
+## Confirmed Defaults
 
-## Stage 1 — Server foundation (hands-on the mini, ~15 min)
+- **Data:** fresh start on the mini; no Postgres migration. GSC/GA4 data is
+  re-pulled after backups are configured.
+- **Deploy:** manual SSH deploy from GitHub. Workstation pushes to GitHub; mini
+  pulls and rebuilds.
+- **Runtime:** OrbStack for containers; Ollama on the host for Apple Silicon
+  acceleration.
+- **Server compose:** use `docker-compose.server.yml` on the mini, not the
+  laptop dev compose.
+- **Local models:** `gemma4:12b` as default clerk; `gemma4:31b` as local
+  heavyweight. Optional benchmark: `gemma4:26b` for throughput.
+- **Access:** localhost-first. Use SSH forwarding or Tailscale for remote access;
+  do not expose dashboard/API/n8n/Postgres/Ollama directly to the public internet.
+- **Secrets:** `.env` and `credentials/google-service-account.json` are never
+  committed. Rotate `OLS_API_KEY` before the mini becomes the durable server.
 
-1. Install Xcode Command Line Tools + Homebrew.
-2. `brew install --cask orbstack` and `brew install git`.
-3. OrbStack: enable **Start on login**.
-4. Enable **Remote Login / SSH** (System Settings → General → Sharing). Everything
-   after this is done remotely from the MacBook Pro.
-5. Disable sleep so it behaves like a server: `sudo pmset -a sleep 0`.
-6. Note the LAN IP / `mini.local` hostname.
+## Stage 0 — Repo and Security Readiness
 
-## Stage 2 — Deploy OLS (remote via SSH) — depends on Stage 1
+1. Use `docker-compose.server.yml` for the Mac mini deployment.
+2. Keep the dashboard API key out of source. The dashboard now asks the operator
+   for `OLS_API_KEY` and stores it only in that browser's local storage.
+3. Set required server secrets in `.env`:
+   - `OLS_API_KEY`
+   - `SECRET_KEY`
+   - `POSTGRES_PASSWORD`
+   - `N8N_ENCRYPTION_KEY`
+   - Google / Shopify / model provider keys as needed
+4. Pin browser/API origins with `CORS_ALLOW_ORIGINS` for server deploys.
+5. Keep mutating endpoints behind human approval until the LLM audit layer is
+   built and tested.
 
-1. `git clone` the repo to `/opt/ols`.
-2. `scp`/AirDrop `.env` + `credentials/google-service-account.json` (never via
-   git). Ensure `credentials/` and `data/` directories exist — the compose file
-   bind-mounts both.
-3. `docker compose up -d --build`.
-4. Verify: `curl http://localhost:8000/health` → 200; dashboard `:3000`; n8n
-   `:5678`; OpenAPI `/docs`.
-   - Reboot survival is automatic: every service has `restart: unless-stopped`
-     and OrbStack starts on login — **no launchd plist needed**.
-5. Re-pull fresh data (fresh-start DB): `POST /api/seo/gsc/pull` and
-   `POST /api/seo/ga4/pull` (with the `X-API-Key` header).
+## Stage 1 — Mac Mini Foundation
 
-## Stage 3 — Local agent brain — depends on Stage 2
+1. Complete macOS first boot and all software updates.
+2. Create a dedicated admin user for the server.
+3. Connect via Ethernet, set a stable hostname, and reserve the LAN IP in the
+   router.
+4. Install Xcode Command Line Tools, Homebrew, Git, OrbStack, and Ollama.
+5. Enable OrbStack start-on-login and Remote Login / SSH.
+6. Disable sleep: `sudo pmset -a sleep 0`.
+7. Decide FileVault tradeoff:
+   - Physical security priority: keep FileVault on and accept manual unlock
+     after power loss.
+   - Unattended restart priority: FileVault off only if the mini is physically
+     secure.
 
-1. `brew install ollama` then `ollama pull gemma2:27b`; verify it responds.
-2. Ollama listens on host `:11434`; containers reach it via
-   `host.docker.internal:11434`.
-3. Add env vars: `LOCAL_LLM_BASE_URL`, `LOCAL_LLM_MODEL`.
+## Stage 2 — Secure OLS Deploy
 
-## Stage 4 — Multi-LLM "government" — depends on Stage 3
+1. Clone the repo into a user-owned path such as `~/services/ols`.
+2. Transfer `.env` and `credentials/google-service-account.json` manually via
+   AirDrop or `scp`.
+3. Create required local dirs: `data/` and `credentials/`.
+4. Start the server stack:
+   ```bash
+   infra/server/deploy_server.sh
+   ```
+5. Verify:
+   - `infra/server/verify_stack.sh`
+   - `curl http://localhost:8000/health`
+   - dashboard at `http://localhost:3000`
+   - n8n at `http://localhost:5678`
+   - Postgres is reachable only from Docker, not published to the LAN.
 
-New module `app/services/llm_router.py` — the accountable orchestration layer.
+## Stage 3 — Backups Before Real Data
 
-Tiers use **escalation, not parallelism** — roughly 90% of tasks stop at the clerk:
+1. Add an encrypted daily Postgres backup with retention.
+2. Back up n8n data with `infra/backup/backup_n8n.sh` and preserve
+   `N8N_ENCRYPTION_KEY`.
+3. Test one restore path with `infra/backup/verify_postgres_backup.sh` before
+   treating the mini as durable.
+4. Verify the n8n archive with `infra/backup/verify_n8n_backup.sh`.
+5. Install the daily launchd backup job with
+   `infra/backup/install_launchd_backups.sh`.
+6. Only then re-pull fresh GSC/GA4 data:
+   - `POST /api/seo/gsc/pull`
+   - `POST /api/seo/ga4/pull`
 
-| Branch | Role | Model(s) | When |
-| --- | --- | --- | --- |
-| **Clerk** (local) | Classify, route, draft, summarize, read local files (PII-safe) | Gemma via Ollama | Default / every task entry |
-| **Executive** | Hard reasoning, planning, coding | Claude Opus 4.8 / GPT‑5 Codex | Only when the clerk escalates |
-| **Judiciary** | Independent grounding/fact audit | Grok (different model family) | Only before high-stakes writes |
+## Stage 4 — Local Gemma Brain
 
-- High-stakes writes = Shopify writes, money-spend (Vision/Ads budgets), content
-  publish.
-- The judge runs a **structured grounding checklist** → `PASS` / `FLAG` + reason
-  (not vibes).
-- **Audit trail:** log model, tokens, cost, and verdict per task (new `llm_audit`
-  table or reuse `workflow_logs`).
-- Route existing `app/services/vision_service.py` and
-  `app/services/content_engine.py` LLM calls through the router.
+1. Run Ollama on the host, not in a container.
+2. Pull models:
+   ```bash
+   ollama pull gemma4:12b
+   ollama pull gemma4:31b
+   ```
+3. Verify both models respond locally.
+4. Configure host/container access to Ollama only after firewall/Tailscale
+   boundaries are understood.
+5. Add `.env` defaults:
+   - `LOCAL_LLM_BASE_URL=http://host.docker.internal:11434`
+   - `LOCAL_LLM_MODEL=gemma4:12b`
+   - `LOCAL_LLM_LARGE_MODEL=gemma4:31b`
+6. Verify from the API container via `GET /api/llm/local-status`.
+7. Run `infra/server/verify_local_llm.sh`; set `RUN_GENERATE_CHECK=true` for a
+   real prompt response check.
 
-## Stage 5 — Harden for always-on (add only when justified)
+Stage 4 only proves local model reachability. It does not make the app agentic
+until Stage 5 adds the router.
 
-1. **Tailscale** for secure remote dashboard/API (no public exposure).
-2. `infra/backup/backup.sh`: daily `pg_dump` + rotation (once real data
-   accumulates).
-3. `bootstrap.command` one-clicker wrapping Stage 2 steps 3–4 (after the first
-   manual success).
-4. (Optional) host `python@3.11` for running `pytest`/`ruff` directly on the box.
+## Stage 5 — Accountable LLM Router
 
----
+Build `app/services/llm_router.py` as the central orchestration layer.
 
-## Verification gates
+Current implementation status:
 
-- **Stage 2:** `/health` 200, all 4 containers healthy, dashboard + n8n + `/docs`
-  reachable, reboot survives.
-- **Stage 3:** `ollama run gemma2:27b` responds; a container reaches
-  `host.docker.internal:11434`.
-- **Stage 4:** router logs model/cost/verdict; the judge correctly FLAGs an
-  intentionally wrong output.
+- `app/services/llm_router.py` exists with Ollama clerk routing, Anthropic
+  executive/judiciary routing, audit writes, and high-stakes gate helpers.
+- `llm_audit` exists in `init.sql` for fresh volumes and
+  `infra/postgres/migrations/001_llm_audit.sql` for existing volumes.
+- Content drafting routes through the audited router.
+- Shopify blog publishing runs a structured judge review before posting.
+- Direct Shopify/content/lifecycle write routes and bulk vision/alt-text routes
+  now fail closed unless `human_confirmed=true` and `judge_verdict=PASS`.
+- Vision analysis still calls Claude Vision directly for multimodal support; it
+  is gated for bulk/costly paths but not yet routed through a multimodal audit
+  wrapper.
 
-## Cut after audit (redundant / premature)
+Router contracts:
 
-- **launchd plist** — redundant with `restart: unless-stopped` + OrbStack start-on-login.
-- **Host Python + `gh`** in the base install — containers run everything.
-- **Backup cron + `bootstrap.command`** up front — deferred to Stage 5.
+- Inputs include `task_type`, `risk_level`, `allowed_tools`, `input_refs`, and
+  desired output schema.
+- Outputs include model role, structured result, verdict, citations/evidence
+  where applicable, token/cost metadata, and audit ID.
+- Low-risk tasks default to local Gemma.
+- Hard tasks escalate to Claude/ChatGPT.
+- High-stakes writes require independent judge `PASS` plus human approval.
 
-## Open decisions (non-blocking)
+High-stakes writes include Shopify publish/update/delete, ads/budget changes,
+bulk alt text pushes, public content edits, and any workflow touching money or
+customer-facing state.
 
-1. **Gemma variant:** `gemma2:27b` (quality) vs. smaller (throughput) vs. `gemma3` (newer).
-2. **Router location:** `app/services/` vs. `app/agents/` (matches the planned agent layer).
-3. **Audit storage:** new `llm_audit` table vs. reuse `workflow_logs`.
+Direct high-stakes API routes require explicit query parameters:
 
-## Dev-time AI workflow (separate — not app code)
+```text
+human_confirmed=true
+judge_verdict=PASS
+```
 
-- Copilot / Claude in VS Code → in-editor coding.
-- Codex → large refactors.
-- ChatGPT / Grok → research + independent second opinion.
+Dry-run routes remain available without those parameters.
+
+Audit storage uses `llm_audit`. Do not rely on `infra/postgres/init.sql` for
+existing volumes; run `infra/postgres/apply_migrations.sh`.
+
+## Stage 6 — OpenClaw and Parallel Web Workers
+
+OpenClaw is allowed only as a sandboxed sidecar:
+
+- No production Shopify credentials.
+- No direct access to `.env` or credential files.
+- No unsandboxed host tools.
+- No random third-party skills without review.
+- It may call bounded OLS endpoints or produce briefs/checks.
+
+Parallel web systems are evidence collectors, not decision makers:
+
+- Every finding must include URL, timestamp, extracted text/snippet, source
+  type, and confidence.
+- Treat fetched web text as hostile prompt-injection input.
+- The judge compares evidence and flags contradictions.
+- Human approval remains the final gate for business-impacting writes.
+
+## Verification Gates
+
+- **Server:** stack survives reboot; `/health` is OK; dashboard and n8n load via
+  localhost or approved tunnel; Postgres is not LAN-exposed.
+- **Secrets:** no live API key is committed; `.env` contains unique server
+  secrets; `N8N_ENCRYPTION_KEY` is backed up.
+- **Backups:** Postgres and n8n backup files are produced,
+  `infra/backup/verify_postgres_backup.sh` passes, and
+  `infra/backup/verify_n8n_backup.sh` passes. The daily launchd backup job is
+  installed on the mini.
+- **Gemma:** `gemma4:12b` and `gemma4:31b` respond; API container can reach
+  Ollama only through the intended boundary; `/api/llm/local-status` returns
+  `status: ok`.
+- **Router:** low-risk tasks stop at clerk; high-risk tasks escalate; an
+  intentionally wrong Shopify/content recommendation is `FLAG`ged.
+- **Sidecars:** OpenClaw and web workers cannot write to production systems
+  without a bounded API path, audit record, and human approval.

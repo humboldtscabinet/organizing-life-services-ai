@@ -41,6 +41,32 @@ class WorkflowLog(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
 
+class LLMAudit(Base):
+    __tablename__ = "llm_audit"
+    __table_args__ = (
+        Index("ix_llm_audit_task_created", "task_type", "created_at"),
+        Index("ix_llm_audit_risk_status", "risk_level", "status"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    task_type = Column(String(100), nullable=False)
+    risk_level = Column(String(30), nullable=False)
+    model_role = Column(String(50), nullable=False)
+    provider = Column(String(50), nullable=False)
+    model = Column(String(200), nullable=False)
+    status = Column(String(50), nullable=False)
+    verdict = Column(String(30))
+    prompt_tokens = Column(Integer)
+    completion_tokens = Column(Integer)
+    total_tokens = Column(Integer)
+    estimated_cost_usd = Column(Float)
+    input_refs = Column(JSONB)
+    request = Column(JSONB)
+    response = Column(JSONB)
+    error = Column(Text)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+
 # ---------- SEO tables (Phase 1) ----------
 
 class SEOReport(Base):

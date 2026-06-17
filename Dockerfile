@@ -17,6 +17,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy app code
 COPY app/ ./app/
 
+ENV UVICORN_RELOAD=true
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD if [ "$UVICORN_RELOAD" = "true" ]; then \
+      uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload; \
+    else \
+      uvicorn app.main:app --host 0.0.0.0 --port 8000; \
+    fi

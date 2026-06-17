@@ -11,6 +11,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.safety import require_high_stakes_confirmation
 from app.services.shopify_service import (
     consolidate_thin_pages,
     create_page,
@@ -143,6 +144,8 @@ def update_product_seo_fields(
     title: str = None,
     meta_description: str = None,
     handle: str = None,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Update a product's SEO fields (title, meta description, handle).
@@ -150,6 +153,11 @@ def update_product_seo_fields(
     Only updates fields that are provided.
     This is a WRITE operation — use only after human review.
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = update_product_seo(
             product_id=product_id,
@@ -168,12 +176,19 @@ def update_page_seo_fields(
     title: str = None,
     body_html: str = None,
     meta_description: str = None,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Update a page's SEO fields (title, content, meta description).
 
     This is a WRITE operation — use only after human review.
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = update_page_seo(
             page_id=page_id,
@@ -194,12 +209,19 @@ def update_article_seo_fields(
     body_html: str = None,
     summary_html: str = None,
     meta_description: str = None,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Update a blog article's SEO fields.
 
     This is a WRITE operation — use only after human review.
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = update_article_seo(
             blog_id=blog_id,
@@ -224,6 +246,8 @@ def create_new_page(
     handle: str = None,
     meta_description: str = None,
     published: bool = True,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Create a new page in the Shopify store.
@@ -231,6 +255,11 @@ def create_new_page(
     Used for creating portfolio pages, landing pages, etc.
     This is a WRITE operation — use only after human review.
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_publish" if published else "shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = create_page(
             title=title,
@@ -245,13 +274,23 @@ def create_new_page(
 
 
 @router.post("/redirects/create")
-def create_url_redirect(from_path: str, to_path: str):
+def create_url_redirect(
+    from_path: str,
+    to_path: str,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+):
     """
     Create a 301 URL redirect.
 
     from_path: e.g. "/pages/old-estate-sale-address"
     to_path: e.g. "/pages/estate-sale-palm-harbor-pinellas-county"
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = create_redirect(from_path=from_path, to_path=to_path)
         return result
@@ -260,7 +299,11 @@ def create_url_redirect(from_path: str, to_path: str):
 
 
 @router.post("/cleanup/thin-pages")
-def cleanup_thin_pages(dry_run: bool = True):
+def cleanup_thin_pages(
+    dry_run: bool = True,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+):
     """
     Consolidate thin estate sale pages by redirecting them to area portfolio pages.
 
@@ -269,6 +312,13 @@ def cleanup_thin_pages(dry_run: bool = True):
 
     This is a DESTRUCTIVE operation — always run dry_run=True first.
     """
+    if not dry_run:
+        require_high_stakes_confirmation(
+            task_type="shopify_delete",
+            human_confirmed=human_confirmed,
+            judge_verdict=judge_verdict,
+        )
+
     # Complete redirect mapping: thin page → target area page
     redirect_map = [
         # ─── Pinellas County (Palm Harbor, Clearwater, Largo, Dunedin, St Pete, etc.) ───

@@ -33,6 +33,7 @@ docker-compose.override.yml
 
 # ---------- Postgres data (local volume) ----------
 infra/postgres/data/
+infra/backup/out/
 
 # ---------- SEO audit raw outputs ----------
 # Historical audits are committed for trend analysis.

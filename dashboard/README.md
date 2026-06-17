@@ -45,7 +45,7 @@ The dashboard will be accessible at `http://localhost` and will proxy API reques
 
 ## Configuration
 
-- **API Key**: Set in `src/api.js` (currently hardcoded)
+- **API Key**: Enter in the dashboard unlock screen. It is stored only in this browser's local storage.
 - **API URL**: Configure via `VITE_API_URL` environment variable (empty string uses proxy)
 - **Theme Colors**: Customize color palette in `src/App.jsx`
 
@@ -60,7 +60,7 @@ The dashboard communicates with these backend endpoints:
 - `GET /api/dashboard/metrics` - Get dashboard metrics
 - `GET /api/dashboard/metrics/channels` - Get channel status metrics
 
-All requests include the `X-API-Key` header for authentication.
+All API requests include the operator-provided `X-API-Key` header for authentication.
 
 ## Tech Stack
 

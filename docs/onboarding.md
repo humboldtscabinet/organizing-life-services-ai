@@ -51,6 +51,9 @@ credentials/        Service-account JSON (gitignored)
    ./rebuild.command
    ```
    This runs `docker-compose up -d --force-recreate` and waits for health checks. The API will be at http://localhost:8000 and the dashboard at http://localhost:5173.
+   For Mac mini server deployment, use [`docs/deployment.md`](deployment.md)
+   and [`docs/mac-mini-implementation-guide.md`](mac-mini-implementation-guide.md)
+   instead of the laptop rebuild helper.
 
 5. **Set up the audit venv** (for one-shot SEO scripts that don't run in the container):
    ```bash

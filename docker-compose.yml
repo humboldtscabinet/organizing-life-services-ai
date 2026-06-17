@@ -63,7 +63,7 @@ services:
 
   # ---------- n8n ----------
   n8n:
-    image: n8nio/n8n:latest
+    image: ${N8N_IMAGE:-n8nio/n8n:1.97.1}
     container_name: ols-n8n
     restart: unless-stopped
     env_file: .env

@@ -1,11 +1,32 @@
-const API_KEY = '2xkosINFyLDgo1KBDc2xIIT_eQYSgPAFVpaq_Iixa8o'
 const API_URL = import.meta.env.VITE_API_URL || ''
+const API_KEY_STORAGE_KEY = 'olsApiKey'
+
+export const getStoredApiKey = () => {
+  return window.localStorage.getItem(API_KEY_STORAGE_KEY) || ''
+}
+
+export const setStoredApiKey = (apiKey) => {
+  const trimmed = apiKey.trim()
+  if (trimmed) {
+    window.localStorage.setItem(API_KEY_STORAGE_KEY, trimmed)
+  }
+  return trimmed
+}
+
+export const clearStoredApiKey = () => {
+  window.localStorage.removeItem(API_KEY_STORAGE_KEY)
+}
 
 const fetchAPI = async (endpoint, options = {}) => {
+  const apiKey = options.apiKey || getStoredApiKey()
+  if (!apiKey) {
+    throw new Error('Missing API key')
+  }
+
   const url = `${API_URL}/api${endpoint}`
   const headers = {
     'Content-Type': 'application/json',
-    'X-API-Key': API_KEY,
+    'X-API-Key': apiKey,
     ...options.headers,
   }
 

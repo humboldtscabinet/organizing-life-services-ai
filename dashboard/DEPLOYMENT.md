@@ -84,10 +84,9 @@ dashboard/
 
 ## API Integration
 
-All requests include the API key header:
-```
-X-API-Key: 2xkosINFyLDgo1KBDc2xIIT_eQYSgPAFVpaq_Iixa8o
-```
+All requests include the `X-API-Key` header supplied by the operator in the
+dashboard unlock screen. The key is stored in this browser's local storage and
+is not committed to the source bundle.
 
 ### Endpoints Used
 
@@ -167,7 +166,7 @@ Priority Colors:
 **In Development:**
 - Ensure API is running on `http://localhost:8000`
 - Check that `vite.config.js` proxy is configured correctly
-- Verify API key in `src/api.js`
+- Re-enter the API key in the dashboard unlock screen
 
 **In Docker:**
 - Ensure API service is on the same Docker network
@@ -201,9 +200,9 @@ Charts use Recharts and require data to render. Check:
 
 ## Security
 
-- API key stored in source (for demo) - move to environment variable in production
+- API key is operator-entered and stored only in browser local storage
 - CORS headers managed by nginx proxy
-- No sensitive data in local storage
+- Do not expose the dashboard outside localhost/Tailscale without stronger auth
 - All API requests use HTTPS (when deployed)
 
 ## Future Enhancements

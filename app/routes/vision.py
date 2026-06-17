@@ -16,6 +16,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal, get_db
+from app.safety import require_high_stakes_confirmation
 from app.services.vision_service import (
     analyze_gallery_images,
     bulk_analyze_with_budget,
@@ -332,6 +333,8 @@ def analyze_images(
 @router.post("/analyze/bulk")
 def bulk_analyze(
     budget: float = 90.0,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -345,6 +348,11 @@ def bulk_analyze(
     This is a LONG-RUNNING operation (~2-4 hours for 9K images).
     Results are committed to DB every 25 images to avoid data loss.
     """
+    require_high_stakes_confirmation(
+        task_type="vision_bulk_analysis",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = bulk_analyze_with_budget(
             db=db,
@@ -379,6 +387,8 @@ def _run_alt_push_background(force: bool):
 @router.post("/push-alt-text")
 def push_alt_text_to_shopify(
     force: bool = False,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Bulk push AI-generated alt text to Shopify Files (background job).
@@ -389,6 +399,11 @@ def push_alt_text_to_shopify(
     By default, skips files with real alt text (but overwrites filename-based
     alt text from tools like Webrex). Set force=true to overwrite everything.
     """
+    require_high_stakes_confirmation(
+        task_type="bulk_alt_text_push",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     global _alt_push_status
     if _alt_push_status.get("running"):
         return {"status": "already_running", "detail": "Alt text push is already in progress. Check /push-alt-text/status"}
@@ -422,11 +437,19 @@ def _run_fix_empty_background():
 
 
 @router.post("/fix-empty-alt")
-def start_fix_empty_alt():
+def start_fix_empty_alt(
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+):
     """
     Find all Shopify files with empty alt text, analyze them with Claude Vision,
     and push AI-generated alt text. Runs in background.
     """
+    require_high_stakes_confirmation(
+        task_type="bulk_alt_text_push",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     import threading
 
     if _fix_empty_status.get("running"):

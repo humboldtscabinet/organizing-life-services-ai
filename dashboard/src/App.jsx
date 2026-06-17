@@ -2,8 +2,20 @@ import React, { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { RefreshCw, Zap, CheckCircle, AlertCircle, Eye, X, Clock } from 'lucide-react'
-import { generateTasks, getTasks, approveTask, dismissTask, delayTask, refreshAllData, getMetrics, getChannelMetrics } from './api'
+import { RefreshCw, Zap, CheckCircle, AlertCircle, Eye, X, Clock, KeyRound, LogOut } from 'lucide-react'
+import {
+  generateTasks,
+  getTasks,
+  approveTask,
+  dismissTask,
+  delayTask,
+  refreshAllData,
+  getMetrics,
+  getChannelMetrics,
+  getStoredApiKey,
+  setStoredApiKey,
+  clearStoredApiKey,
+} from './api'
 
 const COLORS = {
   bg: '#1a1a2e',
@@ -41,6 +53,8 @@ const Toast = ({ message, type, onClose }) => {
 }
 
 export default function App() {
+  const [apiKey, setApiKey] = useState(() => getStoredApiKey())
+  const [apiKeyInput, setApiKeyInput] = useState('')
   const [tasks, setTasks] = useState([])
   const [metrics, setMetrics] = useState(null)
   const [channelMetrics, setChannelMetrics] = useState(null)
@@ -52,6 +66,11 @@ export default function App() {
   const [refreshingAll, setRefreshingAll] = useState(false)
 
   const fetchData = useCallback(async () => {
+    if (!apiKey) {
+      setLoading(false)
+      return
+    }
+
     try {
       setLoading(true)
       const [tasksData, metricsData, channelsData] = await Promise.all([
@@ -68,13 +87,38 @@ export default function App() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [apiKey])
 
   useEffect(() => {
+    if (!apiKey) {
+      setLoading(false)
+      return undefined
+    }
+
     fetchData()
     const interval = setInterval(fetchData, 30000)
     return () => clearInterval(interval)
-  }, [fetchData])
+  }, [apiKey, fetchData])
+
+  const handleSaveApiKey = async (event) => {
+    event.preventDefault()
+    const storedKey = setStoredApiKey(apiKeyInput)
+    if (!storedKey) {
+      setToast({ message: 'Enter an API key', type: 'error' })
+      return
+    }
+    setApiKey(storedKey)
+    setApiKeyInput('')
+    setToast({ message: 'API key saved for this browser', type: 'success' })
+  }
+
+  const handleClearApiKey = () => {
+    clearStoredApiKey()
+    setApiKey('')
+    setTasks([])
+    setMetrics(null)
+    setChannelMetrics(null)
+  }
 
   const handleGenerateTasks = async () => {
     try {
@@ -158,6 +202,58 @@ export default function App() {
     value,
   })) : []
 
+  if (!apiKey) {
+    return (
+      <div style={{ backgroundColor: COLORS.bg, minHeight: '100vh' }} className="p-6 flex items-center justify-center">
+        <form
+          onSubmit={handleSaveApiKey}
+          style={{ backgroundColor: COLORS.cardBg }}
+          className="w-full max-w-md rounded-lg p-6 shadow-xl"
+        >
+          <div className="flex items-center gap-3 mb-4">
+            <KeyRound size={24} style={{ color: '#10b981' }} />
+            <h1 className="text-2xl font-bold" style={{ color: COLORS.text }}>
+              OLS Marketing Dashboard
+            </h1>
+          </div>
+          <label className="block text-sm font-semibold mb-2" style={{ color: COLORS.textDim }}>
+            API key
+          </label>
+          <input
+            type="password"
+            value={apiKeyInput}
+            onChange={(event) => setApiKeyInput(event.target.value)}
+            className="w-full px-4 py-3 rounded-lg mb-4"
+            style={{
+              backgroundColor: '#1a1a2e',
+              color: COLORS.text,
+              border: '1px solid #333',
+            }}
+            autoComplete="off"
+            autoFocus
+          />
+          <button
+            type="submit"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg transition"
+            style={{ backgroundColor: '#10b981', color: '#fff' }}
+          >
+            <KeyRound size={18} />
+            Unlock Dashboard
+          </button>
+          {toast && (
+            <div className="fixed bottom-4 right-4 z-50">
+              <Toast
+                message={toast.message}
+                type={toast.type}
+                onClose={() => setToast(null)}
+              />
+            </div>
+          )}
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div style={{ backgroundColor: COLORS.bg, minHeight: '100vh' }} className="p-6">
       {/* Header */}
@@ -200,6 +296,14 @@ export default function App() {
           >
             <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
             Refresh
+          </button>
+          <button
+            onClick={handleClearApiKey}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition"
+            style={{ backgroundColor: '#2a2a3e', color: COLORS.text }}
+          >
+            <LogOut size={18} />
+            Lock
           </button>
         </div>
       </div>

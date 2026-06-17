@@ -12,6 +12,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.safety import require_high_stakes_confirmation
 from app.services.lifecycle_service import (
     archive_estate_sale,
     create_estate_sale_page,
@@ -30,6 +31,8 @@ def setup_new_sale(
     zip_code: str = "",
     sale_dates: str = "",
     description: str = "",
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Stage 1: Create a new estate sale page.
@@ -42,6 +45,11 @@ def setup_new_sale(
     2. Upload photos to the gallery
     3. Link the gallery to the page via XO Gallery's "Publish" feature
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_publish",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = create_estate_sale_page(
             address=address,
@@ -61,6 +69,8 @@ def update_live_sale(
     page_id: int,
     sale_dates: str = None,
     additional_info: str = None,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Stage 2: Update a live estate sale page.
@@ -68,6 +78,11 @@ def update_live_sale(
     Add sale dates, discount notices, or other updates.
     Example: additional_info="50% off all remaining items on Saturday!"
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = update_sale_status(
             page_id=page_id,
@@ -86,6 +101,8 @@ def archive_sale(
     address: str = "",
     run_vision: bool = True,
     vision_limit: int = 50,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -101,6 +118,11 @@ def archive_sale(
     run_vision: Set to False to skip AI analysis (saves API cost)
     vision_limit: Max images to analyze (default 50, controls cost)
     """
+    require_high_stakes_confirmation(
+        task_type="shopify_delete",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
     try:
         result = archive_estate_sale(
             db=db,

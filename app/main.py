@@ -16,6 +16,7 @@ from app.db.database import SessionLocal
 from app.routes.content import router as content_router
 from app.routes.dashboard import router as dashboard_router
 from app.routes.lifecycle import router as lifecycle_router
+from app.routes.llm import router as llm_router
 from app.routes.seo import router as seo_router
 from app.routes.shopify import router as shopify_router
 from app.routes.vision import router as vision_router
@@ -27,6 +28,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+
+def _cors_allow_origins() -> list[str]:
+    """Read comma-separated CORS origins from env; default remains dev-friendly."""
+    raw = os.getenv("CORS_ALLOW_ORIGINS", "*").strip()
+    if raw == "*":
+        return ["*"]
+    return [origin.strip() for origin in raw.split(",") if origin.strip()]
+
+
 app = FastAPI(
     title="Organizing Life Services — Operations API",
     description="Internal API for SEO data, audits, and business operations.",
@@ -36,7 +46,7 @@ app = FastAPI(
 # Enable CORS so Shopify admin pages can call our proxy endpoint
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=_cors_allow_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -49,6 +59,7 @@ app.include_router(vision_router, dependencies=[Depends(require_api_key)])
 app.include_router(lifecycle_router, dependencies=[Depends(require_api_key)])
 app.include_router(dashboard_router, dependencies=[Depends(require_api_key)])
 app.include_router(content_router, dependencies=[Depends(require_api_key)])
+app.include_router(llm_router, dependencies=[Depends(require_api_key)])
 
 # Serve static data files (gallery JSON, etc.)
 _data_dir = os.path.join(os.path.dirname(__file__), "..", "data")

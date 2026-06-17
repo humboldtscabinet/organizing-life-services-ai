@@ -20,18 +20,15 @@ import re
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
-import anthropic
 import httpx
 import openai
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.models import DashboardTask, GSCData
+from app.services.llm_router import LLMRequest, route_llm
 
 logger = logging.getLogger(__name__)
-
-# Anthropic client (uses ANTHROPIC_API_KEY env var)
-anthropic_client = anthropic.Anthropic()
 
 # Geographic focus for OLS
 FLORIDA_COUNTIES = [
@@ -569,17 +566,29 @@ Format your response as JSON with these exact keys:
     "tags": ["estate sales", "tampa bay", "relevant tag 3", "relevant tag 4"]
 }}
 
-CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no text outside the JSON object."""
+    CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no text outside the JSON object."""
 
     try:
-        message = anthropic_client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=4096,
-            messages=[{"role": "user", "content": prompt}],
+        llm_result = route_llm(
+            LLMRequest(
+                task_type="content_draft",
+                risk_level="medium",
+                preferred_role="executive",
+                response_format="json",
+                prompt=prompt,
+                max_tokens=4096,
+                temperature=0.2,
+                input_refs={
+                    "topic": topic,
+                    "target_keyword": target_keyword,
+                    "post_type": post_type,
+                },
+            ),
+            db=db,
         )
 
         # Parse the response
-        response_text = message.content[0].text
+        response_text = llm_result.text
 
         # Remove markdown code block if present
         if response_text.startswith("```json"):
@@ -590,6 +599,9 @@ CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no text outside t
             response_text = response_text[:-3]
 
         post_data = json.loads(response_text.strip())
+
+        if llm_result.audit_id:
+            post_data["_llm_audit_id"] = llm_result.audit_id
 
         # Validate required fields
         required_fields = ["title", "meta_description", "body_html", "summary_html", "handle"]
@@ -661,6 +673,90 @@ CRITICAL: Return ONLY valid JSON. No markdown, no code blocks, no text outside t
     except Exception as e:
         logger.error(f"Error generating blog post: {e}")
         raise
+
+
+def _judge_blog_post_for_publish(
+    db: Session,
+    post_data: Dict,
+    task: DashboardTask,
+) -> Dict:
+    """
+    Run a structured high-stakes review before publishing generated content.
+
+    The judge does not rewrite content. It only returns PASS/FLAG plus reasons.
+    """
+    review_payload = {
+        "task_id": task.id,
+        "task_title": task.title,
+        "target_keyword": (task.action_payload or {}).get("target_keyword"),
+        "post": {
+            "title": post_data.get("title"),
+            "meta_description": post_data.get("meta_description"),
+            "handle": post_data.get("handle"),
+            "tags": post_data.get("tags"),
+            "body_html": post_data.get("body_html"),
+            "summary_html": post_data.get("summary_html"),
+        },
+    }
+    prompt = f"""You are the independent publishing judge for Organizing Life Services.
+
+Review this generated Shopify blog post before publication. Return JSON only.
+
+Checklist:
+1. Required phone number appears exactly as (727) 542-6028.
+2. Required tel link href is tel:7275426028.
+3. Required contact URL /pages/contact-us appears.
+4. The post stays in Greater Tampa Bay / Florida service territory.
+5. The post does not claim services outside Florida.
+6. The HTML uses only h2, h3, p, ul/li, and a tags.
+7. The primary keyword appears naturally and not as spam.
+8. The content is safe to publish as business-facing marketing copy.
+
+Return this exact JSON shape:
+{{
+  "verdict": "PASS" or "FLAG",
+  "reasons": ["short reason 1", "short reason 2"],
+  "blocking_issue": "short summary or empty string"
+}}
+
+Post payload:
+{json.dumps(review_payload, ensure_ascii=False)}
+"""
+    result = route_llm(
+        LLMRequest(
+            task_type="content_publish_review",
+            risk_level="high",
+            preferred_role="judiciary",
+            response_format="json",
+            prompt=prompt,
+            max_tokens=700,
+            temperature=0.0,
+            input_refs={
+                "task_id": task.id,
+                "content_draft_audit_id": post_data.get("_llm_audit_id"),
+            },
+        ),
+        db=db,
+    )
+
+    try:
+        review = json.loads(result.text.strip())
+    except json.JSONDecodeError as exc:
+        raise ValueError("Judge review returned invalid JSON") from exc
+
+    verdict = str(review.get("verdict", "")).upper()
+    if verdict != "PASS":
+        reasons = review.get("reasons") or []
+        blocking_issue = review.get("blocking_issue") or "Content judge flagged publish risk"
+        raise ValueError(
+            f"Content judge FLAG: {blocking_issue}; reasons={reasons}; audit_id={result.audit_id}"
+        )
+
+    return {
+        "verdict": verdict,
+        "reasons": review.get("reasons") or [],
+        "audit_id": result.audit_id,
+    }
 
 
 def create_content_task(
@@ -763,6 +859,13 @@ def publish_to_shopify(db: Session, task_id: int) -> Dict:
             target_keyword=target_keyword,
             post_type=post_type,
         )
+        llm_audit_id = post_data.pop("_llm_audit_id", None)
+
+        judge_review = _judge_blog_post_for_publish(
+            db=db,
+            post_data={**post_data, "_llm_audit_id": llm_audit_id},
+            task=task,
+        )
 
         # Generate featured image
         image_data = _generate_blog_image(topic=topic, target_keyword=target_keyword)
@@ -815,6 +918,9 @@ def publish_to_shopify(db: Session, task_id: int) -> Dict:
             "shopify_article_id": article_id,
             "shopify_article_url": article_url,
             "title": post_data["title"],
+            "llm_audit_id": llm_audit_id,
+            "judge_audit_id": judge_review.get("audit_id"),
+            "judge_verdict": judge_review.get("verdict"),
         }
         db.commit()
 

@@ -18,6 +18,7 @@ from sqlalchemy.orm import Session
 
 from app.db.database import get_db
 from app.db.models import DashboardTask
+from app.safety import require_high_stakes_confirmation
 from app.services.content_engine import (
     SHOPIFY_BLOG_ID,
     _generate_blog_image,
@@ -325,6 +326,8 @@ def add_image_to_article(
     article_id: int = Query(..., description="Shopify article ID"),
     topic: str = Query(..., description="Blog topic for image prompt"),
     target_keyword: str = Query(..., description="SEO keyword for alt text"),
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
 ):
     """
     Generate and attach a featured image to an existing Shopify article.
@@ -332,6 +335,12 @@ def add_image_to_article(
     Use this to backfill images on articles published without thumbnails.
     """
     import httpx as _httpx
+
+    require_high_stakes_confirmation(
+        task_type="shopify_update",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
 
     try:
         image_data = _generate_blog_image(topic=topic, target_keyword=target_keyword)
@@ -384,6 +393,8 @@ def fix_article_content(
         True,
         description="If true, returns a preview of changes without writing to Shopify (default true for safety)",
     ),
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
     db: Session = Depends(get_db),
 ):
     """
@@ -420,6 +431,13 @@ def fix_article_content(
         raise HTTPException(
             status_code=400,
             detail="Cannot mix append_html with find/replace — use one mode at a time",
+        )
+
+    if not dry_run:
+        require_high_stakes_confirmation(
+            task_type="shopify_update",
+            human_confirmed=human_confirmed,
+            judge_verdict=judge_verdict,
         )
 
     try:
