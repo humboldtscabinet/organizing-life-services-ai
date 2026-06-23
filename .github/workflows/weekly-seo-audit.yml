@@ -25,6 +25,7 @@ on:
 jobs:
   run-audit:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       contents: write
       pull-requests: write
@@ -81,6 +82,8 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: credentials/google-service-account.json
           GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
           GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          DEEP_AUDIT_MAX_URLS: "80"
+          DEEP_AUDIT_INSPECT_TOP_N: "20"
         run: |
           python data/deep_seo_audit.py
 
