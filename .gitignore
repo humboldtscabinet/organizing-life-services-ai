@@ -4,6 +4,7 @@
 
 # ---------- Environment / Secrets ----------
 .env
+.env.backup-*
 credentials/
 *.json
 !package.json
