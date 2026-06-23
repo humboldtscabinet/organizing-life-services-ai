@@ -10,6 +10,49 @@ Each entry should answer:
 
 ---
 
+## 2026-06-23 — Targeted weekly-audit fixes: homepage CTR, appraisal page, H1 cleanup
+
+**What**
+- Added [`data/session10_weekly_seo_fixes.py`](../../data/session10_weekly_seo_fixes.py), a guarded/idempotent live Shopify patch script with `--dry-run`.
+- Updated the homepage theme title/meta description to target the highest-impression service-intent queries found in the weekly audit:
+  - Title: `Estate Sale Organizers Tampa Bay | Appraisals & Downsizing`
+  - Description: `Tampa Bay estate sale organizers for estate sales, appraisals, downsizing, and cleanouts across Pinellas, Pasco, Hillsborough, Hernando, and Citrus.`
+- Updated `/pages/personal-property-appraisal` SEO metafields:
+  - Title: `Personal Property Appraisers Tampa Bay | Estate Appraisals`
+  - Description: `Need Tampa personal property appraisers? OLS provides estate sale, probate, insurance, and downsizing appraisals across Tampa Bay. Call (727) 542-6028.`
+- Demoted body-level H1 tags to H2 on `/pages/contact-us`, `/pages/about-us`, `/pages/testimonials`, and `/pages/senior-services`.
+- Demoted the contact template's form-section H1 to H2 so `/pages/contact-us` now has a single rendered H1.
+- Added theme-level `noindex,follow` for thin Shopify utility collections:
+  - `/collections/all`
+  - `/collections/fees-products`
+
+**Why**
+- The 2026-06-23 weekly audit showed the homepage earning impressions for high-intent phrases (`estate sale organizers`, `estate sale companies near me`, `estate sale and appraisal services`) but receiving weak CTR. The old homepage title was 90 characters and generic.
+- The appraisal page had strong business-intent impressions (`tampa personal property appraisers`) but the title was only `Personal Property Appraisal`.
+- Contact/trust pages were showing multiple rendered H1s, mostly from a mix of theme page-title output and body/section content.
+- Shopify utility collections were thin, had no meta descriptions, and were not meaningful search landing pages.
+
+**How**
+- Live script reports:
+  - [`data/audit_output/session10_weekly_seo_fixes_20260623T214401Z.json`](../../data/audit_output/session10_weekly_seo_fixes_20260623T214401Z.json)
+  - [`data/audit_output/session10_weekly_seo_fixes_20260623T214801Z.json`](../../data/audit_output/session10_weekly_seo_fixes_20260623T214801Z.json)
+- Theme snapshots:
+  - [`data/audit_output/theme_layout_snapshot_pre_session10_20260623T214400Z.liquid`](../../data/audit_output/theme_layout_snapshot_pre_session10_20260623T214400Z.liquid)
+  - [`data/audit_output/theme_page_contact_snapshot_pre_session10_20260623T214800Z.liquid`](../../data/audit_output/theme_page_contact_snapshot_pre_session10_20260623T214800Z.liquid)
+- Live verification after patch:
+  - Homepage title length: 58; meta description length: 148.
+  - Personal Property Appraisal title length: 58; meta description length: 151.
+  - Contact, About, Testimonials, Senior Services, and Personal Property Appraisal each render one H1.
+  - `/collections/all` and `/collections/fees-products` render `noindex,follow`.
+
+**Result / next watch**
+- Re-run the weekly audit after 7-14 days and compare CTR/clicks for:
+  - homepage queries: `estate sale organizers`, `estate sale companies near me`, `estate sale and appraisal services`
+  - appraisal queries: `tampa personal property appraisers`, `estate sale and appraisal services`
+- IndexNow submission was skipped because the local `data/audit_output/indexnow_key.txt` is intentionally absent after secret/artifact cleanup. Google will pick up the changes through normal crawl/GSC; IndexNow can be restored separately if Bing/Yandex fast-submit becomes a priority again.
+
+---
+
 ## 2026-06-23 — Weekly SEO audit automation baseline
 
 **What**

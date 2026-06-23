@@ -1,0 +1,88 @@
+{
+  "appraisal_meta": {
+    "description_len": 151,
+    "handle": "personal-property-appraisal",
+    "metafields": [
+      {
+        "existing_id": 32456807481498,
+        "key": "title_tag",
+        "status": "unchanged"
+      },
+      {
+        "existing_id": 32456807514266,
+        "key": "description_tag",
+        "status": "unchanged"
+      }
+    ],
+    "page_id": 103728840858,
+    "status": "checked",
+    "title_len": 58
+  },
+  "dry_run": false,
+  "generated_at": "2026-06-23T21:47:58.933383+00:00",
+  "h1_demotions": [
+    {
+      "h1s": 0,
+      "handle": "contact-us",
+      "page_id": 80166781082,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "about-us",
+      "page_id": 80166289562,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "testimonials",
+      "page_id": 80166650010,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "senior-services",
+      "page_id": 96296272026,
+      "status": "unchanged"
+    }
+  ],
+  "indexnow": {
+    "reason": "--skip-indexnow",
+    "status": "skipped"
+  },
+  "targets": {
+    "appraisal_page": "personal-property-appraisal",
+    "h1_demote_pages": [
+      "contact-us",
+      "about-us",
+      "testimonials",
+      "senior-services"
+    ],
+    "indexnow_urls": [
+      "https://organizinglifeservices.com/",
+      "https://organizinglifeservices.com/pages/personal-property-appraisal",
+      "https://organizinglifeservices.com/pages/contact-us",
+      "https://organizinglifeservices.com/pages/about-us",
+      "https://organizinglifeservices.com/pages/testimonials",
+      "https://organizinglifeservices.com/pages/senior-services",
+      "https://organizinglifeservices.com/collections/all",
+      "https://organizinglifeservices.com/collections/fees-products"
+    ],
+    "utility_collections_noindex": [
+      "all",
+      "fees-products"
+    ]
+  },
+  "theme": {
+    "changed": true,
+    "collection_noindex": "unchanged",
+    "contact_diff_preview": "--- before/sections/page-contact.liquid\n\n+++ after/sections/page-contact.liquid\n\n@@ -4,7 +4,8 @@\n\n <!-- page-contact.liquid -->\n <div class=\"container\">\n   {%- if section.settings.title_page != blank -%}\n-  <h1 class=\"h3 mb-3\">{{ section.settings.title_page }}</h1>\n+  {%- comment -%} CONTACT-H1-DEMOTE-V1: page title already emits the H1 {%- endcomment -%}\n+  <h2 class=\"h3 mb-3\">{{ section.settings.title_page }}</h2>\n   {%- endif -%}\n   {%- if section.settings.contact_des != blank -%}\n   <div class=\"contact-page__des\" >{{section.settings.contact_des}}</div>",
+    "contact_section_h1": "patched",
+    "homepage_meta": "unchanged",
+    "snapshot_paths": [
+      "data/audit_output/theme_page_contact_snapshot_pre_session10_20260623T214800Z.liquid"
+    ],
+    "theme_id": 153690210458,
+    "theme_name": "Copy of Vt-kitchor-home-3 with Installments mes..."
+  }
+}

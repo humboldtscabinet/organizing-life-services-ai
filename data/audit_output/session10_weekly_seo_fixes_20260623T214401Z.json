@@ -1,0 +1,85 @@
+{
+  "appraisal_meta": {
+    "description_len": 151,
+    "handle": "personal-property-appraisal",
+    "metafields": [
+      {
+        "key": "title_tag",
+        "metafield_id": 32456807481498,
+        "status": "updated"
+      },
+      {
+        "key": "description_tag",
+        "metafield_id": 32456807514266,
+        "status": "updated"
+      }
+    ],
+    "page_id": 103728840858,
+    "status": "checked",
+    "title_len": 58
+  },
+  "dry_run": false,
+  "generated_at": "2026-06-23T21:43:55.694286+00:00",
+  "h1_demotions": [
+    {
+      "body_h1_count": 1,
+      "handle": "contact-us",
+      "page_id": 80166781082,
+      "status": "demoted_body_h1"
+    },
+    {
+      "body_h1_count": 1,
+      "handle": "about-us",
+      "page_id": 80166289562,
+      "status": "demoted_body_h1"
+    },
+    {
+      "body_h1_count": 1,
+      "handle": "testimonials",
+      "page_id": 80166650010,
+      "status": "demoted_body_h1"
+    },
+    {
+      "body_h1_count": 1,
+      "handle": "senior-services",
+      "page_id": 96296272026,
+      "status": "demoted_body_h1"
+    }
+  ],
+  "indexnow": {
+    "reason": "missing data/audit_output/indexnow_key.txt",
+    "status": "skipped"
+  },
+  "targets": {
+    "appraisal_page": "personal-property-appraisal",
+    "h1_demote_pages": [
+      "contact-us",
+      "about-us",
+      "testimonials",
+      "senior-services"
+    ],
+    "indexnow_urls": [
+      "https://organizinglifeservices.com/",
+      "https://organizinglifeservices.com/pages/personal-property-appraisal",
+      "https://organizinglifeservices.com/pages/contact-us",
+      "https://organizinglifeservices.com/pages/about-us",
+      "https://organizinglifeservices.com/pages/testimonials",
+      "https://organizinglifeservices.com/pages/senior-services",
+      "https://organizinglifeservices.com/collections/all",
+      "https://organizinglifeservices.com/collections/fees-products"
+    ],
+    "utility_collections_noindex": [
+      "all",
+      "fees-products"
+    ]
+  },
+  "theme": {
+    "changed": true,
+    "collection_noindex": "patched",
+    "diff_preview": "--- before/layout/theme.liquid\n\n+++ after/layout/theme.liquid\n\n@@ -24,9 +24,17 @@\n\n       assign has_custom_title_tag = true\n     endif\n   -%}\n+      {%- comment -%} HOMEPAGE-SEO-META-V1: title {%- endcomment -%}\n+      {%- if template.name == 'index' -%}\n+      Estate Sale Organizers Tampa Bay | Appraisals & Downsizing\n+      {%- else -%}\n       {{ page_title }}{% if current_tags %}{% assign meta_tags = current_tags | join: ', ' %} &ndash; {{ 'general.meta.tags' | t: tags: meta_tags }}{% endif %}{% if current_page != 1 %} &ndash; {{ 'general.meta.page' | t: page: current_page }}{% endif %}{% unless has_custom_title_tag or page_title contains shop.name %} &ndash; {{ shop.name }}{% endunless %}\n+      {%- endif -%}\n     </title>\n-    {%- if page_description -%}\n+    {%- comment -%} HOMEPAGE-SEO-META-V1: description {%- endcomment -%}\n+    {%- if template.name == 'index' -%}\n+    <meta name=\"description\" content=\"Tampa Bay estate sale organizers for estate sales, appraisals, downsizing, and cleanouts across Pinellas, Pasco, Hillsborough, Hernando, and Citrus.\">\n+    {%- elsif page_description -%}\n     <meta name=\"description\" content=\"{{ page_description | escape }}\">\n     {%- endif -%}\n     {%- include 'social-meta-tags' -%}\n@@ -100,6 +108,16 @@\n\n       {%- comment -%} SEO-ROBOTS-V1: per-page noindex override via page.metafields.seo.robots {%- endcomment -%}\n     {%- if page and page.metafields.seo.robots != blank -%}\n     <meta name=\"robots\" content=\"{{ page.metafields.seo.robots | escape }}\">\n+    {%- endif -%}\n+    {%- comment -%} SEO-ROBOTS-COLLECTIONS-V1: noindex thin Shopify utility collections {%- endcomment -%}\n+    {%- assign ols_noindex_collection = false -%}\n+    {%- if collection and collection.handle == 'all' -%}\n+      {%- assign ols_noindex_collection = true -%}\n+    {%- elsif collection and collection.handle == 'fees-products' -%}\n+      {%- assign ols_noindex_collection = true -%}\n+    {%- endif -%}\n+    {%- if ols_noindex_collection -%}\n+    <meta name=\"robots\" content=\"noindex,follow\">\n     {%- endif -%}\n   </head>\n   <body class=\"template-{{ template | replace: '.', ' ' | truncatewords: 1, '' | handle }} body-theme {% if settings.productpage == 'product-2' or settings.productpage == 'product-6' or settings.productpage == 'product-7' %} product-hide-breadcrumb {% endif %}\" >",
+    "homepage_meta": "patched",
+    "snapshot_path": "data/audit_output/theme_layout_snapshot_pre_session10_20260623T214400Z.liquid",
+    "theme_id": 153690210458,
+    "theme_name": "Copy of Vt-kitchor-home-3 with Installments mes..."
+  }
+}
