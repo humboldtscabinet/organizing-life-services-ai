@@ -7,10 +7,13 @@ All endpoints are manual-approval mode:
 - No automated changes — human reviews everything first
 """
 
+import logging
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.route_errors import raise_route_error
 from app.safety import require_high_stakes_confirmation
 from app.services.shopify_service import (
     consolidate_thin_pages,
@@ -28,6 +31,7 @@ from app.services.shopify_service import (
 )
 
 router = APIRouter(prefix="/api/shopify", tags=["Shopify"])
+logger = logging.getLogger(__name__)
 
 
 # ===================== Read Endpoints =====================
@@ -53,7 +57,7 @@ def list_products(limit: int = 50):
             ],
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "List Shopify products", e)
 
 
 @router.get("/pages")
@@ -74,7 +78,7 @@ def list_pages(limit: int = 50):
             ],
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "List Shopify pages", e)
 
 
 @router.get("/blogs")
@@ -96,7 +100,7 @@ def list_blogs():
             })
         return {"status": "success", "blogs": result}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "List Shopify blogs", e)
 
 
 @router.get("/seo-data")
@@ -111,7 +115,7 @@ def get_seo_overview():
         data = get_site_seo_data()
         return {"status": "success", **data}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Shopify SEO overview", e)
 
 
 # ===================== Order Pipeline =====================
@@ -132,7 +136,7 @@ def trigger_orders_pull(
         result = pull_shopify_orders(db=db, limit=limit, status=status)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Pull Shopify orders", e)
 
 
 # ===================== SEO Update Endpoints =====================
@@ -167,7 +171,7 @@ def update_product_seo_fields(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Update Shopify product SEO", e)
 
 
 @router.put("/pages/{page_id}/seo")
@@ -198,7 +202,7 @@ def update_page_seo_fields(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Update Shopify page SEO", e)
 
 
 @router.put("/blogs/{blog_id}/articles/{article_id}/seo")
@@ -233,7 +237,7 @@ def update_article_seo_fields(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Update Shopify article SEO", e)
 
 
 # ===================== Page Management Endpoints =====================
@@ -270,7 +274,7 @@ def create_new_page(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Create Shopify page", e)
 
 
 @router.post("/redirects/create")
@@ -295,7 +299,7 @@ def create_url_redirect(
         result = create_redirect(from_path=from_path, to_path=to_path)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Create Shopify redirect", e)
 
 
 @router.post("/cleanup/thin-pages")
@@ -373,4 +377,4 @@ def cleanup_thin_pages(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Shopify thin-page cleanup", e)

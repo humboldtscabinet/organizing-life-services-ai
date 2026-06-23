@@ -8,10 +8,13 @@ Three lifecycle stages:
   GET  /summary  — View current lifecycle status
 """
 
+import logging
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.route_errors import raise_route_error
 from app.safety import require_high_stakes_confirmation
 from app.services.lifecycle_service import (
     archive_estate_sale,
@@ -21,6 +24,7 @@ from app.services.lifecycle_service import (
 )
 
 router = APIRouter(prefix="/api/lifecycle", tags=["Estate Sale Lifecycle"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/setup")
@@ -61,7 +65,7 @@ def setup_new_sale(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Set up estate sale page", e)
 
 
 @router.put("/live/{page_id}")
@@ -91,7 +95,7 @@ def update_live_sale(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Update live estate sale page", e)
 
 
 @router.post("/archive")
@@ -134,7 +138,7 @@ def archive_sale(
         )
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Archive estate sale", e)
 
 
 @router.get("/summary")
@@ -148,4 +152,4 @@ def lifecycle_summary(db: Session = Depends(get_db)):
         summary = get_lifecycle_summary(db)
         return {"status": "success", **summary}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Lifecycle summary", e)

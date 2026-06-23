@@ -2,7 +2,8 @@
 
 The data folder contains historical SEO scripts, including direct Shopify
 mutators. When those scripts are run directly, this guard blocks external write
-requests unless the operator explicitly opts in with OLS_ALLOW_DATA_MUTATION=1.
+requests unless the operator explicitly opts in with both a boolean env var and
+a typed confirmation phrase.
 """
 
 from __future__ import annotations
@@ -12,9 +13,10 @@ from functools import wraps
 from typing import Any
 from urllib.parse import urlparse
 
-
 MUTATING_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
 TRUE_VALUES = {"1", "true", "yes", "y", "on"}
+CONFIRM_ENV = "OLS_DATA_MUTATION_CONFIRM"
+CONFIRM_PHRASE = "I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE"
 INDEXNOW_HOSTS = {
     "api.indexnow.org",
     "www.bing.com",
@@ -31,7 +33,9 @@ class DataMutationBlocked(RuntimeError):
 
 
 def _enabled() -> bool:
-    return os.getenv("OLS_ALLOW_DATA_MUTATION", "").strip().lower() in TRUE_VALUES
+    allow_flag = os.getenv("OLS_ALLOW_DATA_MUTATION", "").strip().lower() in TRUE_VALUES
+    confirmation = os.getenv(CONFIRM_ENV, "").strip()
+    return allow_flag and confirmation == CONFIRM_PHRASE
 
 
 def _safe_url(url: Any) -> str:
@@ -68,8 +72,10 @@ def guard_request(method: str, url: Any) -> None:
     raise DataMutationBlocked(
         "Blocked direct production mutation from data/ script: "
         f"{method.upper()} {_safe_url(url)}. "
-        "Set OLS_ALLOW_DATA_MUTATION=1 only after human review, or prefer a "
-        "guarded API route with human_confirmed=true and judge_verdict=PASS."
+        "Prefer a guarded API route with human_confirmed=true and "
+        "judge_verdict=PASS. If this historical script is truly required, set "
+        f"OLS_ALLOW_DATA_MUTATION=1 and {CONFIRM_ENV}={CONFIRM_PHRASE} only "
+        "after human review."
     )
 
 

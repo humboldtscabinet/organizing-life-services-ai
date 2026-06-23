@@ -4,8 +4,6 @@
 # Usage: docker compose up -d --build
 # =============================================================
 
-version: "3.9"
-
 services:
   # ---------- Postgres ----------
   postgres:

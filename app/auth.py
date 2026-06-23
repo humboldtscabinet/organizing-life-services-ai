@@ -13,11 +13,12 @@ Usage in routes:
 """
 
 import logging
-import os
 import secrets
 
 from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
+
+from app.runtime_config import configured_api_key
 
 logger = logging.getLogger(__name__)
 
@@ -29,22 +30,10 @@ def _get_api_key() -> str:
     """
     Get the configured API key from environment.
 
-    If OLS_API_KEY is not set, generates one on first startup
-    and logs it so the operator can save it.
+    Production/server mode fails fast when OLS_API_KEY is absent. Development
+    may generate a process-local key, but never prints it to logs.
     """
-    key = os.getenv("OLS_API_KEY", "").strip()
-    if not key:
-        # Generate a secure random key and warn
-        key = secrets.token_urlsafe(32)
-        os.environ["OLS_API_KEY"] = key
-        logger.warning(
-            "============================================\n"
-            "  NO OLS_API_KEY SET — auto-generated key:\n"
-            f"  {key}\n"
-            "  Add OLS_API_KEY to your .env file!\n"
-            "============================================"
-        )
-    return key
+    return configured_api_key()
 
 
 # Resolve once at import time

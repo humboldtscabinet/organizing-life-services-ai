@@ -181,6 +181,16 @@ judge_verdict=PASS
 This applies to direct Shopify/content/lifecycle writes and bulk vision alt-text
 pushes. Dry-run endpoints remain available without confirmation.
 
+Historical direct-write scripts under `data/` are a fallback, not the preferred
+path. If one must be used, it also requires:
+
+```text
+OLS_ALLOW_DATA_MUTATION=1
+OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE
+```
+
+See [runbooks/data-mutation-scripts.md](runbooks/data-mutation-scripts.md).
+
 ## Local LLM Verification
 
 After Ollama and Gemma are installed on the Mac mini, verify the API container

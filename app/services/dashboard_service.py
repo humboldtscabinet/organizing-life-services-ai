@@ -23,6 +23,7 @@ from app.db.models import (
     GSCData,
     SEOReport,
 )
+from app.services.lead_relevance import score_lead_relevance
 
 # Geographic service area terms for Organizing Life Services
 # Based in Greater Tampa Bay Area, Florida
@@ -191,6 +192,7 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
             continue
         avg_ctr = (stats["ctr_sum"] / stats["count"]) if stats["count"] else 0
         if stats["impressions"] >= 50 and avg_ctr < 0.03:
+            lead = score_lead_relevance(q)
             tasks.append({
                 "task_type": "seo",
                 "category": "keyword_optimization",
@@ -199,14 +201,16 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "description": (
                     f"Query '{q}' has {stats['impressions']} impressions "
                     f"but only {stats['clicks']} clicks (CTR: {round(avg_ctr * 100, 2)}%). "
-                    f"Improve title tag and meta description to increase CTR."
+                    f"Improve title tag and meta description to increase CTR. "
+                    f"Lead relevance: {lead.tier} ({lead.score}/100)."
                 ),
                 "finding": (
                     f"High impressions ({stats['impressions']}), low CTR "
-                    f"({round(avg_ctr * 100, 2)}%) for query: {q}"
+                    f"({round(avg_ctr * 100, 2)}%) for query: {q} | "
+                    f"Lead relevance: {lead.tier} ({lead.score}/100)"
                 ),
                 "action_endpoint": None,
-                "action_payload": None,
+                "action_payload": lead.as_dict(),
                 "status": "pending",
             })
 
@@ -219,22 +223,25 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
             continue
         avg_pos = (stats["position_sum"] / stats["count"]) if stats["count"] else 0
         if 8 <= avg_pos <= 20 and stats["impressions"] >= 20:
+            lead = score_lead_relevance(q)
             tasks.append({
                 "task_type": "seo",
                 "category": "content_ranking",
-                "priority": "MEDIUM",
+                "priority": "HIGH" if lead.tier == "HIGH" else "MEDIUM",
                 "title": f"Create targeted content for '{q}' (position {round(avg_pos, 1)})",
                 "description": (
                     f"Query '{q}' is ranking at position {round(avg_pos, 1)} "
                     f"with {stats['impressions']} impressions. "
-                    f"Create or optimize content to push to page 1."
+                    f"Create or optimize content to push to page 1. "
+                    f"Lead relevance: {lead.tier} ({lead.score}/100)."
                 ),
                 "finding": (
                     f"Query near page 2: {q} at position {round(avg_pos, 1)} "
-                    f"with {stats['impressions']} impressions"
+                    f"with {stats['impressions']} impressions | Lead relevance: "
+                    f"{lead.tier} ({lead.score}/100)"
                 ),
                 "action_endpoint": None,
-                "action_payload": None,
+                "action_payload": lead.as_dict(),
                 "status": "pending",
             })
 
@@ -261,21 +268,24 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
             if page_queries_all_out_of_territory:
                 continue
 
+            lead = score_lead_relevance(" ".join(page_queries[page]), page=page)
             tasks.append({
                 "task_type": "seo",
                 "category": "zero_click_investigation",
-                "priority": "HIGH",
+                "priority": "HIGH" if lead.tier != "LOW" else "MEDIUM",
                 "title": f"Investigate zero-click page: {page}",
                 "description": (
                     f"Page {page} has {stats['impressions']} impressions "
-                    f"but zero clicks. Investigate content relevance and meta tags."
+                    f"but zero clicks. Investigate content relevance and meta tags. "
+                    f"Lead relevance: {lead.tier} ({lead.score}/100)."
                 ),
                 "finding": (
                     f"Zero-click page detected: {page} with "
-                    f"{stats['impressions']} impressions"
+                    f"{stats['impressions']} impressions | Lead relevance: "
+                    f"{lead.tier} ({lead.score}/100)"
                 ),
                 "action_endpoint": None,
-                "action_payload": None,
+                "action_payload": lead.as_dict(),
                 "status": "pending",
             })
 

@@ -77,3 +77,17 @@ def test_valid_key_passes_auth(client, auth_headers):
     """
     r = client.get("/api/dashboard/metrics", headers=auth_headers)
     assert r.status_code not in (401, 403)
+
+
+def test_seo_route_failure_returns_http_error(client, auth_headers, monkeypatch):
+    """Automation callers must see operational failures as non-2xx responses."""
+
+    def fail_pull(*args, **kwargs):
+        raise RuntimeError("GSC unavailable")
+
+    monkeypatch.setattr("app.routes.seo.pull_gsc_data", fail_pull)
+
+    r = client.post("/api/seo/gsc/pull", headers=auth_headers)
+
+    assert r.status_code == 500
+    assert "GSC pull failed" in r.json()["detail"]

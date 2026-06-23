@@ -8,10 +8,13 @@ All endpoints are in manual-approval mode:
 - Get dashboard metrics and insights
 """
 
-from fastapi import APIRouter, Depends, Query
+import logging
+
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.route_errors import raise_if_service_error, raise_route_error
 from app.services.dashboard_service import (
     approve_task,
     delay_task,
@@ -32,6 +35,7 @@ from app.services.sheets_service import (
 )
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/generate-tasks")
@@ -54,7 +58,7 @@ def trigger_generate_tasks(
         result = generate_tasks(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dashboard task generation", e)
 
 
 @router.get("/tasks")
@@ -98,7 +102,7 @@ def list_tasks(
             ],
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dashboard task list", e)
 
 
 @router.get("/tasks/{task_id}")
@@ -109,7 +113,7 @@ def get_task_detail(task_id: int, db: Session = Depends(get_db)):
     try:
         task = get_task_by_id(db, task_id)
         if not task:
-            return {"status": "error", "detail": "Task not found"}
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
 
         return {
             "status": "success",
@@ -130,8 +134,10 @@ def get_task_detail(task_id: int, db: Session = Depends(get_db)):
                 "completed_at": task.completed_at.isoformat() if task.completed_at else None,
             },
         }
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dashboard task detail", e)
 
 
 @router.post("/tasks/{task_id}/approve")
@@ -150,9 +156,12 @@ def trigger_approve_task(task_id: int, db: Session = Depends(get_db)):
     """
     try:
         result = approve_task(db, task_id)
+        raise_if_service_error(result)
         return result
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Approve dashboard task", e)
 
 
 @router.post("/tasks/{task_id}/dismiss")
@@ -167,9 +176,12 @@ def trigger_dismiss_task(task_id: int, db: Session = Depends(get_db)):
     """
     try:
         result = dismiss_task(db, task_id)
+        raise_if_service_error(result)
         return result
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dismiss dashboard task", e)
 
 
 @router.post("/tasks/{task_id}/delay")
@@ -195,9 +207,12 @@ def trigger_delay_task(
     """
     try:
         result = delay_task(db, task_id, hours=hours)
+        raise_if_service_error(result)
         return result
+    except HTTPException:
+        raise
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Delay dashboard task", e)
 
 
 @router.get("/metrics")
@@ -219,7 +234,7 @@ def get_metrics(db: Session = Depends(get_db)):
             "metrics": metrics,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dashboard metrics", e)
 
 
 @router.get("/metrics/channels")
@@ -239,7 +254,7 @@ def get_channel_metrics_endpoint(db: Session = Depends(get_db)):
             "metrics": metrics,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Dashboard channel metrics", e)
 
 
 @router.post("/refresh")
@@ -267,24 +282,28 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
         "pushes": {},
         "tasks_generated": {},
     }
+    failed_steps = 0
 
     # Step 1: Pull data from all channels
     try:
         gsc_result = pull_gsc_data(db)
         result["pulls"]["gsc"] = gsc_result
     except Exception as e:
+        failed_steps += 1
         result["pulls"]["gsc"] = {"status": "error", "detail": str(e)}
 
     try:
         ga4_result = pull_ga4_data(db)
         result["pulls"]["ga4"] = ga4_result
     except Exception as e:
+        failed_steps += 1
         result["pulls"]["ga4"] = {"status": "error", "detail": str(e)}
 
     try:
         ads_result = pull_google_ads_data(db)
         result["pulls"]["google_ads"] = ads_result
     except Exception as e:
+        failed_steps += 1
         result["pulls"]["google_ads"] = {"status": "error", "detail": str(e)}
 
     # Step 2: Push data to sheets
@@ -292,18 +311,21 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
         push_gsc = push_gsc_to_sheets(db)
         result["pushes"]["gsc"] = push_gsc
     except Exception as e:
+        failed_steps += 1
         result["pushes"]["gsc"] = {"status": "error", "detail": str(e)}
 
     try:
         push_ga4 = push_ga4_to_sheets(db)
         result["pushes"]["ga4"] = push_ga4
     except Exception as e:
+        failed_steps += 1
         result["pushes"]["ga4"] = {"status": "error", "detail": str(e)}
 
     try:
         push_ads = push_google_ads_to_sheets(db)
         result["pushes"]["google_ads"] = push_ads
     except Exception as e:
+        failed_steps += 1
         result["pushes"]["google_ads"] = {"status": "error", "detail": str(e)}
 
     # Step 3: Generate tasks
@@ -311,6 +333,11 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
         tasks_result = generate_tasks(db)
         result["tasks_generated"] = tasks_result
     except Exception as e:
+        failed_steps += 1
         result["tasks_generated"] = {"status": "error", "detail": str(e)}
+
+    if failed_steps:
+        result["status"] = "partial" if failed_steps < 7 else "error"
+        result["failed_steps"] = failed_steps
 
     return result

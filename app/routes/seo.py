@@ -7,10 +7,13 @@ All endpoints are manual-approval mode:
 - No automated actions — human must trigger every operation
 """
 
+import logging
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
+from app.route_errors import raise_route_error, raise_unavailable
 from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
@@ -26,6 +29,7 @@ from app.services.sheets_service import (
 )
 
 router = APIRouter(prefix="/api/seo", tags=["SEO"])
+logger = logging.getLogger(__name__)
 
 
 @router.post("/gsc/pull")
@@ -39,7 +43,7 @@ def trigger_gsc_pull(days_back: int = 7, db: Session = Depends(get_db)):
         result = pull_gsc_data(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GSC pull", e)
 
 
 @router.post("/gsc/push-to-sheets")
@@ -55,7 +59,7 @@ def trigger_gsc_push_to_sheets(
         result = push_gsc_to_sheets(db=db, limit=limit)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GSC push to Sheets", e)
 
 
 @router.post("/gsc/pull-and-push")
@@ -77,7 +81,7 @@ def trigger_gsc_full_pipeline(
             "push": push_result,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GSC pull and push", e)
 
 
 # ===================== GA4 Endpoints =====================
@@ -94,7 +98,7 @@ def trigger_ga4_pull(days_back: int = 7, db: Session = Depends(get_db)):
         result = pull_ga4_data(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GA4 pull", e)
 
 
 @router.post("/ga4/push-to-sheets")
@@ -110,7 +114,7 @@ def trigger_ga4_push_to_sheets(
         result = push_ga4_to_sheets(db=db, limit=limit)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GA4 push to Sheets", e)
 
 
 @router.post("/ga4/pull-and-push")
@@ -129,7 +133,7 @@ def trigger_ga4_full_pipeline(
             "push": push_result,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GA4 pull and push", e)
 
 
 # ===================== GBP Endpoints =====================
@@ -155,7 +159,7 @@ def trigger_gbp_discover(account_name: str = None):
             accounts = discover_gbp_accounts()
             return {"status": "success", "accounts": accounts}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GBP discover", e)
 
 
 @router.post("/gbp/pull")
@@ -173,7 +177,7 @@ def trigger_gbp_pull(
         result = pull_gbp_data(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GBP pull", e)
 
 
 @router.post("/gbp/push-to-sheets")
@@ -189,7 +193,7 @@ def trigger_gbp_push_to_sheets(
         result = push_gbp_to_sheets(db=db, limit=limit)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GBP push to Sheets", e)
 
 
 @router.post("/gbp/pull-and-push")
@@ -208,7 +212,7 @@ def trigger_gbp_full_pipeline(
             "push": push_result,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GBP pull and push", e)
 
 
 # ===================== Google Ads Endpoints =====================
@@ -228,7 +232,7 @@ def trigger_ads_pull(
         result = pull_google_ads_data(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads pull", e)
 
 
 @router.post("/ads/push-to-sheets")
@@ -244,7 +248,7 @@ def trigger_ads_push_to_sheets(
         result = push_google_ads_to_sheets(db=db, limit=limit)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads push to Sheets", e)
 
 
 @router.post("/ads/pull-and-push")
@@ -263,7 +267,7 @@ def trigger_ads_full_pipeline(
             "push": push_result,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads pull and push", e)
 
 
 # ----- Direct Google Ads API (Phase A) -----
@@ -275,7 +279,7 @@ def ads_account_overview():
     try:
         return get_account_overview()
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads account overview", e)
 
 
 @router.get("/ads/conversion-audit")
@@ -286,14 +290,11 @@ def ads_conversion_audit():
         direct_api_available,
     )
     if not direct_api_available():
-        return {
-            "status": "unavailable",
-            "detail": "GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
-        }
+        raise_unavailable("GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.")
     try:
         return {"status": "success", **audit_conversion_actions()}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads conversion audit", e)
 
 
 @router.get("/ads/campaigns")
@@ -304,14 +305,11 @@ def ads_campaigns():
         list_campaigns,
     )
     if not direct_api_available():
-        return {
-            "status": "unavailable",
-            "detail": "GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
-        }
+        raise_unavailable("GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.")
     try:
         return {"status": "success", "campaigns": list_campaigns()}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Google Ads campaigns", e)
 
 
 # ----- Google Tag Manager (Phase C) -----
@@ -325,13 +323,13 @@ def gtm_discover(account_id: str | None = None):
         discover_gtm_containers,
     )
     if not direct_api_available():
-        return {"status": "unavailable", "detail": "GTM credentials not configured."}
+        raise_unavailable("GTM credentials not configured.")
     try:
         if account_id:
             return {"status": "success", "containers": discover_gtm_containers(account_id)}
         return {"status": "success", "accounts": discover_gtm_accounts()}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GTM discover", e)
 
 
 @router.get("/gtm/overview")
@@ -346,11 +344,11 @@ def gtm_audit():
     """Just the audit findings (drift, dead tags, double-fires, page-view conversions)."""
     from app.services.gtm_service import audit_container, direct_api_available
     if not direct_api_available():
-        return {"status": "unavailable", "detail": "GTM credentials not configured."}
+        raise_unavailable("GTM credentials not configured.")
     try:
         return {"status": "success", **audit_container()}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "GTM audit", e)
 
 
 # ===================== SEO Audit Endpoints =====================
@@ -371,7 +369,7 @@ def trigger_seo_audit(
         result = run_seo_audit(db=db, days_back=days_back)
         return result
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "SEO audit", e)
 
 
 @router.post("/audit/push-to-sheets")
@@ -399,7 +397,7 @@ def trigger_audit_push_to_sheets(
             "push": push_result,
         }
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "SEO audit push to Sheets", e)
 
 
 # ===================== Deep SEO Audit Endpoints =====================
@@ -426,7 +424,7 @@ def trigger_deep_seo_audit(
             max_urls=max_urls,
         )
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Deep SEO audit", e)
 
 
 @router.post("/audit/deep/push-to-sheets")
@@ -453,7 +451,7 @@ def trigger_deep_audit_push_to_sheets(
         return {"status": "success", "report_id": audit.get("report_id"),
                 "push": push}
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Deep SEO audit push to Sheets", e)
 
 
 @router.get("/audit/shopify-overrides")
@@ -468,4 +466,4 @@ def trigger_shopify_override_audit(include_products: bool = False):
     try:
         return audit_shopify_seo_overrides(include_products=include_products)
     except Exception as e:
-        return {"status": "error", "detail": str(e)}
+        raise_route_error(logger, "Shopify SEO override audit", e)

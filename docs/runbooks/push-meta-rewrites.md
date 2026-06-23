@@ -22,6 +22,8 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
 
 3. **Push round 1:**
    ```bash
+   OLS_ALLOW_DATA_MUTATION=1 \
+   OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
    python data/push_meta_to_shopify.py
    ```
    Pushes to Shopify Admin API. Logs every page touched + before/after values.
@@ -30,6 +32,8 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
 
 5. **Round 2 — fix anything still too long:**
    ```bash
+   OLS_ALLOW_DATA_MUTATION=1 \
+   OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
    python data/push_meta_round2.py
    ```
    Targets pages flagged `title_too_long` or `meta_description_too_long` in the most recent audit.
@@ -50,7 +54,10 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
    DRY_RUN=1 docker exec -e DRY_RUN=1 ols-api python3 /app/data/push_meta_round3.py
 
    # d) Push for real
-   docker exec ols-api python3 /app/data/push_meta_round3.py
+   docker exec \
+     -e OLS_ALLOW_DATA_MUTATION=1 \
+     -e OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
+     ols-api python3 /app/data/push_meta_round3.py
    ```
 
    Entries with `kind: "special"` (blog index, collections) are skipped
@@ -68,6 +75,10 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
 ## If something goes wrong
 
 - **401 from Shopify:** token is expired or missing the `write_online_store_pages` scope. Regenerate the Admin API token.
+- **Mutation blocked:** direct `data/` writes require both
+  `OLS_ALLOW_DATA_MUTATION=1` and
+  `OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE`.
+  Prefer guarded API routes when one exists.
 - **Pushed wrong meta:** revert via the Shopify admin UI for that specific page; the script is one-page-per-API-call so partial failures don't cascade.
 - **Drafts look low quality:** edit the prompt at the top of `data/meta_drafts.py` and re-run.
 

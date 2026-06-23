@@ -115,6 +115,17 @@ def test_vision_debug_tools_disabled_by_default(client, auth_headers):
         assert response.status_code == 404, (method, path, response.text)
 
 
+def test_vision_debug_tools_stay_disabled_in_production(
+    client, auth_headers, monkeypatch
+):
+    monkeypatch.setenv("FASTAPI_ENV", "production")
+    monkeypatch.setenv("ENABLE_VISION_DEBUG_TOOLS", "true")
+
+    response = client.get("/api/vision/get-token", headers=auth_headers)
+
+    assert response.status_code == 404
+
+
 def test_content_publish_requires_high_stakes_confirmation(
     client, auth_headers, monkeypatch
 ):

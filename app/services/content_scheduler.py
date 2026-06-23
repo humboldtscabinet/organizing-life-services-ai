@@ -86,7 +86,15 @@ def get_content_calendar(db: Session, weeks: int = 12) -> List[Dict]:
                     "post_type": "seo_blog",
                     "impressions": opp["impressions"],
                     "estimated_value": opp["estimated_value"],
-                    "priority": "HIGH" if opp["impressions"] >= 200 else "MEDIUM",
+                    "estimated_business_value": opp.get("estimated_business_value", opp["estimated_value"]),
+                    "lead_score": opp.get("lead_score", 0),
+                    "lead_tier": opp.get("lead_tier", "LOW"),
+                    "lead_relevance_reasons": opp.get("lead_relevance_reasons", []),
+                    "priority": (
+                        "HIGH"
+                        if opp.get("lead_tier") == "HIGH" or opp["impressions"] >= 200
+                        else "MEDIUM"
+                    ),
                     "status": status,
                 }
             )
@@ -101,6 +109,10 @@ def get_content_calendar(db: Session, weeks: int = 12) -> List[Dict]:
                     "post_type": None,
                     "impressions": 0,
                     "estimated_value": 0,
+                    "estimated_business_value": 0,
+                    "lead_score": 0,
+                    "lead_tier": None,
+                    "lead_relevance_reasons": [],
                     "priority": None,
                     "status": "gap",
                 }
@@ -199,6 +211,8 @@ def schedule_weekly_content(db: Session, count: int = 1) -> Dict:
                     "topic": opp["query"],
                     "target_keyword": target_keyword,
                     "impressions": opp["impressions"],
+                    "lead_score": opp.get("lead_score", 0),
+                    "lead_tier": opp.get("lead_tier", "LOW"),
                     "priority": task.priority,
                     "post_type": suggested_type,
                 }

@@ -17,6 +17,7 @@ from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
 from app.db.database import SessionLocal, get_db
+from app.runtime_config import is_production_env
 from app.safety import require_high_stakes_confirmation
 from app.services.vision_service import (
     analyze_gallery_images,
@@ -37,7 +38,13 @@ router = APIRouter(prefix="/api/vision", tags=["Vision AI"])
 
 
 def require_vision_debug_tools_enabled() -> None:
-    """Keep temporary/token-bearing vision utilities out of production by default."""
+    """Keep temporary/token-bearing vision utilities out of production."""
+    if is_production_env():
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Vision debug tools are disabled in production",
+        )
+
     enabled = os.getenv("ENABLE_VISION_DEBUG_TOOLS", "").strip().lower()
     if enabled not in {"1", "true", "yes"}:
         raise HTTPException(

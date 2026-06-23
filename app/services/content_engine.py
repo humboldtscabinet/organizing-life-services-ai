@@ -26,6 +26,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.models import DashboardTask, GSCData
+from app.services.lead_relevance import score_lead_relevance
 from app.services.llm_router import LLMRequest, route_llm
 
 logger = logging.getLogger(__name__)
@@ -286,6 +287,9 @@ def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
 
             post_type = "service_area" if _is_location_query(query_text) else "seo_blog"
 
+            lead = score_lead_relevance(query_text)
+            business_value = estimated_value * (0.5 + lead.score / 100)
+
             opportunities.append({
                 "query": query_text,
                 "impressions": impressions,
@@ -294,6 +298,8 @@ def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
                 "current_ctr": round(ctr_val, 4),
                 "estimated_monthly_clicks": round(estimated_value / 3, 0),
                 "estimated_value": round(estimated_value, 1),
+                "estimated_business_value": round(business_value, 1),
+                **lead.as_dict(),
                 "gap_type": "zero_click",
                 "suggested_post_type": post_type,
             })
@@ -307,6 +313,9 @@ def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
 
             post_type = "service_area" if _is_location_query(query_text) else "seo_blog"
 
+            lead = score_lead_relevance(query_text)
+            business_value = estimated_value * (0.5 + lead.score / 100)
+
             opportunities.append({
                 "query": query_text,
                 "impressions": impressions,
@@ -315,12 +324,14 @@ def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
                 "current_ctr": round(ctr_val, 4),
                 "estimated_monthly_clicks": round(estimated_value / 3, 0),
                 "estimated_value": round(estimated_value, 1),
+                "estimated_business_value": round(business_value, 1),
+                **lead.as_dict(),
                 "gap_type": "low_ctr",
                 "suggested_post_type": post_type,
             })
 
-    # Sort by estimated value (highest potential first)
-    opportunities.sort(key=lambda x: x["estimated_value"], reverse=True)
+    # Sort by business-adjusted value, not raw traffic alone.
+    opportunities.sort(key=lambda x: x["estimated_business_value"], reverse=True)
 
     # Deduplicate similar-intent queries (keep the higher-value version)
     # e.g. "difference between yard sale and garage sale" vs
@@ -450,8 +461,7 @@ def generate_blog_post(
         db: Database session
         topic: Blog post topic (e.g., "Estate Sales in Clearwater")
         target_keyword: Primary SEO keyword (e.g., "estate sale clearwater")
-        post_type: "seo_blog" (800-1200 words), "service_area" (800-1000 words),
-                   or "educational_guide" (1500+ words)
+        post_type: "seo_blog", "service_area", or "educational_guide"
         related_keywords: List of secondary keywords to naturally include
 
     Returns:
@@ -467,11 +477,11 @@ def generate_blog_post(
     if post_type not in ["seo_blog", "service_area", "educational_guide"]:
         raise ValueError(f"Invalid post_type: {post_type}")
 
-    # Word count and tone by type
-    word_counts = {
-        "seo_blog": "800-1200 words",
-        "service_area": "800-1000 words",
-        "educational_guide": "1500+ words",
+    # Depth and tone by type. These are guidance, not word-count targets.
+    depth_guidelines = {
+        "seo_blog": "a focused, complete answer to the searcher's question",
+        "service_area": "a focused local service page for the specific area",
+        "educational_guide": "a deeper guide only where the topic genuinely needs it",
     }
 
     tone_hints = {
@@ -510,7 +520,7 @@ an estate sale and downsizing company based in Tampa Bay, Florida.
 Topic: {topic}
 Primary keyword: {target_keyword}
 Post type: {post_type}
-Target length: {word_counts[post_type]}
+Depth guideline: {depth_guidelines[post_type]}
 Tone: {tone_hints[post_type]}{related_kw_str}
 
 =============================================================
@@ -532,12 +542,18 @@ Write a final <h2>Call</h2>-style section (heading text can vary — e.g., "Read
 If you omit the phone number, the tel: link, or the /pages/contact-us link from this closing section, the post is invalid and will be rejected.
 
 CONTENT REQUIREMENTS:
-1. Write {word_counts[post_type]} of original, human-sounding content
+1. Write enough original, human-sounding content to satisfy the search intent completely; do not pad just to hit a word count
 2. Target audience: homeowners in Greater Tampa Bay dealing with estate sales, downsizing, or estate cleanouts
 3. Geographic focus: Reference {counties_str} counties and cities like {cities_str}
 4. CRITICAL: NEVER reference locations or services outside Florida
 5. Avoid generic AI phrases like "in today's world", "navigating the complexities", "it's important to note", "whether you're looking to"
 6. Write in a warm, knowledgeable, helpful tone — like a trusted neighbor who happens to be an expert
+
+PEOPLE-FIRST QUALITY REQUIREMENTS:
+- Use only these approved first-party facts: OLS serves Greater Tampa Bay, helps with estate sales, downsizing, estate cleanouts, and home organization, and can be contacted at (727) 542-6028 or /pages/contact-us.
+- Do not invent testimonials, awards, licensing, insurance, prices, guarantees, years in business, staff counts, or sale results.
+- Include practical, locally relevant advice a homeowner could actually use before hiring help.
+- Make the business case naturally; the post should be helpful even if the reader is not ready to call today.
 
 SEO REQUIREMENTS:
 7. Include the primary keyword "{target_keyword}" in the FIRST paragraph (within first 100 words)
@@ -645,6 +661,40 @@ Format your response as JSON with these exact keys:
                 "Post body missing required /pages/contact-us link"
             )
 
+        if "organizing life services" not in body_lower and "ols" not in body_lower:
+            validation_errors.append(
+                "Post body missing required Organizing Life Services / OLS brand mention"
+            )
+
+        if "tampa bay" not in body_lower and "florida" not in body_lower:
+            validation_errors.append(
+                "Post body missing required Tampa Bay / Florida service-area context"
+            )
+
+        generic_phrases = [
+            "in today's world",
+            "navigating the complexities",
+            "it's important to note",
+            "whether you're looking to",
+        ]
+        for phrase in generic_phrases:
+            if phrase in body_lower:
+                validation_errors.append(f"Post body contains generic AI phrase: {phrase}")
+
+        unsupported_claims = [
+            "guaranteed",
+            "guarantee",
+            "award-winning",
+            "number one",
+            "#1",
+            "licensed and insured",
+        ]
+        for phrase in unsupported_claims:
+            if phrase in body_lower:
+                validation_errors.append(
+                    f"Post body contains unsupported marketing claim: {phrase}"
+                )
+
         if validation_errors:
             error_msg = "Content validation failed: " + "; ".join(validation_errors)
             logger.error(f"{error_msg}. Generated title was: {post_data.get('title', '?')}")
@@ -710,7 +760,9 @@ Checklist:
 5. The post does not claim services outside Florida.
 6. The HTML uses only h2, h3, p, ul/li, and a tags.
 7. The primary keyword appears naturally and not as spam.
-8. The content is safe to publish as business-facing marketing copy.
+8. The content is people-first and useful without padding to a word count.
+9. The post does not invent testimonials, awards, licensing, insurance, prices, guarantees, years in business, staff counts, or sale results.
+10. The content is safe to publish as business-facing marketing copy.
 
 Return this exact JSON shape:
 {{
@@ -776,9 +828,16 @@ def create_content_task(
     query = opportunity["query"]
     impressions = opportunity["impressions"]
 
-    # Determine priority
-    if impressions >= 200:
+    lead_score = int(opportunity.get("lead_score", 0) or 0)
+    lead_tier = opportunity.get("lead_tier", "LOW")
+
+    # Determine priority from business relevance and volume.
+    if lead_score >= 70 and impressions >= 50:
         priority = "HIGH"
+    elif impressions >= 200:
+        priority = "HIGH"
+    elif lead_score >= 45 and impressions >= 40:
+        priority = "MEDIUM"
     elif impressions >= 50:
         priority = "MEDIUM"
     else:
@@ -797,13 +856,30 @@ def create_content_task(
         category=category,
         priority=priority,
         title=f"Blog Post: {query.title()}",
-        description=f"Create a {post_type} targeting '{query}' based on {impressions} search impressions with low click-through rate.",
-        finding=f"GSC Data: {impressions} impressions, {opportunity['clicks']} clicks, position {opportunity['current_position']}",
+        description=(
+            f"Create a {post_type} targeting '{query}' based on {impressions} "
+            f"search impressions, low click-through rate, and {lead_tier} lead "
+            f"relevance (score {lead_score}/100)."
+        ),
+        finding=(
+            f"GSC Data: {impressions} impressions, {opportunity['clicks']} clicks, "
+            f"position {opportunity['current_position']} | Lead relevance: "
+            f"{lead_tier} ({lead_score}/100)"
+        ),
         action_endpoint="/api/content/generate-and-publish",
         action_payload={
             "topic": query.title(),
             "target_keyword": query,
             "post_type": post_type,
+            "lead_score": lead_score,
+            "lead_tier": lead_tier,
+            "lead_relevance_reasons": opportunity.get("lead_relevance_reasons", []),
+            "content_brief_requirements": [
+                "Use only approved OLS first-party facts.",
+                "Include Tampa Bay / Florida service-area context.",
+                "Include practical homeowner guidance, not generic SEO filler.",
+                "Do not invent testimonials, awards, guarantees, prices, or staff details.",
+            ],
         },
         status="pending",
     )

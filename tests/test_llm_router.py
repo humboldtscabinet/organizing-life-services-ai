@@ -100,7 +100,8 @@ def test_high_stakes_gate_fails_closed_until_judge_and_human_pass():
 
 def test_generate_blog_post_uses_router_and_keeps_audit_id(monkeypatch):
     body = (
-        '<h2>Intro</h2><p>estate sale clearwater appears in the first paragraph.</p>'
+        '<h2>Intro</h2><p>estate sale clearwater appears in the first paragraph. '
+        'Organizing Life Services helps homeowners across Tampa Bay, Florida.</p>'
         '<h2>Ready to Get Started?</h2><p>Call '
         '<a href="tel:7275426028">(727) 542-6028</a> or visit '
         '<a href="/pages/contact-us">our contact page</a> to schedule help.</p>'
@@ -140,6 +141,42 @@ def test_generate_blog_post_uses_router_and_keeps_audit_id(monkeypatch):
     assert post["handle"] == "estate-sale-clearwater-guide"
 
 
+def test_generate_blog_post_rejects_generic_or_unsupported_claims(monkeypatch):
+    payload = {
+        "title": "Estate Sale Clearwater Guide",
+        "meta_description": "Estate sale Clearwater help from local Tampa Bay experts for downsizing and cleanout planning.",
+        "body_html": (
+            '<h2>Intro</h2><p>estate sale clearwater help from Organizing Life '
+            'Services in Tampa Bay, Florida. In today\'s world, our guaranteed '
+            'service makes everything simple.</p>'
+            '<h2>Ready?</h2><p><a href="tel:7275426028">(727) 542-6028</a> '
+            '<a href="/pages/contact-us">Contact</a></p>'
+        ),
+        "summary_html": "<p>Summary.</p>",
+        "handle": "estate-sale-clearwater",
+        "tags": ["estate sales"],
+    }
+
+    def fake_route(request, db=None):
+        return LLMResult(
+            text=json.dumps(payload),
+            provider="anthropic",
+            model="claude-sonnet-4-20250514",
+            model_role="executive",
+            status="success",
+        )
+
+    monkeypatch.setattr(content_engine, "_get_existing_blog_urls", lambda: [])
+    monkeypatch.setattr(content_engine, "route_llm", fake_route)
+
+    with pytest.raises(ValueError, match="generic AI phrase"):
+        content_engine.generate_blog_post(
+            db=None,
+            topic="Estate Sale Clearwater",
+            target_keyword="estate sale clearwater",
+        )
+
+
 def test_publish_judge_pass_returns_audit_metadata(monkeypatch):
     def fake_route(request, db=None):
         assert request.task_type == "content_publish_review"
@@ -169,7 +206,11 @@ def test_publish_judge_pass_returns_audit_metadata(monkeypatch):
             "meta_description": "Estate sale Clearwater help.",
             "handle": "estate-sale-clearwater",
             "tags": ["estate sales"],
-            "body_html": '<h2>Ready?</h2><p><a href="tel:7275426028">(727) 542-6028</a> <a href="/pages/contact-us">Contact</a></p>',
+            "body_html": (
+                '<h2>Ready?</h2><p>Organizing Life Services helps Tampa Bay, '
+                'Florida families. <a href="tel:7275426028">(727) 542-6028</a> '
+                '<a href="/pages/contact-us">Contact</a></p>'
+            ),
             "summary_html": "<p>Summary</p>",
         },
         task=task,

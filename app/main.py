@@ -4,7 +4,6 @@ Organizing Life Services — FastAPI Application Entry Point
 # reload-trigger: cors-enabled-v4
 
 import logging
-import os
 
 from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,6 +18,7 @@ from app.routes.llm import router as llm_router
 from app.routes.seo import router as seo_router
 from app.routes.shopify import router as shopify_router
 from app.routes.vision import router as vision_router
+from app.runtime_config import cors_allow_origins
 
 # Configure logging
 logging.basicConfig(
@@ -26,15 +26,6 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 logger = logging.getLogger(__name__)
-
-
-def _cors_allow_origins() -> list[str]:
-    """Read comma-separated CORS origins from env; default remains dev-friendly."""
-    raw = os.getenv("CORS_ALLOW_ORIGINS", "*").strip()
-    if raw == "*":
-        return ["*"]
-    return [origin.strip() for origin in raw.split(",") if origin.strip()]
-
 
 app = FastAPI(
     title="Organizing Life Services — Operations API",
@@ -45,7 +36,7 @@ app = FastAPI(
 # Enable CORS so Shopify admin pages can call our proxy endpoint
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=_cors_allow_origins(),
+    allow_origins=cors_allow_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
