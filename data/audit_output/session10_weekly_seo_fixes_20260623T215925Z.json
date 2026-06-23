@@ -1,0 +1,112 @@
+{
+  "appraisal_meta": {
+    "description_len": 151,
+    "handle": "personal-property-appraisal",
+    "metafields": [
+      {
+        "existing_id": 32456807481498,
+        "key": "title_tag",
+        "status": "unchanged"
+      },
+      {
+        "existing_id": 32456807514266,
+        "key": "description_tag",
+        "status": "unchanged"
+      }
+    ],
+    "page_id": 103728840858,
+    "status": "checked",
+    "title_len": 58
+  },
+  "dry_run": false,
+  "generated_at": "2026-06-23T21:59:19.348744+00:00",
+  "h1_demotions": [
+    {
+      "h1s": 0,
+      "handle": "contact-us",
+      "page_id": 80166781082,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "about-us",
+      "page_id": 80166289562,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "testimonials",
+      "page_id": 80166650010,
+      "status": "unchanged"
+    },
+    {
+      "h1s": 0,
+      "handle": "senior-services",
+      "page_id": 96296272026,
+      "status": "unchanged"
+    }
+  ],
+  "indexnow": {
+    "key_source": {
+      "page_id": 125372727450,
+      "source": "shopify_page",
+      "status": "found"
+    },
+    "results": [
+      {
+        "body": "",
+        "endpoint": "https://api.indexnow.org/IndexNow",
+        "status_code": 200
+      },
+      {
+        "body": "",
+        "endpoint": "https://www.bing.com/indexnow",
+        "status_code": 200
+      },
+      {
+        "body": "{\n  \"success\":true\n}",
+        "endpoint": "https://yandex.com/indexnow",
+        "status_code": 202
+      }
+    ],
+    "setup": {
+      "public_key_url": "https://organizinglifeservices.com/[redacted-key].txt",
+      "public_key_verification": "ok",
+      "redirect": "unchanged",
+      "template": "unchanged"
+    },
+    "status": "submitted",
+    "url_count": 8
+  },
+  "targets": {
+    "appraisal_page": "personal-property-appraisal",
+    "h1_demote_pages": [
+      "contact-us",
+      "about-us",
+      "testimonials",
+      "senior-services"
+    ],
+    "indexnow_urls": [
+      "https://organizinglifeservices.com/",
+      "https://organizinglifeservices.com/pages/personal-property-appraisal",
+      "https://organizinglifeservices.com/pages/contact-us",
+      "https://organizinglifeservices.com/pages/about-us",
+      "https://organizinglifeservices.com/pages/testimonials",
+      "https://organizinglifeservices.com/pages/senior-services",
+      "https://organizinglifeservices.com/collections/all",
+      "https://organizinglifeservices.com/collections/fees-products"
+    ],
+    "utility_collections_noindex": [
+      "all",
+      "fees-products"
+    ]
+  },
+  "theme": {
+    "changed": false,
+    "collection_noindex": "unchanged",
+    "contact_section_h1": "unchanged",
+    "homepage_meta": "unchanged",
+    "theme_id": 153690210458,
+    "theme_name": "Copy of Vt-kitchor-home-3 with Installments mes..."
+  }
+}

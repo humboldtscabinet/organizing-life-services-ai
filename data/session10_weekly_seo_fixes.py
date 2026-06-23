@@ -47,9 +47,17 @@ import os
 import re
 import sys
 import time
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+try:
+    from _mutation_guard import activate as activate_data_mutation_guard
+except ModuleNotFoundError:  # pragma: no cover - supports module-style imports.
+    from data._mutation_guard import activate as activate_data_mutation_guard
+
+activate_data_mutation_guard()
 
 import httpx
 
@@ -495,25 +503,165 @@ def update_theme(
     return result
 
 
-def submit_indexnow(dry_run: bool) -> dict[str, Any]:
+def _is_indexnow_key(value: str) -> bool:
+    return bool(re.fullmatch(r"[0-9a-f]{32}", value.strip()))
+
+
+def recover_indexnow_key(headers: dict[str, str], base_url: str) -> dict[str, Any]:
+    env_key = (os.getenv("INDEXNOW_KEY") or os.getenv("OLS_INDEXNOW_KEY") or "").strip()
+    if _is_indexnow_key(env_key):
+        return {"status": "found", "source": "environment", "key": env_key}
+
     key_file = OUT_DIR / "indexnow_key.txt"
-    if not key_file.exists():
-        return {"status": "skipped", "reason": "missing data/audit_output/indexnow_key.txt"}
-    key = key_file.read_text().strip()
-    payload = {"host": HOST, "key": key, "urlList": INDEXNOW_URLS}
+    if key_file.exists():
+        file_key = key_file.read_text().strip()
+        if _is_indexnow_key(file_key):
+            return {"status": "found", "source": str(key_file.relative_to(PROJECT_ROOT)), "key": file_key}
+
+    pages = get_json(f"{base_url}/pages.json?limit=250", headers).get("pages", [])
+    for page in pages:
+        handle = (page.get("handle") or "").strip()
+        body = (page.get("body_html") or "").strip()
+        if (
+            _is_indexnow_key(handle)
+            and body == handle
+            and page.get("template_suffix") == "indexnow"
+        ):
+            return {
+                "status": "found",
+                "source": "shopify_page",
+                "key": handle,
+                "page_id": page.get("id"),
+            }
+
+    return {"status": "missing", "key": ""}
+
+
+def create_indexnow_key_in_shopify(
+    headers: dict[str, str], base_url: str, dry_run: bool
+) -> dict[str, Any]:
+    key = uuid.uuid4().hex
+    if dry_run:
+        return {"status": "would_create", "key": key}
+
+    page_resp = _retry(
+        httpx.post,
+        f"{base_url}/pages.json",
+        headers=headers,
+        timeout=30,
+        json={
+            "page": {
+                "title": "IndexNow Key",
+                "handle": key,
+                "body_html": key,
+                "template_suffix": "indexnow",
+                "published": True,
+            }
+        },
+    )
+    page_resp.raise_for_status()
+    return {"status": "created", "key": key, "page_id": page_resp.json()["page"]["id"]}
+
+
+def ensure_indexnow_template_and_redirect(
+    headers: dict[str, str],
+    base_url: str,
+    key: str,
+    dry_run: bool,
+) -> dict[str, Any]:
+    theme = main_theme(headers, base_url)
+    template_key = "templates/page.indexnow.liquid"
+    template_value = "{%- layout none -%}{{ page.content | strip_html | strip }}"
+
+    template_status = "unchanged"
+    try:
+        current = get_theme_asset(headers, base_url, theme["id"], template_key)
+    except httpx.HTTPStatusError:
+        current = ""
+    if current != template_value:
+        template_status = "would_update" if dry_run else "updated"
+        if not dry_run:
+            put_theme_asset(headers, base_url, theme["id"], template_key, template_value)
+
+    redirects = get_json(f"{base_url}/redirects.json?path=/{key}.txt&limit=5", headers).get(
+        "redirects", []
+    )
+    redirect_exists = any(
+        item.get("path") == f"/{key}.txt" and item.get("target") == f"/pages/{key}"
+        for item in redirects
+    )
+    redirect_status = "unchanged"
+    if not redirect_exists:
+        redirect_status = "would_create" if dry_run else "created"
+        if not dry_run:
+            resp = _retry(
+                httpx.post,
+                f"{base_url}/redirects.json",
+                headers=headers,
+                timeout=30,
+                json={"redirect": {"path": f"/{key}.txt", "target": f"/pages/{key}"}},
+            )
+            resp.raise_for_status()
+
+    public_url = f"{ORG_URL}{key}.txt"
+    verify_status = "skipped_dry_run"
+    if not dry_run:
+        resp = _retry(httpx.get, public_url, follow_redirects=True, timeout=30)
+        verify_status = "ok" if resp.status_code == 200 and resp.text.strip() == key else "failed"
+
+    return {
+        "template": template_status,
+        "redirect": redirect_status,
+        "public_key_url": f"{ORG_URL}[redacted-key].txt",
+        "public_key_verification": verify_status,
+    }
+
+
+def submit_indexnow(
+    headers: dict[str, str],
+    base_url: str,
+    dry_run: bool,
+) -> dict[str, Any]:
+    recovered = recover_indexnow_key(headers, base_url)
+    if recovered.get("status") == "missing":
+        recovered = create_indexnow_key_in_shopify(headers, base_url, dry_run)
+
+    key = recovered.get("key", "")
+    if not _is_indexnow_key(key):
+        return {"status": "skipped", "reason": "no valid IndexNow key", "key_source": recovered}
+
+    setup = ensure_indexnow_template_and_redirect(headers, base_url, key, dry_run)
+    payload = {
+        "host": HOST,
+        "key": key,
+        "keyLocation": f"{ORG_URL}{key}.txt",
+        "urlList": INDEXNOW_URLS,
+    }
     endpoints = [
         "https://api.indexnow.org/IndexNow",
         "https://www.bing.com/indexnow",
         "https://yandex.com/indexnow",
     ]
     if dry_run:
-        return {"status": "would_submit", "url_count": len(INDEXNOW_URLS), "endpoints": endpoints}
+        return {
+            "status": "would_submit",
+            "url_count": len(INDEXNOW_URLS),
+            "endpoints": endpoints,
+            "key_source": {k: v for k, v in recovered.items() if k != "key"},
+            "setup": setup,
+        }
 
     results = []
     for endpoint in endpoints:
         resp = _retry(httpx.post, endpoint, json=payload, timeout=30)
         results.append({"endpoint": endpoint, "status_code": resp.status_code, "body": resp.text[:300]})
-    return {"status": "submitted", "url_count": len(INDEXNOW_URLS), "results": results}
+    return {
+        "status": "submitted",
+        "url_count": len(INDEXNOW_URLS),
+        "key_source": {k: v for k, v in recovered.items() if k != "key"},
+        "setup": setup,
+        "results": results,
+    }
 
 
 def write_report(report: dict[str, Any]) -> Path:
@@ -557,7 +705,7 @@ def main() -> None:
     if args.skip_indexnow:
         report["indexnow"] = {"status": "skipped", "reason": "--skip-indexnow"}
     else:
-        report["indexnow"] = submit_indexnow(args.dry_run)
+        report["indexnow"] = submit_indexnow(headers, base_url, args.dry_run)
 
     report_path = write_report(report)
     print(json.dumps(report, indent=2, sort_keys=True))

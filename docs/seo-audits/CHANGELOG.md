@@ -25,6 +25,7 @@ Each entry should answer:
 - Added theme-level `noindex,follow` for thin Shopify utility collections:
   - `/collections/all`
   - `/collections/fees-products`
+- Restored IndexNow submission without reintroducing the local key file: the script now recovers the existing key from the Shopify IndexNow page, verifies the public root key URL, and redacts the key from reports.
 
 **Why**
 - The 2026-06-23 weekly audit showed the homepage earning impressions for high-intent phrases (`estate sale organizers`, `estate sale companies near me`, `estate sale and appraisal services`) but receiving weak CTR. The old homepage title was 90 characters and generic.
@@ -36,6 +37,7 @@ Each entry should answer:
 - Live script reports:
   - [`data/audit_output/session10_weekly_seo_fixes_20260623T214401Z.json`](../../data/audit_output/session10_weekly_seo_fixes_20260623T214401Z.json)
   - [`data/audit_output/session10_weekly_seo_fixes_20260623T214801Z.json`](../../data/audit_output/session10_weekly_seo_fixes_20260623T214801Z.json)
+  - [`data/audit_output/session10_weekly_seo_fixes_20260623T215925Z.json`](../../data/audit_output/session10_weekly_seo_fixes_20260623T215925Z.json)
 - Theme snapshots:
   - [`data/audit_output/theme_layout_snapshot_pre_session10_20260623T214400Z.liquid`](../../data/audit_output/theme_layout_snapshot_pre_session10_20260623T214400Z.liquid)
   - [`data/audit_output/theme_page_contact_snapshot_pre_session10_20260623T214800Z.liquid`](../../data/audit_output/theme_page_contact_snapshot_pre_session10_20260623T214800Z.liquid)
@@ -44,12 +46,13 @@ Each entry should answer:
   - Personal Property Appraisal title length: 58; meta description length: 151.
   - Contact, About, Testimonials, Senior Services, and Personal Property Appraisal each render one H1.
   - `/collections/all` and `/collections/fees-products` render `noindex,follow`.
+  - IndexNow key recovered from Shopify page; public root key URL verified; 8 URLs submitted with api.indexnow.org=200, bing.com/indexnow=200, yandex.com/indexnow=202.
 
 **Result / next watch**
 - Re-run the weekly audit after 7-14 days and compare CTR/clicks for:
   - homepage queries: `estate sale organizers`, `estate sale companies near me`, `estate sale and appraisal services`
   - appraisal queries: `tampa personal property appraisers`, `estate sale and appraisal services`
-- IndexNow submission was skipped because the local `data/audit_output/indexnow_key.txt` is intentionally absent after secret/artifact cleanup. Google will pick up the changes through normal crawl/GSC; IndexNow can be restored separately if Bing/Yandex fast-submit becomes a priority again.
+- IndexNow was submitted successfully on 2026-06-23. Keep `data/audit_output/indexnow_key.txt` absent; the key source of truth is the Shopify IndexNow page and root redirect.
 
 ---
 
