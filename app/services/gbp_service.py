@@ -13,6 +13,7 @@ Requires:
 
 import os
 from datetime import datetime, timedelta
+from typing import Any
 
 import httpx
 from google.auth.transport.requests import Request
@@ -51,10 +52,40 @@ def _get_gbp_credentials():
 def _auth_headers() -> dict:
     """Return Authorization header dict with a fresh token."""
     creds = _get_gbp_credentials()
-    return {
-        "Authorization": f"Bearer {creds.token}",
-        "Content-Type": "application/json",
-    }
+    return {"Authorization": f"Bearer {creds.token}"}
+
+
+def _fetch_multi_daily_metrics_params(start_date, end_date) -> list[tuple[str, Any]]:
+    """
+    Build GBP Performance API query params.
+
+    Google documents fetchMultiDailyMetricsTimeSeries as GET with repeated
+    dailyMetrics query params and an empty request body.
+    """
+    params: list[tuple[str, Any]] = []
+    params.extend(("dailyMetrics", metric) for metric in DAILY_METRICS)
+    params.extend(
+        [
+            ("dailyRange.start_date.year", start_date.year),
+            ("dailyRange.start_date.month", start_date.month),
+            ("dailyRange.start_date.day", start_date.day),
+            ("dailyRange.end_date.year", end_date.year),
+            ("dailyRange.end_date.month", end_date.month),
+            ("dailyRange.end_date.day", end_date.day),
+        ]
+    )
+    return params
+
+
+def _iter_daily_metric_series(data: dict) -> list[dict]:
+    """Flatten the GBP multi-daily response into daily metric series records."""
+    flattened = []
+    for multi_series in data.get("multiDailyMetricTimeSeries", []):
+        daily_series = multi_series.get("dailyMetricTimeSeries", [])
+        if isinstance(daily_series, dict):
+            daily_series = [daily_series]
+        flattened.extend(daily_series)
+    return flattened
 
 
 # ===================== Discovery =====================
@@ -144,31 +175,17 @@ def pull_gbp_data(
         f"{location_id}:fetchMultiDailyMetricsTimeSeries"
     )
 
-    payload = {
-        "dailyMetrics": DAILY_METRICS,
-        "dailyRange": {
-            "startDate": {
-                "year": start_date.year,
-                "month": start_date.month,
-                "day": start_date.day,
-            },
-            "endDate": {
-                "year": end_date.year,
-                "month": end_date.month,
-                "day": end_date.day,
-            },
-        },
-    }
-
-    resp = httpx.post(url, headers=headers, json=payload, timeout=60)
+    resp = httpx.get(
+        url,
+        headers=headers,
+        params=_fetch_multi_daily_metrics_params(start_date, end_date),
+        timeout=60,
+    )
     resp.raise_for_status()
     data = resp.json()
 
     rows_inserted = 0
-    time_series_list = data.get("multiDailyMetricTimeSeries", [])
-
-    for series in time_series_list:
-        daily_ts = series.get("dailyMetricTimeSeries", {})
+    for daily_ts in _iter_daily_metric_series(data):
         metric_name = daily_ts.get("dailyMetric", "UNKNOWN")
 
         dated_values = (

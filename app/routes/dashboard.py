@@ -94,9 +94,12 @@ def list_tasks(
                     "priority": t.priority,
                     "title": t.title,
                     "description": t.description,
+                    "finding": t.finding,
+                    "action_payload": t.action_payload,
                     "status": t.status,
                     "created_at": t.created_at.isoformat(),
                     "approved_at": t.approved_at.isoformat() if t.approved_at else None,
+                    "completed_at": t.completed_at.isoformat() if t.completed_at else None,
                 }
                 for t in tasks
             ],

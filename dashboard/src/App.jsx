@@ -523,6 +523,10 @@ function KPICard({ title, value, color, icon }) {
 }
 
 function TaskCard({ task, onApprove, onDismiss, onDelay }) {
+  const leadScore = task.action_payload?.lead_score
+  const leadTier = task.action_payload?.lead_tier
+  const leadReasons = task.action_payload?.lead_relevance_reasons || []
+
   return (
     <div style={{ backgroundColor: COLORS.bg, borderLeft: `4px solid ${PRIORITY_COLORS[task.priority] || '#666'}` }} className="rounded-lg p-4 flex justify-between items-start gap-4">
       <div className="flex-1">
@@ -542,6 +546,17 @@ function TaskCard({ task, onApprove, onDismiss, onDelay }) {
           {task.status !== 'pending' && (
             <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-gray-600 capitalize">
               {task.status}
+            </span>
+          )}
+          {typeof leadScore === 'number' && (
+            <span
+              className="px-2 py-1 rounded text-xs font-semibold text-white"
+              style={{
+                backgroundColor: leadTier === 'HIGH' ? '#10b981' : leadTier === 'MEDIUM' ? '#eab308' : '#64748b',
+              }}
+              title={leadReasons.join('; ')}
+            >
+              Lead {leadTier || 'LOW'} {leadScore}/100
             </span>
           )}
         </div>

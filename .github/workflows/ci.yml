@@ -38,7 +38,7 @@ jobs:
           pip install ruff
 
       - name: Lint (ruff)
-        run: ruff check app tests
+        run: ruff check app tests data/_mutation_guard.py sitecustomize.py
 
       - name: Secret scan
         run: python scripts/scan_secrets.py
@@ -48,6 +48,15 @@ jobs:
 
       - name: Run tests
         run: pytest -q
+
+      - name: Server compose renders
+        env:
+          POSTGRES_PASSWORD: dummy
+          SECRET_KEY: dummy
+          OLS_API_KEY: dummy
+          N8N_BASIC_AUTH_PASSWORD: dummy
+          N8N_ENCRYPTION_KEY: dummy
+        run: docker compose -f docker-compose.server.yml config --quiet
 
   dashboard:
     name: Dashboard (build)
@@ -59,12 +68,11 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "20.19"
 
-      # No package-lock.json is committed, so use `npm install` (not `npm ci`).
       - name: Install dependencies
         working-directory: dashboard
-        run: npm install
+        run: npm ci
 
       - name: Build
         working-directory: dashboard
