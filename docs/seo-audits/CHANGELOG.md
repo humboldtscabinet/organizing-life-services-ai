@@ -10,6 +10,32 @@ Each entry should answer:
 
 ---
 
+## 2026-06-23 — Post-deploy measurement baseline: conversion trust, live verification, content targets
+
+**What**
+- Added [`data/post_deploy_measurement_baseline.py`](../../data/post_deploy_measurement_baseline.py), a read-only measurement script that audits GA4 key events, verifies the changed live URLs, builds a business-weighted GSC content target list, checks GBP on-site readiness, and summarizes GTM audit availability.
+- Added the generated report at [`docs/seo-audits/2026-06-23-post-deploy-measurement-baseline.md`](2026-06-23-post-deploy-measurement-baseline.md) and raw JSON at [`data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json`](../../data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json).
+- Updated the weekly SEO audit workflow to run the measurement baseline after the deep audit and include `docs/seo-audits/` in the automated PR.
+
+**Why**
+- The weekly audit showed organic conversions were too high relative to organic sessions, so the next risk was measurement quality rather than more page edits.
+- The site needs a repeatable way to connect SEO work to real lead intent: form submits, phone clicks, email clicks, contact CTA clicks, and high-intent landing pages.
+
+**How**
+- GA4 Data API: key events by event name, channel, and organic landing page.
+- Live storefront crawl: homepage, appraisal, contact, trust pages, senior services, and noindexed utility collections.
+- GSC query/page data: business-weighted content targets using lead-relevance scoring.
+- GBP readiness: LocalBusiness schema, service-area posture, no public street address, contact-page mailing-address labeling.
+
+**Result / next watch**
+- Live SEO verification passed for the June changes.
+- GBP on-site readiness passed; GBP API access remains blocked/unavailable in this run.
+- GTM audit was available and reported 5 tags, 1 trigger, 0 flagged findings.
+- GA4 conversion tracking failed trust checks: `page_view` and `ads_conversion_Contact_Page_load_https_1` are counted as key events. Fix GA4 key-event definitions before using conversion totals as business KPIs.
+- Top content priorities remain service-intent work: homepage service-intent copy/internal links, Tampa/Hillsborough service-area page, estate cleanout page, Tarpon Springs permanent service-area handling, and appraisal page expansion.
+
+---
+
 ## 2026-06-23 — Targeted weekly-audit fixes: homepage CTR, appraisal page, H1 cleanup
 
 **What**

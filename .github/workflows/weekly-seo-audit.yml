@@ -7,6 +7,10 @@ name: Weekly SEO Audit
 #   GOOGLE_SERVICE_ACCOUNT_JSON  - full contents of credentials/google-service-account.json
 #   GA4_PROPERTY_ID              - 396184354
 #   GSC_SITE_URL                 - https://organizinglifeservices.com/ (sitemap + URL Inspection target)
+# Optional repo secrets for the post-deploy measurement baseline:
+#   GBP_LOCATION_ID              - locations/... (GBP API access may still be pending)
+#   GTM_ACCOUNT_ID               - numeric GTM account ID
+#   GTM_CONTAINER_ID             - numeric GTM container ID
 #
 # The audit script (data/deep_seo_audit.py) reads GA4_PROPERTY_ID and
 # GSC_SITE_URL from the environment and authenticates everything else with
@@ -87,6 +91,17 @@ jobs:
         run: |
           python data/deep_seo_audit.py
 
+      - name: Run post-deploy measurement baseline
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credentials/google-service-account.json
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+          GBP_LOCATION_ID: ${{ secrets.GBP_LOCATION_ID }}
+          GTM_ACCOUNT_ID: ${{ secrets.GTM_ACCOUNT_ID }}
+          GTM_CONTAINER_ID: ${{ secrets.GTM_CONTAINER_ID }}
+        run: |
+          python data/post_deploy_measurement_baseline.py
+
       - name: Clean up credentials before commit
         if: always()
         run: |
@@ -102,10 +117,11 @@ jobs:
 
             **Next steps for the maintainer:**
             1. Review the new files under `data/audit_output/`.
-            2. If notable changes, synthesize a human-readable summary at `docs/seo-audits/YYYY-MM-DD-<slug>.md`.
+            2. Review the generated post-deploy measurement baseline under `docs/seo-audits/`.
             3. Add an entry to `docs/seo-audits/CHANGELOG.md`.
             4. Merge.
           branch: "automation/weekly-seo-audit-${{ github.run_id }}"
           add-paths: |
             data/audit_output/
+            docs/seo-audits/
           delete-branch: true
