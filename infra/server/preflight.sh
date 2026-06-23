@@ -109,6 +109,12 @@ if [[ -f "$ENV_FILE" ]]; then
     pass "CORS_ALLOW_ORIGINS is pinned"
   fi
 
+  if [[ "${FASTAPI_ENV:-production}" != "production" ]]; then
+    fail "FASTAPI_ENV must be production for server deploy"
+  else
+    pass "FASTAPI_ENV is production"
+  fi
+
   if [[ "${N8N_IMAGE:-}" == *":latest" || -z "${N8N_IMAGE:-}" ]]; then
     fail "N8N_IMAGE must be pinned, not latest/empty"
   else
