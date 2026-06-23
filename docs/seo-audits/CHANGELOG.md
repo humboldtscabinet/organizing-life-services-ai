@@ -10,6 +10,32 @@ Each entry should answer:
 
 ---
 
+## 2026-06-23 — Weekly SEO audit automation baseline
+
+**What**
+- Ran the first successful GitHub Actions weekly SEO audit end to end.
+- Added raw output under [`data/audit_output/deep_seo_audit_20260623_213027.md`](../../data/audit_output/deep_seo_audit_20260623_213027.md) and [`data/audit_output/deep_seo_audit_20260623_213027.json`](../../data/audit_output/deep_seo_audit_20260623_213027.json).
+- Added the curated human-readable summary at [`docs/seo-audits/2026-06-23-weekly-seo-audit.md`](2026-06-23-weekly-seo-audit.md).
+
+**Headline results**
+- GSC clicks: 135 -> 131 (-3.0%); impressions: 13,747 -> 13,078 (-4.9%); CTR: 0.98% -> 1.00%.
+- Weighted average position improved from 18.0 -> 17.4.
+- GA4 all-traffic sessions dropped 38.3%, but organic sessions held flat at 164 -> 164 and organic users improved slightly from 132 -> 133.
+- Google URL Inspection returned PASS / Submitted and indexed for all 20 top-impression pages inspected.
+
+**Recommendation**
+- Do not run a broad rewrite. Prioritize targeted CTR and on-page cleanup:
+  1. Personal Property Appraisal title/meta.
+  2. H1 cleanup on contact/about/testimonials/senior-services.
+  3. Homepage metadata around `estate sale organizers`, `estate sale companies near me`, and appraisal/downsizing intent.
+  4. Decide whether Shopify collection pages should be optimized or intentionally noindexed.
+  5. Confirm GA4 conversion definitions before treating conversion deltas as business KPIs.
+
+**Result**
+- Automation is now producing reviewable audit PRs. Next site changes should be human-reviewed and limited to high-intent pages.
+
+---
+
 ## 2026-06-15 — Strip public street address from LocalBusiness schema (Option A)
 
 **What**
