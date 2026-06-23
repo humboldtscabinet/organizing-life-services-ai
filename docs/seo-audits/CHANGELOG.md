@@ -10,6 +10,28 @@ Each entry should answer:
 
 ---
 
+## 2026-06-23 — Service-area architecture for Pinellas, Pasco, and Hillsborough
+
+**What**
+- Added [`data/service_area_plan.py`](../../data/service_area_plan.py), a machine-readable service-area plan for OLS local SEO.
+- Added [`docs/seo-audits/2026-06-23-service-area-architecture.md`](2026-06-23-service-area-architecture.md), covering current live inventory, primary county hubs, city page waves, legacy event-page migration targets, page template, and measurement plan.
+
+**Why**
+- OLS primarily serves Pinellas, Pasco, and Hillsborough, so the geo strategy needs more than the initial handful of priority pages.
+- The current live site has a mix of strong permanent pages and thin legacy event pages. Using old event pages as canonical city SEO pages would be messy and could create doorway-page risk.
+
+**How**
+- Primary hubs: Pinellas County, Pasco County, Hillsborough/Tampa.
+- First-wave city pages: Palm Harbor, Clearwater, Tarpon Springs, Tampa/Hillsborough, and New Port Richey.
+- Later waves: Dunedin, Largo, St. Petersburg, Safety Harbor, Seminole, Wesley Chapel, Brandon, Riverview, and remaining Pasco/Hillsborough cities.
+
+**Result / next watch**
+- No live Shopify writes in this pass.
+- Next implementation should be a guarded first-wave Shopify script with `--dry-run`, snapshots, and explicit human confirmation.
+- GA4 key-event cleanup should still happen before relying on lead/conversion impact.
+
+---
+
 ## 2026-06-23 — Post-deploy measurement baseline: conversion trust, live verification, content targets
 
 **What**
