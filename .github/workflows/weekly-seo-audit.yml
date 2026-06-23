@@ -44,11 +44,35 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Preflight required audit secrets
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          missing=0
+          if [ -z "$GOOGLE_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::GOOGLE_SERVICE_ACCOUNT_JSON secret is not configured."
+            missing=1
+          fi
+          if [ -z "$GA4_PROPERTY_ID" ]; then
+            echo "::error::GA4_PROPERTY_ID secret is not configured."
+            missing=1
+          fi
+          if [ -z "$GSC_SITE_URL" ]; then
+            echo "::error::GSC_SITE_URL secret is not configured."
+            missing=1
+          fi
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
       - name: Write service-account credentials from secret
         run: |
           mkdir -p credentials
-          echo "$GOOGLE_SERVICE_ACCOUNT_JSON" > credentials/google-service-account.json
+          printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > credentials/google-service-account.json
           chmod 600 credentials/google-service-account.json
+          python -m json.tool credentials/google-service-account.json >/dev/null
         env:
           GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
 
