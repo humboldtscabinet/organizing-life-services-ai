@@ -1,0 +1,243 @@
+{
+  "dry_run": true,
+  "generated_at": "2026-06-23T23:03:29.638251+00:00",
+  "summary": {
+    "existing_pages": [
+      "estate-sale-pasco-county",
+      "estate-sale-tampa-hillsborough-county",
+      "estate-sale-palm-harbor-pinellas-county",
+      "estate-sale-clearwater-florida",
+      "estate-sale-new-port-richey-florida"
+    ],
+    "legacy_followups": [
+      "Review legacy source page tarpon-springs-estate-sale-in-woodfield; this script does not redirect/noindex it."
+    ],
+    "new_pages": [
+      "estate-sale-pinellas-county",
+      "estate-sale-tarpon-springs-florida"
+    ],
+    "target_count": 7,
+    "would_or_did_meta_writes": 7,
+    "would_or_did_page_writes": 7
+  },
+  "targets": [
+    {
+      "action": "create",
+      "body_added_chars": 3790,
+      "body_after_chars": 3790,
+      "body_before_chars": 0,
+      "body_status": "create_body",
+      "handle": "estate-sale-pinellas-county",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 51,
+          "before_len": 0,
+          "key": "title_tag",
+          "status": "create"
+        },
+        {
+          "after_len": 125,
+          "before_len": 0,
+          "key": "description_tag",
+          "status": "create"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": false,
+      "page_id": null,
+      "page_kind": "county_hub",
+      "source_handle": null,
+      "title_status": "create_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-pinellas-county"
+    },
+    {
+      "action": "refresh",
+      "body_added_chars": 3535,
+      "body_after_chars": 18151,
+      "body_before_chars": 14616,
+      "body_status": "append_block",
+      "handle": "estate-sale-pasco-county",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 54,
+          "before_len": 53,
+          "key": "title_tag",
+          "status": "update"
+        },
+        {
+          "after_len": 135,
+          "before_len": 150,
+          "key": "description_tag",
+          "status": "update"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": true,
+      "page_id": 99768664218,
+      "page_kind": "county_hub",
+      "source_handle": null,
+      "title_status": "update_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-pasco-county"
+    },
+    {
+      "action": "refresh",
+      "body_added_chars": 3743,
+      "body_after_chars": 20912,
+      "body_before_chars": 17169,
+      "body_status": "append_block",
+      "handle": "estate-sale-tampa-hillsborough-county",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 46,
+          "before_len": 56,
+          "key": "title_tag",
+          "status": "update"
+        },
+        {
+          "after_len": 132,
+          "before_len": 155,
+          "key": "description_tag",
+          "status": "update"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": true,
+      "page_id": 99768598682,
+      "page_kind": "county_hub",
+      "source_handle": null,
+      "title_status": "update_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county"
+    },
+    {
+      "action": "refresh",
+      "body_added_chars": 3520,
+      "body_after_chars": 19338,
+      "body_before_chars": 15818,
+      "body_status": "append_block",
+      "handle": "estate-sale-palm-harbor-pinellas-county",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 50,
+          "before_len": 58,
+          "key": "title_tag",
+          "status": "update"
+        },
+        {
+          "after_len": 127,
+          "before_len": 147,
+          "key": "description_tag",
+          "status": "update"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": true,
+      "page_id": 99768631450,
+      "page_kind": "city",
+      "source_handle": null,
+      "title_status": "update_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county"
+    },
+    {
+      "action": "refresh",
+      "body_added_chars": 3408,
+      "body_after_chars": 16008,
+      "body_before_chars": 12600,
+      "body_status": "append_block",
+      "handle": "estate-sale-clearwater-florida",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 49,
+          "before_len": 50,
+          "key": "title_tag",
+          "status": "update"
+        },
+        {
+          "after_len": 123,
+          "before_len": 152,
+          "key": "description_tag",
+          "status": "update"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": true,
+      "page_id": 123430994074,
+      "page_kind": "city",
+      "source_handle": null,
+      "title_status": "update_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida"
+    },
+    {
+      "action": "refresh",
+      "body_added_chars": 3466,
+      "body_after_chars": 14675,
+      "body_before_chars": 11209,
+      "body_status": "append_block",
+      "handle": "estate-sale-new-port-richey-florida",
+      "legacy_note": null,
+      "metafields": [
+        {
+          "after_len": 51,
+          "before_len": 52,
+          "key": "title_tag",
+          "status": "update"
+        },
+        {
+          "after_len": 127,
+          "before_len": 155,
+          "key": "description_tag",
+          "status": "update"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": true,
+      "page_id": 125369090202,
+      "page_kind": "city",
+      "source_handle": null,
+      "title_status": "update_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida"
+    },
+    {
+      "action": "create",
+      "body_added_chars": 3565,
+      "body_after_chars": 3565,
+      "body_before_chars": 0,
+      "body_status": "create_body",
+      "handle": "estate-sale-tarpon-springs-florida",
+      "legacy_note": "Review legacy source page tarpon-springs-estate-sale-in-woodfield; this script does not redirect/noindex it.",
+      "metafields": [
+        {
+          "after_len": 53,
+          "before_len": 0,
+          "key": "title_tag",
+          "status": "create"
+        },
+        {
+          "after_len": 124,
+          "before_len": 0,
+          "key": "description_tag",
+          "status": "create"
+        }
+      ],
+      "needs_meta_write": true,
+      "needs_page_write": true,
+      "page_exists": false,
+      "page_id": null,
+      "page_kind": "city",
+      "source_handle": "tarpon-springs-estate-sale-in-woodfield",
+      "source_page_exists": true,
+      "title_status": "create_page_title",
+      "url": "https://organizinglifeservices.com/pages/estate-sale-tarpon-springs-florida"
+    }
+  ]
+}

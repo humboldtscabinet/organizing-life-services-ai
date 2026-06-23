@@ -10,6 +10,30 @@ Each entry should answer:
 
 ---
 
+## 2026-06-23 — First-wave service-area Shopify dry-run scaffold
+
+**What**
+- Added [`data/session11_service_area_first_wave.py`](../../data/session11_service_area_first_wave.py), a guarded Shopify implementation script for the first wave of Pinellas, Pasco, and Hillsborough service-area pages.
+- Added unit coverage in [`tests/test_session11_service_area_first_wave.py`](../../tests/test_session11_service_area_first_wave.py) for target alignment, metadata lengths, schema parsing, idempotency, append-only behavior, and legacy-page handling.
+- Ran a read-only Shopify dry-run and saved the report at [`data/audit_output/session11_service_area_first_wave_20260623T230329Z.json`](../../data/audit_output/session11_service_area_first_wave_20260623T230329Z.json).
+
+**Why**
+- The site needs more durable local-service landing pages for the real core counties: Pinellas, Pasco, and Hillsborough.
+- The implementation needs production brakes before any live Shopify writes: dry-run by default, snapshots before writes, idempotent markers, and explicit mutation confirmation.
+
+**How**
+- Dry-run authenticated to Shopify and read current page/metafield state only.
+- Planned 2 new permanent pages: `estate-sale-pinellas-county` and `estate-sale-tarpon-springs-florida`.
+- Planned append-only refreshes for 5 existing pages: Pasco County, Tampa/Hillsborough County, Palm Harbor, Clearwater, and New Port Richey.
+- Legacy event page `tarpon-springs-estate-sale-in-woodfield` is report-only in this script; it is not redirected or noindexed automatically.
+
+**Result / next watch**
+- No live Shopify writes in this pass.
+- Before running `--apply`, review the dry-run report and confirm the 7 page bodies/titles/meta descriptions are acceptable.
+- After live apply, verify rendered H1 count, schema, canonical, internal links, IndexNow submission, and GSC indexing movement.
+
+---
+
 ## 2026-06-23 — Service-area architecture for Pinellas, Pasco, and Hillsborough
 
 **What**

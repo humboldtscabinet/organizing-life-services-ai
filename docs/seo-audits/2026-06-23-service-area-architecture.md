@@ -150,6 +150,13 @@ County hub purpose:
 
 The first wave should be small enough to quality-control by hand.
 
+Implementation status on 2026-06-23:
+
+- [`data/session11_service_area_first_wave.py`](../../data/session11_service_area_first_wave.py) now implements the first-wave plan with dry-run by default.
+- The dry-run report is [`data/audit_output/session11_service_area_first_wave_20260623T230329Z.json`](../../data/audit_output/session11_service_area_first_wave_20260623T230329Z.json).
+- No live Shopify writes have been performed by this script yet.
+- The script appends a marked body section that starts at `h2`; the Shopify page title should remain responsible for the rendered page-level `h1`.
+
 1. `estate-sale-pinellas-county`
    - Create pure Pinellas hub.
    - Link to Palm Harbor, Clearwater, Tarpon Springs, Dunedin, Largo, St. Petersburg, Safety Harbor, Seminole, Pinellas Park.
@@ -185,9 +192,10 @@ The first wave should be small enough to quality-control by hand.
 
 Each county/city page should use this structure.
 
-1. One H1:
+1. One rendered H1:
    - `Estate Sales in {City}, FL`
    - `Estate Sales in {County} County, FL`
+   - For Shopify implementation scripts, this should come from the page title/theme output, not an appended body-level H1.
 
 2. Intro:
    - Who OLS helps in that area.
