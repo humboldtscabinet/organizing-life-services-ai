@@ -350,6 +350,69 @@ def _choose_key_event_metric(client: Any, property_id: str, start_date: str, end
     raise RuntimeError("Neither GA4 keyEvents nor conversions metric is available.")
 
 
+def run_ga4_admin_key_event_status(credentials_path: str, property_id: str) -> dict[str, Any]:
+    """Best-effort read of GA4 Admin key-event config.
+
+    The Data API tells us which event names are currently counted as key
+    events. The Admin API tells us the configured key-event resources. This is
+    read-only and intentionally non-fatal because many accounts grant Data API
+    access before enabling the Admin API.
+    """
+    try:
+        creds = service_account.Credentials.from_service_account_file(
+            credentials_path, scopes=GA4_SCOPES
+        )
+        service = build("analyticsadmin", "v1beta", credentials=creds, cache_discovery=False)
+        response = (
+            service.properties()
+            .keyEvents()
+            .list(parent=f"properties/{property_id}", pageSize=200)
+            .execute()
+        )
+    except Exception as exc:  # noqa: BLE001
+        reason = summarize_ga4_admin_error(exc)
+        return {
+            "available": False,
+            "status": "unavailable",
+            "reason": reason,
+            "operator_action": (
+                "Use the GA4 UI cleanup runbook now, or enable Google Analytics "
+                "Admin API in GCP if you want this repo to inspect key-event "
+                "configuration directly."
+            ),
+        }
+
+    key_events = [
+        {
+            "name": item.get("name", ""),
+            "event_name": item.get("eventName", ""),
+            "deletable": bool(item.get("deletable")),
+            "custom": bool(item.get("custom")),
+            "counting_method": item.get("countingMethod", ""),
+            "classification": classify_event_name(item.get("eventName", "")),
+        }
+        for item in response.get("keyEvents", [])
+    ]
+    bad_key_events = [
+        item for item in key_events if item["classification"] == "passive_or_pageview"
+    ]
+    return {
+        "available": True,
+        "status": "ok" if not bad_key_events else "needs_cleanup",
+        "key_events": key_events,
+        "bad_key_events": bad_key_events,
+    }
+
+
+def summarize_ga4_admin_error(exc: Exception) -> str:
+    text = str(exc).splitlines()[0]
+    if "Analytics Admin API has not been used" in text or "it is disabled" in text:
+        return "Google Analytics Admin API is disabled in the service-account GCP project."
+    if "does not have sufficient permissions" in text or "permission" in text.lower():
+        return "Service account lacks permission to inspect GA4 Admin key-event configuration."
+    return text[:300]
+
+
 def run_ga4_conversion_audit(credentials_path: str) -> dict[str, Any]:
     property_id = os.getenv("GA4_PROPERTY_ID", "").strip()
     if not property_id:
@@ -468,6 +531,7 @@ def run_ga4_conversion_audit(credentials_path: str) -> dict[str, Any]:
         "available": True,
         "property_id": property_id,
         "key_event_metric": metric,
+        "admin_key_event_status": run_ga4_admin_key_event_status(credentials_path, property_id),
         "windows": {
             "current": {"start": start.isoformat(), "end": end.isoformat()},
             "prior": {"start": prior_start.isoformat(), "end": prior_end.isoformat()},
@@ -884,6 +948,22 @@ def render_md(report: dict[str, Any]) -> str:
         for issue in assessment.get("issues", []):
             add(f"- **{issue['severity'].upper()}**: {issue['issue']}")
         add("")
+        admin_status = ga4.get("admin_key_event_status") or {}
+        add("**GA4 Admin key-event config access:** `" + admin_status.get("status", "unknown") + "`")
+        if admin_status.get("available"):
+            bad = admin_status.get("bad_key_events") or []
+            if bad:
+                add(
+                    "- Bad configured key events: "
+                    + ", ".join(f"`{item['event_name']}`" for item in bad)
+                )
+            else:
+                add("- No passive/page-view key events found in Admin API config.")
+        else:
+            add(f"- {admin_status.get('operator_action', 'Admin API config read unavailable.')}")
+            if admin_status.get("reason"):
+                add(f"- Reason: `{admin_status['reason']}`")
+        add("")
         add("Top key-event rows:")
         add("| Event | Class | Key events | Event count |")
         add("|---|---|---:|---:|")
@@ -966,11 +1046,13 @@ def render_md(report: dict[str, Any]) -> str:
     add("")
 
     add("## Remediation Checklist")
-    add("1. In GA4 Admin, unmark `page_view` as a key event.")
-    add("2. Stop counting `ads_conversion_Contact_Page_load_https_1` as a conversion; a contact-page view is not a lead.")
-    add("3. Keep or create true lead key events: form submit, phone click, email click, and contact CTA click.")
-    add("4. After the GA4 change, rerun this report and use lead-intent key events as the business KPI.")
-    add("5. Expand the highest-priority content targets only after the tracking baseline is clean.")
+    add("1. Follow `docs/runbooks/ga4-key-event-cleanup.md`.")
+    add("2. In GA4 Admin, unmark `page_view` as a key event.")
+    add("3. Stop counting `ads_conversion_Contact_Page_load_https_1` as a conversion; a contact-page view is not a lead.")
+    add("4. Keep or create true lead key events: form submit, phone click, email click, and contact CTA click.")
+    add("5. If API inspection is desired, enable Google Analytics Admin API in GCP; UI cleanup works now.")
+    add("6. After the GA4 change, rerun this report and use lead-intent key events as the business KPI.")
+    add("7. Expand the highest-priority content targets only after the tracking baseline is clean.")
     add("")
     add(f"Raw JSON: `{report['raw_json_path']}`")
     return "\n".join(lines)

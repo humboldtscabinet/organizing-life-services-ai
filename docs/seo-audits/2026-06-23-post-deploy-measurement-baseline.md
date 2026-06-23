@@ -1,5 +1,5 @@
 # Post-Deploy Measurement Baseline - organizinglifeservices.com
-_Generated 2026-06-23 22:18 UTC_
+_Generated 2026-06-23 22:27 UTC_
 
 ## Overall Read
 **Status: Pass with SEO warnings, fail on conversion-tracking trust.**
@@ -18,6 +18,10 @@ The live SEO changes are rendering, but GA4 is currently counting passive/page-l
 **Trust assessment:** `fail`
 - **HIGH**: Passive events such as page views or page-load events are counted as key events.
 - **MEDIUM**: Key events per session is unusually high for real lead tracking.
+
+**GA4 Admin key-event config access:** `unavailable`
+- Use the GA4 UI cleanup runbook now, or enable Google Analytics Admin API in GCP if you want this repo to inspect key-event configuration directly.
+- Reason: `Google Analytics Admin API is disabled in the service-account GCP project.`
 
 Top key-event rows:
 | Event | Class | Key events | Event count |
@@ -105,10 +109,12 @@ Top organic landing-page key-event rows:
 - GTM audit available: 5 tags, 1 triggers, 0 flagged findings.
 
 ## Remediation Checklist
-1. In GA4 Admin, unmark `page_view` as a key event.
-2. Stop counting `ads_conversion_Contact_Page_load_https_1` as a conversion; a contact-page view is not a lead.
-3. Keep or create true lead key events: form submit, phone click, email click, and contact CTA click.
-4. After the GA4 change, rerun this report and use lead-intent key events as the business KPI.
-5. Expand the highest-priority content targets only after the tracking baseline is clean.
+1. Follow `docs/runbooks/ga4-key-event-cleanup.md`.
+2. In GA4 Admin, unmark `page_view` as a key event.
+3. Stop counting `ads_conversion_Contact_Page_load_https_1` as a conversion; a contact-page view is not a lead.
+4. Keep or create true lead key events: form submit, phone click, email click, and contact CTA click.
+5. If API inspection is desired, enable Google Analytics Admin API in GCP; UI cleanup works now.
+6. After the GA4 change, rerun this report and use lead-intent key events as the business KPI.
+7. Expand the highest-priority content targets only after the tracking baseline is clean.
 
-Raw JSON: `data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json`
+Raw JSON: `data/audit_output/post_deploy_measurement_baseline_20260623T222711Z.json`

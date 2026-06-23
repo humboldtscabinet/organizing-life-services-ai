@@ -5,6 +5,7 @@ Step-by-step operational procedures for common tasks. Each runbook is self-conta
 ## SEO operations
 
 - [run-deep-seo-audit.md](run-deep-seo-audit.md) — generate a fresh deep SEO audit and synthesize it
+- [ga4-key-event-cleanup.md](ga4-key-event-cleanup.md) — clean up GA4 key events so conversions reflect real lead intent
 - [push-meta-rewrites.md](push-meta-rewrites.md) — push title/meta changes to Shopify
 - [deploy-schema-snippet.md](deploy-schema-snippet.md) — update the Shopify JSON-LD schema snippet
 - [data-mutation-scripts.md](data-mutation-scripts.md) — safely handle legacy direct-write scripts

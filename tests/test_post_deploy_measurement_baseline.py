@@ -87,3 +87,14 @@ def test_legacy_event_pages_are_not_recommended_as_primary_targets(baseline):
         "estate sale organizers",
         "https://organizinglifeservices.com/pages/13925-pathfinder-drive-tampa-florida",
     )
+
+
+def test_summarize_ga4_admin_disabled_error(baseline):
+    message = (
+        "Google Analytics Admin API has not been used in project 123 before "
+        "or it is disabled. Enable it by visiting https://example.test"
+    )
+
+    assert baseline.summarize_ga4_admin_error(RuntimeError(message)) == (
+        "Google Analytics Admin API is disabled in the service-account GCP project."
+    )

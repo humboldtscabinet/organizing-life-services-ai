@@ -77,7 +77,7 @@ The post-deploy measurement baseline adds:
 
 - **GSC returns 403:** service account isn't added as a User on the Search Console property. Re-invite at search.google.com/search-console/users.
 - **GA4 returns "no permission":** add the service account as a Viewer on the GA4 property.
-- **Measurement baseline reports conversion-tracking `fail`:** fix GA4 key-event definitions before using conversion totals as a business KPI. `page_view`, contact-page-load events, and passive engagement events should not count as leads.
+- **Measurement baseline reports conversion-tracking `fail`:** fix GA4 key-event definitions before using conversion totals as a business KPI. `page_view`, contact-page-load events, and passive engagement events should not count as leads. See [ga4-key-event-cleanup.md](ga4-key-event-cleanup.md).
 - **GTM audit unavailable:** add the service account as read-only in GTM and set `GTM_ACCOUNT_ID` / `GTM_CONTAINER_ID`.
 - **Audit script can't find credentials:** check `GOOGLE_APPLICATION_CREDENTIALS` env var or that `credentials/google-service-account.json` exists.
 - **Crawler returns mostly 403s:** Shopify bot protection. Verify in GSC's Coverage report that Googlebot itself isn't being blocked.

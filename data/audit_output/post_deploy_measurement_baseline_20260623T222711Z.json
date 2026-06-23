@@ -419,6 +419,12 @@
     }
   },
   "ga4_conversion_tracking": {
+    "admin_key_event_status": {
+      "available": false,
+      "operator_action": "Use the GA4 UI cleanup runbook now, or enable Google Analytics Admin API in GCP if you want this repo to inspect key-event configuration directly.",
+      "reason": "Google Analytics Admin API is disabled in the service-account GCP project.",
+      "status": "unavailable"
+    },
     "assessment": {
       "issues": [
         {
@@ -1057,7 +1063,7 @@
     ],
     "status": "pass"
   },
-  "generated_at": "2026-06-23 22:18 UTC",
+  "generated_at": "2026-06-23 22:27 UTC",
   "gtm_audit": {
     "available": true,
     "findings": [],
@@ -1358,6 +1364,6 @@
     ],
     "status": "pass"
   },
-  "raw_json_path": "data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json",
+  "raw_json_path": "data/audit_output/post_deploy_measurement_baseline_20260623T222711Z.json",
   "site_url": "https://organizinglifeservices.com/"
 }

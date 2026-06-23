@@ -14,7 +14,7 @@ Each entry should answer:
 
 **What**
 - Added [`data/post_deploy_measurement_baseline.py`](../../data/post_deploy_measurement_baseline.py), a read-only measurement script that audits GA4 key events, verifies the changed live URLs, builds a business-weighted GSC content target list, checks GBP on-site readiness, and summarizes GTM audit availability.
-- Added the generated report at [`docs/seo-audits/2026-06-23-post-deploy-measurement-baseline.md`](2026-06-23-post-deploy-measurement-baseline.md) and raw JSON at [`data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json`](../../data/audit_output/post_deploy_measurement_baseline_20260623T221837Z.json).
+- Added the generated report at [`docs/seo-audits/2026-06-23-post-deploy-measurement-baseline.md`](2026-06-23-post-deploy-measurement-baseline.md) and raw JSON at [`data/audit_output/post_deploy_measurement_baseline_20260623T222711Z.json`](../../data/audit_output/post_deploy_measurement_baseline_20260623T222711Z.json).
 - Updated the weekly SEO audit workflow to run the measurement baseline after the deep audit and include `docs/seo-audits/` in the automated PR.
 
 **Why**
@@ -31,7 +31,7 @@ Each entry should answer:
 - Live SEO verification passed for the June changes.
 - GBP on-site readiness passed; GBP API access remains blocked/unavailable in this run.
 - GTM audit was available and reported 5 tags, 1 trigger, 0 flagged findings.
-- GA4 conversion tracking failed trust checks: `page_view` and `ads_conversion_Contact_Page_load_https_1` are counted as key events. Fix GA4 key-event definitions before using conversion totals as business KPIs.
+- GA4 conversion tracking failed trust checks: `page_view` and `ads_conversion_Contact_Page_load_https_1` are counted as key events. The GA4 Admin API is disabled in the service-account GCP project, so cleanup should be done in the GA4 UI using [`docs/runbooks/ga4-key-event-cleanup.md`](../runbooks/ga4-key-event-cleanup.md).
 - Top content priorities remain service-intent work: homepage service-intent copy/internal links, Tampa/Hillsborough service-area page, estate cleanout page, Tarpon Springs permanent service-area handling, and appraisal page expansion.
 
 ---
