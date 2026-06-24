@@ -10,6 +10,10 @@ Step-by-step operational procedures for common tasks. Each runbook is self-conta
 - [deploy-schema-snippet.md](deploy-schema-snippet.md) — update the Shopify JSON-LD schema snippet
 - [data-mutation-scripts.md](data-mutation-scripts.md) — safely handle legacy direct-write scripts
 
+## Ops
+
+- [dashboard-alerts.md](dashboard-alerts.md) — create operational alerts for the private dashboard
+
 ## Conventions
 
 - Every command is copy-pasteable

@@ -9,8 +9,10 @@ All endpoints are in manual-approval mode:
 """
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
+from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
 from app.db.database import get_db
@@ -28,6 +30,15 @@ from app.services.dashboard_service import (
 from app.services.ga4_service import pull_ga4_data
 from app.services.google_ads_service import pull_google_ads_data
 from app.services.gsc_service import pull_gsc_data
+from app.services.ops_alert_service import (
+    acknowledge_alert,
+    alert_to_dict,
+    create_alert,
+    dismiss_alert,
+    get_alert_metrics,
+    list_alerts,
+    resolve_alert,
+)
 from app.services.sheets_service import (
     push_ga4_to_sheets,
     push_google_ads_to_sheets,
@@ -36,6 +47,19 @@ from app.services.sheets_service import (
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 logger = logging.getLogger(__name__)
+
+
+class AlertCreateRequest(BaseModel):
+    source: str = Field(..., min_length=1, max_length=100)
+    severity: str = Field(..., description="INFO, WARNING, or CRITICAL")
+    title: str = Field(..., min_length=1, max_length=300)
+    message: str | None = None
+    fingerprint: str | None = Field(
+        None,
+        max_length=300,
+        description="Stable key for deduplicating repeated health checks",
+    )
+    details: dict[str, Any] | None = None
 
 
 @router.post("/generate-tasks")
@@ -344,3 +368,96 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
         result["failed_steps"] = failed_steps
 
     return result
+
+
+@router.post("/alerts", status_code=status.HTTP_201_CREATED)
+def create_ops_alert(payload: AlertCreateRequest, db: Session = Depends(get_db)):
+    """
+    Create or update an operational alert.
+
+    Intended first for n8n/private health checks. Use `fingerprint` to update
+    the active alert for a recurring problem instead of creating duplicates.
+    """
+    try:
+        alert = create_alert(db=db, **payload.model_dump())
+        return {"status": "success", "alert": alert}
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as e:
+        raise_route_error(logger, "Create ops alert", e)
+
+
+@router.get("/alerts")
+def list_ops_alerts(
+    status_filter: str | None = Query("open", alias="status"),
+    severity: str | None = Query(None, description="INFO, WARNING, or CRITICAL"),
+    source: str | None = Query(None),
+    limit: int = Query(50, ge=1, le=200),
+    db: Session = Depends(get_db),
+):
+    """List operational alerts for the private dashboard."""
+    try:
+        alerts = list_alerts(
+            db=db,
+            status=status_filter,
+            severity=severity,
+            source=source,
+            limit=limit,
+        )
+        return {
+            "status": "success",
+            "count": len(alerts),
+            "alerts": [alert_to_dict(alert) for alert in alerts],
+        }
+    except ValueError as exc:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
+    except Exception as e:
+        raise_route_error(logger, "List ops alerts", e)
+
+
+@router.get("/alerts/metrics")
+def get_ops_alert_metrics(db: Session = Depends(get_db)):
+    """Return operational alert counts for dashboard KPI cards."""
+    try:
+        return {"status": "success", "metrics": get_alert_metrics(db)}
+    except Exception as e:
+        raise_route_error(logger, "Ops alert metrics", e)
+
+
+@router.post("/alerts/{alert_id}/acknowledge")
+def acknowledge_ops_alert(alert_id: int, db: Session = Depends(get_db)):
+    """Mark an alert as acknowledged."""
+    try:
+        result = acknowledge_alert(db, alert_id)
+        raise_if_service_error(result)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_route_error(logger, "Acknowledge ops alert", e)
+
+
+@router.post("/alerts/{alert_id}/dismiss")
+def dismiss_ops_alert(alert_id: int, db: Session = Depends(get_db)):
+    """Dismiss an alert."""
+    try:
+        result = dismiss_alert(db, alert_id)
+        raise_if_service_error(result)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_route_error(logger, "Dismiss ops alert", e)
+
+
+@router.post("/alerts/{alert_id}/resolve")
+def resolve_ops_alert(alert_id: int, db: Session = Depends(get_db)):
+    """Resolve an alert after the underlying condition is fixed."""
+    try:
+        result = resolve_alert(db, alert_id)
+        raise_if_service_error(result)
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise_route_error(logger, "Resolve ops alert", e)

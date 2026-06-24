@@ -90,3 +90,31 @@ export const getMetrics = async () => {
 export const getChannelMetrics = async () => {
   return fetchAPI('/dashboard/metrics/channels')
 }
+
+export const getAlerts = async (filters = {}) => {
+  const params = new URLSearchParams()
+  if (filters.status) params.append('status', filters.status)
+  if (filters.severity) params.append('severity', filters.severity)
+  if (filters.source) params.append('source', filters.source)
+  if (filters.limit) params.append('limit', filters.limit)
+
+  const queryString = params.toString()
+  const endpoint = queryString ? `/dashboard/alerts?${queryString}` : '/dashboard/alerts'
+  return fetchAPI(endpoint)
+}
+
+export const getAlertMetrics = async () => {
+  return fetchAPI('/dashboard/alerts/metrics')
+}
+
+export const acknowledgeAlert = async (id) => {
+  return fetchAPI(`/dashboard/alerts/${id}/acknowledge`, {
+    method: 'POST',
+  })
+}
+
+export const dismissAlert = async (id) => {
+  return fetchAPI(`/dashboard/alerts/${id}/dismiss`, {
+    method: 'POST',
+  })
+}

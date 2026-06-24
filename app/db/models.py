@@ -204,3 +204,30 @@ class DashboardTask(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
     approved_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
+
+
+class OpsAlert(Base):
+    __tablename__ = "ops_alerts"
+    __table_args__ = (
+        Index("ix_ops_alerts_status", "status"),
+        Index("ix_ops_alerts_severity_status", "severity", "status"),
+        Index("ix_ops_alerts_source_status", "source", "status"),
+        Index("ix_ops_alerts_fingerprint_status", "fingerprint", "status"),
+        Index("ix_ops_alerts_created_at", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    source = Column(String(100), nullable=False)
+    severity = Column(String(20), nullable=False)        # INFO, WARNING, CRITICAL
+    status = Column(String(30), default="open")          # open, acknowledged, dismissed, resolved
+    title = Column(String(300), nullable=False)
+    message = Column(Text)
+    fingerprint = Column(String(300))
+    details = Column(JSONB)
+    occurrence_count = Column(Integer, default=1)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    updated_at = Column(DateTime, default=datetime.utcnow)
+    last_seen_at = Column(DateTime, default=datetime.utcnow)
+    acknowledged_at = Column(DateTime, nullable=True)
+    dismissed_at = Column(DateTime, nullable=True)
+    resolved_at = Column(DateTime, nullable=True)
