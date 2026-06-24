@@ -91,3 +91,25 @@ def test_seo_route_failure_returns_http_error(client, auth_headers, monkeypatch)
 
     assert r.status_code == 500
     assert "GSC pull failed" in r.json()["detail"]
+
+
+def test_route_failures_redact_secret_like_error_details(
+    client,
+    auth_headers,
+    monkeypatch,
+):
+    """Client-facing errors should not echo tokens/passwords from integrations."""
+
+    def fail_pull(*args, **kwargs):
+        raise RuntimeError("upstream token=abc123 password=hunter2")
+
+    monkeypatch.setattr("app.routes.seo.pull_gsc_data", fail_pull)
+
+    r = client.post("/api/seo/gsc/pull", headers=auth_headers)
+
+    assert r.status_code == 500
+    detail = r.json()["detail"]
+    assert "GSC pull failed" in detail
+    assert "abc123" not in detail
+    assert "hunter2" not in detail
+    assert "[redacted]" in detail

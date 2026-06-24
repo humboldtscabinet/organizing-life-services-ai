@@ -55,6 +55,13 @@ Suggested fingerprints:
 When the same active fingerprint is seen again, the API reopens the alert,
 updates its message/details, and increments `occurrence_count`.
 
+## Payload Hygiene
+
+The alert API redacts obvious secret-like fields and truncates large strings
+before storage, but callers should still avoid sending raw `.env` output,
+tokens, cookies, or full command logs. Prefer short summaries plus the script
+name, exit code, and the last useful non-secret error line.
+
 ## Dashboard Actions
 
 The dashboard supports:

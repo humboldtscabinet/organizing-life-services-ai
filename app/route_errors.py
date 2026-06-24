@@ -6,6 +6,10 @@ import logging
 
 from fastapi import HTTPException, status
 
+from app.redaction import redact_sensitive_text
+
+MAX_ERROR_DETAIL_CHARS = 500
+
 
 def raise_route_error(
     logger: logging.Logger,
@@ -16,7 +20,11 @@ def raise_route_error(
 ) -> None:
     """Log a route failure and surface it as a real HTTP error."""
     logger.exception("%s failed", operation)
-    raise HTTPException(status_code=status_code, detail=f"{operation} failed: {exc}") from exc
+    safe_detail = redact_sensitive_text(exc, max_length=MAX_ERROR_DETAIL_CHARS)
+    raise HTTPException(
+        status_code=status_code,
+        detail=f"{operation} failed: {safe_detail}",
+    ) from exc
 
 
 def raise_unavailable(detail: str) -> None:

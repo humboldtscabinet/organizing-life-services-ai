@@ -1,3 +1,6 @@
+import stat
+
+
 def test_shopify_write_requires_high_stakes_confirmation(client, auth_headers, monkeypatch):
     called = False
 
@@ -124,6 +127,46 @@ def test_vision_debug_tools_stay_disabled_in_production(
     response = client.get("/api/vision/get-token", headers=auth_headers)
 
     assert response.status_code == 404
+
+
+def test_vision_debug_save_file_rejects_path_traversal(
+    client,
+    auth_headers,
+    monkeypatch,
+    tmp_path,
+):
+    monkeypatch.setenv("ENABLE_VISION_DEBUG_TOOLS", "true")
+    monkeypatch.setattr("app.routes.vision.DATA_DIR", tmp_path)
+
+    response = client.post(
+        "/api/vision/save-file",
+        headers=auth_headers,
+        json={"filename": "../evil.txt", "data": "aGVsbG8="},
+    )
+
+    assert response.status_code == 400
+    assert not (tmp_path.parent / "evil.txt").exists()
+
+
+def test_vision_debug_save_file_writes_private_file(
+    client,
+    auth_headers,
+    monkeypatch,
+    tmp_path,
+):
+    monkeypatch.setenv("ENABLE_VISION_DEBUG_TOOLS", "true")
+    monkeypatch.setattr("app.routes.vision.DATA_DIR", tmp_path)
+
+    response = client.post(
+        "/api/vision/save-file",
+        headers=auth_headers,
+        json={"filename": "debug-output.txt", "data": "aGVsbG8="},
+    )
+
+    assert response.status_code == 200
+    output = tmp_path / "debug-output.txt"
+    assert output.read_bytes() == b"hello"
+    assert stat.S_IMODE(output.stat().st_mode) == 0o600
 
 
 def test_content_publish_requires_high_stakes_confirmation(

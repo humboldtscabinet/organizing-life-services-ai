@@ -9,10 +9,26 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from app.db.models import OpsAlert
+from app.redaction import bounded_json_object, redact_sensitive_text, truncate_text
 
 VALID_SEVERITIES = {"INFO", "WARNING", "CRITICAL"}
 VALID_STATUSES = {"open", "acknowledged", "dismissed", "resolved"}
 ACTIVE_STATUSES = {"open", "acknowledged"}
+MAX_SOURCE_CHARS = 100
+MAX_TITLE_CHARS = 300
+MAX_FINGERPRINT_CHARS = 300
+MAX_MESSAGE_CHARS = 4000
+
+
+def _clean_short_text(value: str | None, *, max_chars: int) -> str:
+    return truncate_text(redact_sensitive_text((value or "").strip()), max_chars)
+
+
+def _clean_optional_text(value: str | None, *, max_chars: int) -> str | None:
+    if value is None:
+        return None
+    cleaned = truncate_text(redact_sensitive_text(value.strip()), max_chars)
+    return cleaned or None
 
 
 def normalize_severity(value: str) -> str:
@@ -68,9 +84,14 @@ def create_alert(
     one alert with an occurrence count instead of one alert per run.
     """
     now = datetime.utcnow()
-    normalized_source = (source or "").strip()
-    normalized_title = (title or "").strip()
-    normalized_fingerprint = (fingerprint or "").strip() or None
+    normalized_source = _clean_short_text(source, max_chars=MAX_SOURCE_CHARS)
+    normalized_title = _clean_short_text(title, max_chars=MAX_TITLE_CHARS)
+    normalized_fingerprint = _clean_optional_text(
+        fingerprint,
+        max_chars=MAX_FINGERPRINT_CHARS,
+    )
+    sanitized_message = _clean_optional_text(message, max_chars=MAX_MESSAGE_CHARS)
+    sanitized_details = bounded_json_object(details)
 
     if not normalized_source:
         raise ValueError("Alert source is required")
@@ -96,8 +117,8 @@ def create_alert(
         existing.severity = normalized_severity
         existing.status = "open"
         existing.title = normalized_title
-        existing.message = message
-        existing.details = details
+        existing.message = sanitized_message
+        existing.details = sanitized_details
         existing.occurrence_count = (existing.occurrence_count or 1) + 1
         existing.updated_at = now
         existing.last_seen_at = now
@@ -111,9 +132,9 @@ def create_alert(
             severity=normalized_severity,
             status="open",
             title=normalized_title,
-            message=message,
+            message=sanitized_message,
             fingerprint=normalized_fingerprint,
-            details=details,
+            details=sanitized_details,
             occurrence_count=1,
             created_at=now,
             updated_at=now,
@@ -144,7 +165,7 @@ def list_alerts(
         query = query.filter(OpsAlert.source == source.strip())
 
     return (
-        query.order_by(OpsAlert.created_at.desc())
+        query.order_by(OpsAlert.last_seen_at.desc(), OpsAlert.created_at.desc())
         .limit(limit)
         .all()
     )

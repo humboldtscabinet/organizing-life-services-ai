@@ -56,6 +56,47 @@ def test_create_alert_validates_and_serializes_without_external_services():
     assert alert["details"] == {"script": "verify_postgres_backup.sh"}
 
 
+def test_create_alert_redacts_secret_like_values_before_storage():
+    db = _FakeDb()
+
+    alert = create_alert(
+        db,
+        source="n8n",
+        severity="critical",
+        title="Command failed",
+        message="Authorization: Bearer live-token password=hunter2",
+        fingerprint="backup:secret-redaction",
+        details={
+            "api_key": "should-not-store",
+            "stdout": "client_secret=abc123 refresh_token=xyz789",
+            "nested": {"access_token": "also-secret", "safe": "kept"},
+        },
+    )
+
+    assert "live-token" not in alert["message"]
+    assert "hunter2" not in alert["message"]
+    assert alert["details"]["api_key"] == "[redacted]"
+    assert "abc123" not in alert["details"]["stdout"]
+    assert "xyz789" not in alert["details"]["stdout"]
+    assert alert["details"]["nested"]["access_token"] == "[redacted]"
+    assert alert["details"]["nested"]["safe"] == "kept"
+
+
+def test_create_alert_bounds_large_detail_strings():
+    db = _FakeDb()
+
+    alert = create_alert(
+        db,
+        source="n8n",
+        severity="warning",
+        title="Large output",
+        details={"output": "x" * 20_000},
+    )
+
+    assert len(alert["details"]["output"]) < 2_000
+    assert alert["details"]["output"].endswith("...[truncated]")
+
+
 def test_invalid_alert_severity_is_rejected():
     with pytest.raises(ValueError, match="Invalid alert severity"):
         normalize_severity("urgent")

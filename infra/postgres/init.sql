@@ -176,7 +176,13 @@ CREATE TABLE IF NOT EXISTS ops_alerts (
     last_seen_at        TIMESTAMPTZ DEFAULT NOW(),
     acknowledged_at     TIMESTAMPTZ,
     dismissed_at        TIMESTAMPTZ,
-    resolved_at         TIMESTAMPTZ
+    resolved_at         TIMESTAMPTZ,
+    CONSTRAINT ck_ops_alerts_severity
+        CHECK (severity IN ('INFO', 'WARNING', 'CRITICAL')),
+    CONSTRAINT ck_ops_alerts_status
+        CHECK (status IN ('open', 'acknowledged', 'dismissed', 'resolved')),
+    CONSTRAINT ck_ops_alerts_occurrence_count
+        CHECK (occurrence_count >= 1)
 );
 
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_status
@@ -189,3 +195,5 @@ CREATE INDEX IF NOT EXISTS ix_ops_alerts_fingerprint_status
     ON ops_alerts (fingerprint, status);
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_created_at
     ON ops_alerts (created_at);
+CREATE INDEX IF NOT EXISTS ix_ops_alerts_last_seen_at
+    ON ops_alerts (last_seen_at);

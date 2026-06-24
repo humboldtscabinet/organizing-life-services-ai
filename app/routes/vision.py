@@ -11,6 +11,9 @@ import json
 import logging
 import os
 import threading
+from base64 import b64decode
+from binascii import Error as Base64Error
+from pathlib import Path
 from urllib.parse import urlparse
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
@@ -38,6 +41,9 @@ from app.services.vision_service import (
 
 router = APIRouter(prefix="/api/vision", tags=["Vision AI"])
 logger = logging.getLogger(__name__)
+DATA_DIR = Path(__file__).resolve().parents[2] / "data"
+DEBUG_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
+DEBUG_UPLOAD_ALLOWED_SUFFIXES = {".csv", ".json", ".txt", ".xlsx"}
 
 
 def require_vision_debug_tools_enabled() -> None:
@@ -64,6 +70,56 @@ def _require_allowed_xo_proxy_url(target_url: str) -> None:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="XO proxy target is not allowed",
         )
+
+
+def _safe_data_file(filename: str, *, allowed_suffixes: set[str] | None = None) -> Path:
+    """Resolve a filename inside data/ without allowing traversal."""
+    if not isinstance(filename, str):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid filename",
+        )
+
+    candidate_name = Path(filename).name
+    if not candidate_name or candidate_name != filename:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid filename",
+        )
+
+    path = (DATA_DIR / candidate_name).resolve()
+    if DATA_DIR.resolve() not in path.parents:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid filename",
+        )
+
+    if allowed_suffixes is not None and path.suffix.lower() not in allowed_suffixes:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Unsupported file type",
+        )
+
+    return path
+
+
+def _write_private_bytes(path: Path, content: bytes) -> None:
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+    with os.fdopen(fd, "wb") as f:
+        f.write(content)
+
+
+def _write_private_json(path: Path, payload: dict) -> None:
+    _write_private_bytes(path, json.dumps(payload, sort_keys=True).encode("utf-8"))
+
+
+def _read_private_json(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    with path.open("r", encoding="utf-8") as f:
+        payload = json.load(f)
+    return payload if isinstance(payload, dict) else {}
 
 
 @router.get("/images")
@@ -727,18 +783,31 @@ async def save_file(
     _debug_tools: None = Depends(require_vision_debug_tools_enabled),
 ):
     """Save uploaded base64 file to data directory."""
-    import base64
     body = await request.json()
     filename = body.get("filename", "output.xlsx")
     b64data = body.get("data", "")
     if not b64data:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No data provided")
-    file_bytes = base64.b64decode(b64data)
-    save_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", filename)
-    save_path = os.path.normpath(save_path)
-    with open(save_path, "wb") as f:
-        f.write(file_bytes)
-    return {"status": "ok", "path": save_path, "size": len(file_bytes)}
+
+    save_path = _safe_data_file(
+        filename,
+        allowed_suffixes=DEBUG_UPLOAD_ALLOWED_SUFFIXES,
+    )
+    try:
+        file_bytes = b64decode(b64data, validate=True)
+    except (Base64Error, ValueError) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid base64 data",
+        ) from exc
+    if len(file_bytes) > DEBUG_UPLOAD_MAX_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+            detail="Uploaded file is too large",
+        )
+
+    _write_private_bytes(save_path, file_bytes)
+    return {"status": "ok", "path": str(save_path), "size": len(file_bytes)}
 
 
 @router.get("/store-token")
@@ -749,14 +818,11 @@ def store_token(
     """Store a session token sent via image beacon from the Shopify admin page."""
     if not t:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No token")
-    token_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_session_token.txt")
-    token_path = os.path.normpath(token_path)
-    with open(token_path, "w") as f:
-        f.write(t)
-    import base64
+    token_path = _safe_data_file("xo_session_token.txt")
+    _write_private_bytes(token_path, t.encode("utf-8"))
 
     from fastapi.responses import Response
-    pixel = base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
+    pixel = b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
     return Response(content=pixel, media_type="image/png")
 
 
@@ -767,11 +833,10 @@ def get_stored_token(
     """Return XO Gallery session token status without exposing the token."""
     import base64 as b64
     import time
-    token_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_session_token.txt")
-    token_path = os.path.normpath(token_path)
+    token_path = _safe_data_file("xo_session_token.txt")
     if not os.path.exists(token_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No token stored")
-    with open(token_path, "r") as f:
+    with open(token_path, "r", encoding="utf-8") as f:
         token = f.read().strip()
     parts = token.split(".")
     if len(parts) == 3:
@@ -796,8 +861,6 @@ async def xo_proxy(
             "token": "...", "body": {...}, "login": true/false,
             "params": {"hmac": "...", "session": "...", "timestamp": "..."} }
     """
-    import pickle
-
     import httpx
 
     body = await request.json()
@@ -813,8 +876,7 @@ async def xo_proxy(
     if target_url != "LOGIN_ONLY":
         _require_allowed_xo_proxy_url(target_url)
 
-    cookies_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_cookies.pkl")
-    cookies_path = os.path.normpath(cookies_path)
+    cookies_path = _safe_data_file("xo_cookies.json")
 
     try:
         async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
@@ -822,8 +884,7 @@ async def xo_proxy(
             saved_cookies = {}
             if os.path.exists(cookies_path):
                 try:
-                    with open(cookies_path, "rb") as f:
-                        saved_cookies = pickle.load(f)
+                    saved_cookies = _read_private_json(cookies_path)
                 except Exception:
                     saved_cookies = {}
 
@@ -846,8 +907,7 @@ async def xo_proxy(
                 )
                 login_resp = await client.get(login_url)
                 saved_cookies = dict(client.cookies)
-                with open(cookies_path, "wb") as f:
-                    pickle.dump(saved_cookies, f)
+                _write_private_json(cookies_path, saved_cookies)
                 login_info = {
                     "login_status": login_resp.status_code,
                     "cookies_saved": len(saved_cookies),
@@ -881,8 +941,7 @@ async def xo_proxy(
             new_cookies = dict(resp.cookies)
             if new_cookies:
                 saved_cookies.update(new_cookies)
-                with open(cookies_path, "wb") as f:
-                    pickle.dump(saved_cookies, f)
+                _write_private_json(cookies_path, saved_cookies)
 
         try:
             resp_json = resp.json()

@@ -5,6 +5,7 @@ SQLAlchemy ORM models — MVP tables per MASTER_PLAN_V2.1
 from datetime import datetime
 
 from sqlalchemy import (
+    CheckConstraint,
     Column,
     DateTime,
     Float,
@@ -209,11 +210,21 @@ class DashboardTask(Base):
 class OpsAlert(Base):
     __tablename__ = "ops_alerts"
     __table_args__ = (
+        CheckConstraint(
+            "severity IN ('INFO', 'WARNING', 'CRITICAL')",
+            name="ck_ops_alerts_severity",
+        ),
+        CheckConstraint(
+            "status IN ('open', 'acknowledged', 'dismissed', 'resolved')",
+            name="ck_ops_alerts_status",
+        ),
+        CheckConstraint("occurrence_count >= 1", name="ck_ops_alerts_occurrence_count"),
         Index("ix_ops_alerts_status", "status"),
         Index("ix_ops_alerts_severity_status", "severity", "status"),
         Index("ix_ops_alerts_source_status", "source", "status"),
         Index("ix_ops_alerts_fingerprint_status", "fingerprint", "status"),
         Index("ix_ops_alerts_created_at", "created_at"),
+        Index("ix_ops_alerts_last_seen_at", "last_seen_at"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
