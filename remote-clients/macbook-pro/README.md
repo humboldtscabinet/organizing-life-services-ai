@@ -19,10 +19,43 @@ or backup artifacts onto the MacBook.
 - Mini: owns code execution, Docker, Ollama, secrets, n8n, Postgres, backups.
 - iMac: existing Remote-SSH client.
 - MacBook Pro: second Remote-SSH client for travel/cafes.
-- Tailscale: private off-network transport.
+- Home LAN: use `agent-eco-mini.local` / `ols-mini-lan` first.
+- Tailscale: private off-network transport added later for travel/cafes.
 - Services: stay bound to mini localhost only.
 
-## One-Time MacBook Steps
+## Home LAN Quick Start
+
+Use this path while the MacBook and mini are on the same home network.
+
+```bash
+cd remote-clients/macbook-pro
+./generate_macbook_ssh_key.sh
+./install_public_key_on_mini.sh
+./configure_ssh_alias.sh --lan-only
+ssh ols-mini-lan
+./verify_macbook_client.sh
+```
+
+Then open VS Code:
+
+- Remote-SSH: Connect to Host...
+- Choose `ols-mini-lan`
+- Open folder `/Users/aiagentecosystem/services/ols`
+
+You can skip Tailscale until you want off-network access.
+
+## Optional Prereqs Helper
+
+If the MacBook is missing VS Code or the Remote-SSH extension, run:
+
+```bash
+./bootstrap_macbook_prereqs.sh
+```
+
+That script also installs Tailscale, so skip it for now if you want LAN-only
+setup and already have VS Code.
+
+## Later: Off-Network Tailscale Setup
 
 1. Install MacBook prerequisites:
 
@@ -81,8 +114,8 @@ or backup artifacts onto the MacBook.
    MINI_HOST=agent-eco-mini.<tailnet>.ts.net ./install_public_key_on_mini.sh
    ```
 
-8. Configure your MacBook SSH alias, replacing `<tailnet>` with the real
-   MagicDNS tailnet name:
+8. Configure your MacBook SSH aliases, replacing `<tailnet>` with the real
+   MagicDNS tailnet name. If you are still LAN-only, use `--lan-only`.
 
    ```bash
    ./configure_ssh_alias.sh <tailnet>
@@ -105,7 +138,7 @@ or backup artifacts onto the MacBook.
 10. In VS Code:
 
    - Remote-SSH: Connect to Host...
-   - Choose `ols-mini`
+   - Choose `ols-mini-lan` at home, or `ols-mini` after Tailscale is configured.
    - Open folder `/Users/aiagentecosystem/services/ols`
 
 11. Install recommended remote-side extensions in that Remote-SSH window:

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-HOST_ALIAS="${HOST_ALIAS:-ols-mini}"
+HOST_ALIAS="${HOST_ALIAS:-ols-mini-lan}"
 REMOTE_REPO="${REMOTE_REPO:-/Users/aiagentecosystem/services/ols}"
 
 pass() {
@@ -50,4 +50,3 @@ echo "open these MacBook URLs:"
 echo "  dashboard: http://localhost:3000"
 echo "  API docs:  http://localhost:8000/docs"
 echo "  n8n:       http://localhost:5678"
-

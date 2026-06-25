@@ -9,10 +9,8 @@ SSH_CONFIG="${SSH_CONFIG:-$HOME/.ssh/config}"
 MARKER_BEGIN="# BEGIN OLS MINI REMOTE CLIENT"
 MARKER_END="# END OLS MINI REMOTE CLIENT"
 
-if [[ -z "$TAILNET_NAME" ]]; then
-  echo "Usage: $0 <tailnet-name>" >&2
-  echo "Example: $0 example.ts.net" >&2
-  exit 1
+if [[ "$TAILNET_NAME" == "--lan-only" ]]; then
+  TAILNET_NAME=""
 fi
 
 if [[ "$TAILNET_NAME" == *"<"* || "$TAILNET_NAME" == *">"* ]]; then
@@ -38,17 +36,6 @@ awk -v begin="$MARKER_BEGIN" -v end="$MARKER_END" '
 
 cat >> "$tmp_file" <<EOF
 $MARKER_BEGIN
-Host ols-mini
-  HostName ${MINI_HOST}.${TAILNET_NAME}
-  User ${MINI_USER}
-  IdentityFile ${IDENTITY_FILE}
-  IdentitiesOnly yes
-  ServerAliveInterval 30
-  ServerAliveCountMax 3
-  LocalForward 3000 127.0.0.1:3000
-  LocalForward 8000 127.0.0.1:8000
-  LocalForward 5678 127.0.0.1:5678
-
 Host ols-mini-lan
   HostName ${MINI_HOST}.local
   User ${MINI_USER}
@@ -59,6 +46,25 @@ Host ols-mini-lan
   LocalForward 3000 127.0.0.1:3000
   LocalForward 8000 127.0.0.1:8000
   LocalForward 5678 127.0.0.1:5678
+EOF
+
+if [[ -n "$TAILNET_NAME" ]]; then
+  cat >> "$tmp_file" <<EOF
+
+Host ols-mini
+  HostName ${MINI_HOST}.${TAILNET_NAME}
+  User ${MINI_USER}
+  IdentityFile ${IDENTITY_FILE}
+  IdentitiesOnly yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5678 127.0.0.1:5678
+EOF
+fi
+
+cat >> "$tmp_file" <<EOF
 $MARKER_END
 EOF
 
@@ -67,5 +73,8 @@ chmod 600 "$SSH_CONFIG"
 
 echo "Updated $SSH_CONFIG"
 echo "Test LAN:       ssh ols-mini-lan"
-echo "Test Tailscale: ssh ols-mini"
-
+if [[ -n "$TAILNET_NAME" ]]; then
+  echo "Test Tailscale: ssh ols-mini"
+else
+  echo "Tailscale alias skipped. Add it later with: $0 <tailnet-name>"
+fi
