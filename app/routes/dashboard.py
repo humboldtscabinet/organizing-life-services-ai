@@ -8,15 +8,14 @@ All endpoints are in manual-approval mode:
 - Get dashboard metrics and insights
 """
 
-import logging
-from typing import Any
+from typing import Any, Callable
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, Query, status
 from pydantic import BaseModel, Field
 from sqlalchemy.orm import Session
 
+from app.api_errors import APIError, build_error_payload, service_result_or_raise
 from app.db.database import get_db
-from app.route_errors import raise_if_service_error, raise_route_error
 from app.services.dashboard_service import (
     approve_task,
     delay_task,
@@ -34,7 +33,7 @@ from app.services.ops_alert_service import (
     acknowledge_alert,
     alert_to_dict,
     create_alert,
-    dismiss_alert,
+    dismiss_alert as dismiss_ops_alert_service,
     get_alert_metrics,
     list_alerts,
     resolve_alert,
@@ -46,7 +45,6 @@ from app.services.sheets_service import (
 )
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
-logger = logging.getLogger(__name__)
 
 
 class AlertCreateRequest(BaseModel):
@@ -60,6 +58,28 @@ class AlertCreateRequest(BaseModel):
         description="Stable key for deduplicating repeated health checks",
     )
     details: dict[str, Any] | None = None
+
+
+def _has_error(result: dict) -> bool:
+    return result.get("status") in {"error", "unavailable"}
+
+
+def _capture_step(action: Callable[..., dict[str, Any]], *args, **kwargs) -> dict[str, Any]:
+    try:
+        return service_result_or_raise(action(*args, **kwargs))
+    except APIError as exc:
+        return build_error_payload(
+            status_code=exc.status_code,
+            detail=exc.detail,
+            code=exc.code,
+            extra=exc.extra,
+        )
+    except Exception as exc:
+        return build_error_payload(
+            status_code=500,
+            detail=str(exc),
+            code="internal_server_error",
+        )
 
 
 @router.post("/generate-tasks")
@@ -78,11 +98,7 @@ def trigger_generate_tasks(
     - tasks_created: count of new tasks added
     - tasks_by_type: breakdown by task_type (seo, ads, shopify)
     """
-    try:
-        result = generate_tasks(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Dashboard task generation", e)
+    return service_result_or_raise(generate_tasks(db=db, days_back=days_back))
 
 
 @router.get("/tasks")
@@ -98,38 +114,35 @@ def list_tasks(
 
     Returns tasks sorted by priority (HIGH first) then by created_at (newest first).
     """
-    try:
-        tasks = get_tasks(
-            db=db,
-            status=status,
-            task_type=task_type,
-            priority=priority,
-            limit=limit,
-        )
+    tasks = get_tasks(
+        db=db,
+        status=status,
+        task_type=task_type,
+        priority=priority,
+        limit=limit,
+    )
 
-        return {
-            "status": "success",
-            "count": len(tasks),
-            "tasks": [
-                {
-                    "id": t.id,
-                    "task_type": t.task_type,
-                    "category": t.category,
-                    "priority": t.priority,
-                    "title": t.title,
-                    "description": t.description,
-                    "finding": t.finding,
-                    "action_payload": t.action_payload,
-                    "status": t.status,
-                    "created_at": t.created_at.isoformat(),
-                    "approved_at": t.approved_at.isoformat() if t.approved_at else None,
-                    "completed_at": t.completed_at.isoformat() if t.completed_at else None,
-                }
-                for t in tasks
-            ],
-        }
-    except Exception as e:
-        raise_route_error(logger, "Dashboard task list", e)
+    return {
+        "status": "success",
+        "count": len(tasks),
+        "tasks": [
+            {
+                "id": t.id,
+                "task_type": t.task_type,
+                "category": t.category,
+                "priority": t.priority,
+                "title": t.title,
+                "description": t.description,
+                "finding": t.finding,
+                "action_payload": t.action_payload,
+                "status": t.status,
+                "created_at": t.created_at.isoformat(),
+                "approved_at": t.approved_at.isoformat() if t.approved_at else None,
+                "completed_at": t.completed_at.isoformat() if t.completed_at else None,
+            }
+            for t in tasks
+        ],
+    }
 
 
 @router.get("/tasks/{task_id}")
@@ -137,34 +150,29 @@ def get_task_detail(task_id: int, db: Session = Depends(get_db)):
     """
     Get detailed information about a single task.
     """
-    try:
-        task = get_task_by_id(db, task_id)
-        if not task:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    task = get_task_by_id(db, task_id)
+    if not task:
+        raise APIError(status_code=404, detail="Task not found")
 
-        return {
-            "status": "success",
-            "task": {
-                "id": task.id,
-                "task_type": task.task_type,
-                "category": task.category,
-                "priority": task.priority,
-                "title": task.title,
-                "description": task.description,
-                "finding": task.finding,
-                "action_endpoint": task.action_endpoint,
-                "action_payload": task.action_payload,
-                "status": task.status,
-                "result": task.result,
-                "created_at": task.created_at.isoformat(),
-                "approved_at": task.approved_at.isoformat() if task.approved_at else None,
-                "completed_at": task.completed_at.isoformat() if task.completed_at else None,
-            },
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Dashboard task detail", e)
+    return {
+        "status": "success",
+        "task": {
+            "id": task.id,
+            "task_type": task.task_type,
+            "category": task.category,
+            "priority": task.priority,
+            "title": task.title,
+            "description": task.description,
+            "finding": task.finding,
+            "action_endpoint": task.action_endpoint,
+            "action_payload": task.action_payload,
+            "status": task.status,
+            "result": task.result,
+            "created_at": task.created_at.isoformat(),
+            "approved_at": task.approved_at.isoformat() if task.approved_at else None,
+            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+        },
+    }
 
 
 @router.post("/tasks/{task_id}/approve")
@@ -181,14 +189,7 @@ def trigger_approve_task(task_id: int, db: Session = Depends(get_db)):
     - task_id: the approved task's ID
     - message: confirmation message
     """
-    try:
-        result = approve_task(db, task_id)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Approve dashboard task", e)
+    return service_result_or_raise(approve_task(db, task_id))
 
 
 @router.post("/tasks/{task_id}/dismiss")
@@ -201,14 +202,7 @@ def trigger_dismiss_task(task_id: int, db: Session = Depends(get_db)):
     - task_id: the dismissed task's ID
     - message: confirmation message
     """
-    try:
-        result = dismiss_task(db, task_id)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Dismiss dashboard task", e)
+    return service_result_or_raise(dismiss_task(db, task_id))
 
 
 @router.post("/tasks/{task_id}/delay")
@@ -232,14 +226,7 @@ def trigger_delay_task(
     - delayed_until: ISO timestamp when task will reappear
     - message: confirmation message
     """
-    try:
-        result = delay_task(db, task_id, hours=hours)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Delay dashboard task", e)
+    return service_result_or_raise(delay_task(db, task_id, hours=hours))
 
 
 @router.get("/metrics")
@@ -254,14 +241,11 @@ def get_metrics(db: Session = Depends(get_db)):
     - priority_breakdown: {HIGH, MEDIUM, LOW}
     - recent_completions_7d: tasks completed in last 7 days
     """
-    try:
-        metrics = get_dashboard_metrics(db)
-        return {
-            "status": "success",
-            "metrics": metrics,
-        }
-    except Exception as e:
-        raise_route_error(logger, "Dashboard metrics", e)
+    metrics = get_dashboard_metrics(db)
+    return {
+        "status": "success",
+        "metrics": metrics,
+    }
 
 
 @router.get("/metrics/channels")
@@ -274,14 +258,11 @@ def get_channel_metrics_endpoint(db: Session = Depends(get_db)):
     - GA4: record count, sessions, pageviews
     - Google Ads: record count, spend, conversions, clicks
     """
-    try:
-        metrics = get_channel_metrics(db)
-        return {
-            "status": "success",
-            "metrics": metrics,
-        }
-    except Exception as e:
-        raise_route_error(logger, "Dashboard channel metrics", e)
+    metrics = get_channel_metrics(db)
+    return {
+        "status": "success",
+        "metrics": metrics,
+    }
 
 
 @router.post("/refresh")
@@ -312,59 +293,26 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
     failed_steps = 0
 
     # Step 1: Pull data from all channels
-    try:
-        gsc_result = pull_gsc_data(db)
-        result["pulls"]["gsc"] = gsc_result
-    except Exception as e:
-        failed_steps += 1
-        result["pulls"]["gsc"] = {"status": "error", "detail": str(e)}
-
-    try:
-        ga4_result = pull_ga4_data(db)
-        result["pulls"]["ga4"] = ga4_result
-    except Exception as e:
-        failed_steps += 1
-        result["pulls"]["ga4"] = {"status": "error", "detail": str(e)}
-
-    try:
-        ads_result = pull_google_ads_data(db)
-        result["pulls"]["google_ads"] = ads_result
-    except Exception as e:
-        failed_steps += 1
-        result["pulls"]["google_ads"] = {"status": "error", "detail": str(e)}
+    result["pulls"]["gsc"] = _capture_step(pull_gsc_data, db)
+    result["pulls"]["ga4"] = _capture_step(pull_ga4_data, db)
+    result["pulls"]["google_ads"] = _capture_step(pull_google_ads_data, db)
 
     # Step 2: Push data to sheets
-    try:
-        push_gsc = push_gsc_to_sheets(db)
-        result["pushes"]["gsc"] = push_gsc
-    except Exception as e:
-        failed_steps += 1
-        result["pushes"]["gsc"] = {"status": "error", "detail": str(e)}
-
-    try:
-        push_ga4 = push_ga4_to_sheets(db)
-        result["pushes"]["ga4"] = push_ga4
-    except Exception as e:
-        failed_steps += 1
-        result["pushes"]["ga4"] = {"status": "error", "detail": str(e)}
-
-    try:
-        push_ads = push_google_ads_to_sheets(db)
-        result["pushes"]["google_ads"] = push_ads
-    except Exception as e:
-        failed_steps += 1
-        result["pushes"]["google_ads"] = {"status": "error", "detail": str(e)}
+    result["pushes"]["gsc"] = _capture_step(push_gsc_to_sheets, db)
+    result["pushes"]["ga4"] = _capture_step(push_ga4_to_sheets, db)
+    result["pushes"]["google_ads"] = _capture_step(push_google_ads_to_sheets, db)
 
     # Step 3: Generate tasks
-    try:
-        tasks_result = generate_tasks(db)
-        result["tasks_generated"] = tasks_result
-    except Exception as e:
-        failed_steps += 1
-        result["tasks_generated"] = {"status": "error", "detail": str(e)}
+    result["tasks_generated"] = _capture_step(generate_tasks, db)
 
+    nested_results = [
+        *result["pulls"].values(),
+        *result["pushes"].values(),
+        result["tasks_generated"],
+    ]
+    failed_steps = sum(1 for item in nested_results if _has_error(item))
     if failed_steps:
-        result["status"] = "partial" if failed_steps < 7 else "error"
+        result["status"] = "partial"
         result["failed_steps"] = failed_steps
 
     return result
@@ -380,11 +328,10 @@ def create_ops_alert(payload: AlertCreateRequest, db: Session = Depends(get_db))
     """
     try:
         alert = create_alert(db=db, **payload.model_dump())
-        return {"status": "success", "alert": alert}
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    except Exception as e:
-        raise_route_error(logger, "Create ops alert", e)
+        raise APIError(status_code=400, detail=str(exc)) from exc
+
+    return {"status": "success", "alert": alert}
 
 
 @router.get("/alerts")
@@ -404,60 +351,35 @@ def list_ops_alerts(
             source=source,
             limit=limit,
         )
-        return {
-            "status": "success",
-            "count": len(alerts),
-            "alerts": [alert_to_dict(alert) for alert in alerts],
-        }
     except ValueError as exc:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    except Exception as e:
-        raise_route_error(logger, "List ops alerts", e)
+        raise APIError(status_code=400, detail=str(exc)) from exc
+
+    return {
+        "status": "success",
+        "count": len(alerts),
+        "alerts": [alert_to_dict(alert) for alert in alerts],
+    }
 
 
 @router.get("/alerts/metrics")
 def get_ops_alert_metrics(db: Session = Depends(get_db)):
     """Return operational alert counts for dashboard KPI cards."""
-    try:
-        return {"status": "success", "metrics": get_alert_metrics(db)}
-    except Exception as e:
-        raise_route_error(logger, "Ops alert metrics", e)
+    return {"status": "success", "metrics": get_alert_metrics(db)}
 
 
 @router.post("/alerts/{alert_id}/acknowledge")
 def acknowledge_ops_alert(alert_id: int, db: Session = Depends(get_db)):
     """Mark an alert as acknowledged."""
-    try:
-        result = acknowledge_alert(db, alert_id)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Acknowledge ops alert", e)
+    return service_result_or_raise(acknowledge_alert(db, alert_id))
 
 
 @router.post("/alerts/{alert_id}/dismiss")
 def dismiss_ops_alert(alert_id: int, db: Session = Depends(get_db)):
     """Dismiss an alert."""
-    try:
-        result = dismiss_alert(db, alert_id)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Dismiss ops alert", e)
+    return service_result_or_raise(dismiss_ops_alert_service(db, alert_id))
 
 
 @router.post("/alerts/{alert_id}/resolve")
 def resolve_ops_alert(alert_id: int, db: Session = Depends(get_db)):
     """Resolve an alert after the underlying condition is fixed."""
-    try:
-        result = resolve_alert(db, alert_id)
-        raise_if_service_error(result)
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Resolve ops alert", e)
+    return service_result_or_raise(resolve_alert(db, alert_id))

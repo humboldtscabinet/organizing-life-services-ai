@@ -8,13 +8,11 @@ Three lifecycle stages:
   GET  /summary  — View current lifecycle status
 """
 
-import logging
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api_errors import service_result_or_raise
 from app.db.database import get_db
-from app.route_errors import raise_route_error
 from app.safety import require_high_stakes_confirmation
 from app.services.lifecycle_service import (
     archive_estate_sale,
@@ -24,7 +22,6 @@ from app.services.lifecycle_service import (
 )
 
 router = APIRouter(prefix="/api/lifecycle", tags=["Estate Sale Lifecycle"])
-logger = logging.getLogger(__name__)
 
 
 @router.post("/setup")
@@ -54,18 +51,14 @@ def setup_new_sale(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = create_estate_sale_page(
-            address=address,
-            city=city,
-            state=state,
-            zip_code=zip_code,
-            sale_dates=sale_dates,
-            description=description,
-        )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Set up estate sale page", e)
+    return create_estate_sale_page(
+        address=address,
+        city=city,
+        state=state,
+        zip_code=zip_code,
+        sale_dates=sale_dates,
+        description=description,
+    )
 
 
 @router.put("/live/{page_id}")
@@ -87,15 +80,13 @@ def update_live_sale(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = update_sale_status(
+    return service_result_or_raise(
+        update_sale_status(
             page_id=page_id,
             sale_dates=sale_dates,
             additional_info=additional_info,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Update live estate sale page", e)
+    )
 
 
 @router.post("/archive")
@@ -127,18 +118,14 @@ def archive_sale(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = archive_estate_sale(
-            db=db,
-            page_id=page_id,
-            page_handle=page_handle,
-            address=address,
-            run_vision=run_vision,
-            vision_limit=vision_limit,
-        )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Archive estate sale", e)
+    return archive_estate_sale(
+        db=db,
+        page_id=page_id,
+        page_handle=page_handle,
+        address=address,
+        run_vision=run_vision,
+        vision_limit=vision_limit,
+    )
 
 
 @router.get("/summary")
@@ -148,8 +135,5 @@ def lifecycle_summary(db: Session = Depends(get_db)):
 
     Shows service pages, active sale pages, and archived count.
     """
-    try:
-        summary = get_lifecycle_summary(db)
-        return {"status": "success", **summary}
-    except Exception as e:
-        raise_route_error(logger, "Lifecycle summary", e)
+    summary = get_lifecycle_summary(db)
+    return {"status": "success", **summary}

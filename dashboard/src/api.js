@@ -1,45 +1,108 @@
 const API_URL = import.meta.env.VITE_API_URL || ''
-const API_KEY_STORAGE_KEY = 'olsApiKey'
+const DEV_API_KEY_STORAGE = 'ols-dashboard-api-key'
+const DEV_AUTH_REQUIRED = import.meta.env.DEV
 
-export const getStoredApiKey = () => {
-  return window.localStorage.getItem(API_KEY_STORAGE_KEY) || ''
-}
-
-export const setStoredApiKey = (apiKey) => {
-  const trimmed = apiKey.trim()
-  if (trimmed) {
-    window.localStorage.setItem(API_KEY_STORAGE_KEY, trimmed)
+export class APIRequestError extends Error {
+  constructor(message, { status, code, detail, payload } = {}) {
+    super(message)
+    this.name = 'APIRequestError'
+    this.status = status
+    this.code = code
+    this.detail = detail || message
+    this.payload = payload
   }
-  return trimmed
 }
 
-export const clearStoredApiKey = () => {
-  window.localStorage.removeItem(API_KEY_STORAGE_KEY)
+export const isDevAuthRequired = () => DEV_AUTH_REQUIRED
+
+export const getDevApiKey = () => {
+  if (!DEV_AUTH_REQUIRED) {
+    return ''
+  }
+
+  return sessionStorage.getItem(DEV_API_KEY_STORAGE)?.trim() || ''
+}
+
+export const setDevApiKey = (apiKey) => {
+  if (!DEV_AUTH_REQUIRED) {
+    return ''
+  }
+
+  const normalized = apiKey.trim()
+  if (normalized) {
+    sessionStorage.setItem(DEV_API_KEY_STORAGE, normalized)
+  } else {
+    sessionStorage.removeItem(DEV_API_KEY_STORAGE)
+  }
+
+  return normalized
+}
+
+export const clearDevApiKey = () => {
+  if (DEV_AUTH_REQUIRED) {
+    sessionStorage.removeItem(DEV_API_KEY_STORAGE)
+  }
+}
+
+const buildHeaders = (headers = {}) => {
+  const mergedHeaders = {
+    'Content-Type': 'application/json',
+    ...headers,
+  }
+
+  if (DEV_AUTH_REQUIRED) {
+    const apiKey = getDevApiKey()
+    if (apiKey) {
+      mergedHeaders['X-API-Key'] = apiKey
+    }
+  }
+
+  return mergedHeaders
+}
+
+const toAPIError = (response, payload) => {
+  const detail = typeof payload === 'object' && payload !== null
+    ? payload.detail || payload.message || `API request failed with status ${response.status}`
+    : `API request failed with status ${response.status}`
+
+  return new APIRequestError(detail, {
+    status: response.status,
+    code: payload?.code,
+    detail,
+    payload,
+  })
+}
+
+const parseResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || ''
+  const isJSON = contentType.includes('application/json')
+  const payload = isJSON ? await response.json() : await response.text()
+
+  if (!response.ok) {
+    throw toAPIError(response, payload)
+  }
+
+  return payload
 }
 
 const fetchAPI = async (endpoint, options = {}) => {
-  const apiKey = options.apiKey || getStoredApiKey()
-  if (!apiKey) {
-    throw new Error('Missing API key')
+  if (DEV_AUTH_REQUIRED && !getDevApiKey()) {
+    throw new APIRequestError(
+      'Enter the API key for this dev session before loading dashboard data.',
+      {
+        status: 401,
+        code: 'missing_api_key',
+      }
+    )
   }
 
   const url = `${API_URL}/api${endpoint}`
-  const headers = {
-    'Content-Type': 'application/json',
-    'X-API-Key': apiKey,
-    ...options.headers,
-  }
-
   const response = await fetch(url, {
     ...options,
-    headers,
+    headers: buildHeaders(options.headers),
   })
 
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`)
-  }
-
-  return response.json()
+  return parseResponse(response)
 }
 
 export const generateTasks = async () => {
@@ -115,6 +178,12 @@ export const acknowledgeAlert = async (id) => {
 
 export const dismissAlert = async (id) => {
   return fetchAPI(`/dashboard/alerts/${id}/dismiss`, {
+    method: 'POST',
+  })
+}
+
+export const resolveAlert = async (id) => {
+  return fetchAPI(`/dashboard/alerts/${id}/resolve`, {
     method: 'POST',
   })
 }

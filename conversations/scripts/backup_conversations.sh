@@ -1,29 +1,30 @@
 #!/usr/bin/env bash
-# Backup Claude conversation transcripts to a private local archive.
+# Backup Claude conversation transcripts to the OLS repo.
 #
 # What it does (idempotent):
 #   1. Finds all .jsonl transcripts under ~/.claude/projects/
-#   2. For each, copies the raw JSONL into a private archive
-#   3. Runs jsonl_to_markdown.py to produce a human-readable .md
-#   4. Regenerates a private INDEX.md with a sortable list
+#   2. For each, copies the raw JSONL into conversations/raw/
+#   3. Runs jsonl_to_markdown.py to produce a human-readable .md in conversations/markdown/
+#   4. Regenerates conversations/INDEX.md with a sortable list
+#   5. If anything changed, git add + commit + push
 #
 # Safe to run repeatedly. Existing files get overwritten with the latest copy
 # (transcripts are append-only, so older content is preserved).
 #
 # Exit codes:
 #   0 - success (with or without changes)
-#   1 - setup error
+#   1 - setup error (missing binary, bad repo state)
+#   2 - git push failed
 
 set -euo pipefail
 
 # ── Config ─────────────────────────────────────────────────────────
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="${REPO_ROOT:-$(cd "$SCRIPT_DIR/../.." && pwd)}"
-ARCHIVE_ROOT="${OLS_CONVERSATION_ARCHIVE_DIR:-$HOME/.ols/private/conversations}"
+REPO_ROOT="${REPO_ROOT:-$HOME/Developer/organizing-life-services-ai}"
 # Cowork/Claude desktop stores transcripts under Library/Application Support.
 # Override with CLAUDE_PROJECTS_DIR env var if yours lives elsewhere.
 CLAUDE_PROJECTS_DIR="${CLAUDE_PROJECTS_DIR:-$HOME/Library/Application Support/Claude/local-agent-mode-sessions}"
-LOG_FILE="${LOG_FILE:-$ARCHIVE_ROOT/logs/claude-backup.log}"
+BRANCH="${BRANCH:-main}"
+LOG_FILE="${LOG_FILE:-$REPO_ROOT/conversations/scripts/backup.log}"
 
 # ── Logging ────────────────────────────────────────────────────────
 log() {
@@ -33,8 +34,7 @@ log() {
 }
 
 # ── Preflight ──────────────────────────────────────────────────────
-mkdir -p "$ARCHIVE_ROOT" "$(dirname "$LOG_FILE")"
-chmod 700 "$ARCHIVE_ROOT" "$(dirname "$LOG_FILE")"
+mkdir -p "$(dirname "$LOG_FILE")"
 log "── Backup run starting ──"
 
 if [[ ! -d "$REPO_ROOT" ]]; then
@@ -53,14 +53,35 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! command -v git >/dev/null 2>&1; then
+  log "ERROR: git not on PATH"
+  exit 1
+fi
+
 cd "$REPO_ROOT"
 
+# Make sure we're on the expected branch and clean-ish (stash uncommitted local work)
+CURRENT_BRANCH="$(git rev-parse --abbrev-ref HEAD)"
+if [[ "$CURRENT_BRANCH" != "$BRANCH" ]]; then
+  log "WARNING: on branch $CURRENT_BRANCH, expected $BRANCH. Skipping push."
+  PUSH_ENABLED=false
+else
+  PUSH_ENABLED=true
+fi
+
+# Pull latest first to minimize merge conflicts on shared repos
+if $PUSH_ENABLED; then
+  log "Pulling latest from origin/$BRANCH..."
+  git pull --rebase --autostash origin "$BRANCH" >> "$LOG_FILE" 2>&1 || {
+    log "WARNING: git pull failed; continuing with local state"
+  }
+fi
+
 # ── Sync transcripts ───────────────────────────────────────────────
-RAW_DIR="$ARCHIVE_ROOT/raw"
-MD_DIR="$ARCHIVE_ROOT/markdown"
+RAW_DIR="$REPO_ROOT/conversations/raw"
+MD_DIR="$REPO_ROOT/conversations/markdown"
 SCRIPTS_DIR="$REPO_ROOT/conversations/scripts"
 mkdir -p "$RAW_DIR" "$MD_DIR"
-chmod 700 "$RAW_DIR" "$MD_DIR"
 
 COUNT=0
 NEW_OR_UPDATED=0
@@ -117,7 +138,7 @@ done < <(find "$CLAUDE_PROJECTS_DIR" -type f -name '*.jsonl' \
 log "Found $COUNT total transcript(s), $NEW_OR_UPDATED new or updated."
 
 # ── Regenerate INDEX.md ─────────────────────────────────────────────
-INDEX="$ARCHIVE_ROOT/INDEX.md"
+INDEX="$REPO_ROOT/conversations/INDEX.md"
 {
   echo "# Conversation Archive Index"
   echo ""
@@ -143,10 +164,33 @@ INDEX="$ARCHIVE_ROOT/INDEX.md"
         fi
         raw_rel="raw/${base}.jsonl.gz"
         md_rel="markdown/${base}.md"
-        echo "| $date_part | \`$sess_part\` | $size | $md_rel | $raw_rel |"
+        echo "| $date_part | \`$sess_part\` | $size | [view]($md_rel) | [view]($raw_rel) |"
       done
 } > "$INDEX"
-chmod -R go-rwx "$ARCHIVE_ROOT"
 
-log "Private archive updated at $ARCHIVE_ROOT"
+# ── Commit + push if changed ────────────────────────────────────────
+git add conversations/ >> "$LOG_FILE" 2>&1
+
+if git diff --cached --quiet; then
+  log "No changes to commit."
+  log "── Backup run complete (no-op) ──"
+  exit 0
+fi
+
+COMMIT_MSG="archive: sync $NEW_OR_UPDATED conversation(s) $(date '+%Y-%m-%d %H:%M')"
+git commit -m "$COMMIT_MSG" >> "$LOG_FILE" 2>&1 || {
+  log "ERROR: git commit failed"
+  exit 1
+}
+log "Committed: $COMMIT_MSG"
+
+if $PUSH_ENABLED; then
+  if git push origin "$BRANCH" >> "$LOG_FILE" 2>&1; then
+    log "Pushed to origin/$BRANCH"
+  else
+    log "ERROR: git push failed. Commit is local only."
+    exit 2
+  fi
+fi
+
 log "── Backup run complete ──"

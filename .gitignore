@@ -4,7 +4,6 @@
 
 # ---------- Environment / Secrets ----------
 .env
-.env.backup-*
 credentials/
 *.json
 !package.json
@@ -75,9 +74,10 @@ data/*token*
 data/*cookies*
 
 # ---------- Conversation archive ----------
-# Transcript contents are private artifacts, not source code.
+# Conversation exports live only in the ignored private archive.
 conversations/raw/
 conversations/markdown/
+conversations/INDEX.md
 conversations/private/
 conversations/scripts/*.log
 # Trigger file for WatchPaths-based manual backup (never commit)
@@ -86,6 +86,10 @@ conversations/.trigger
 # ---------- Local audit venv ----------
 .venv-audit/
 # NOTE: data/audit_output/ is intentionally tracked (see top of file).
+
+# ---------- History scrub prep ----------
+security/history-scrub/*.local.*
+security/history-scrub/reports/
 
 # ---------- Allow versioned n8n workflows despite *.json rule ----------
 !workflows/n8n/*.json

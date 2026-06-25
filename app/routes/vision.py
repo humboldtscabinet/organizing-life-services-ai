@@ -20,8 +20,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import PlainTextResponse
 from sqlalchemy.orm import Session
 
+from app.api_errors import APIError, build_error_payload, service_result_or_raise
 from app.db.database import SessionLocal, get_db
-from app.route_errors import raise_route_error
 from app.runtime_config import is_production_env
 from app.safety import require_high_stakes_confirmation
 from app.services.vision_service import (
@@ -40,6 +40,7 @@ from app.services.vision_service import (
 )
 
 router = APIRouter(prefix="/api/vision", tags=["Vision AI"])
+VISION_XO_RUNBOOK = "scripts/vision_xo_local_workflow.md"
 logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 DEBUG_UPLOAD_MAX_BYTES = 10 * 1024 * 1024
@@ -72,7 +73,11 @@ def _require_allowed_xo_proxy_url(target_url: str) -> None:
         )
 
 
-def _safe_data_file(filename: str, *, allowed_suffixes: set[str] | None = None) -> Path:
+def _safe_data_file(
+    filename: str,
+    *,
+    allowed_suffixes: set[str] | None = None,
+) -> Path:
     """Resolve a filename inside data/ without allowing traversal."""
     if not isinstance(filename, str):
         raise HTTPException(
@@ -106,8 +111,8 @@ def _safe_data_file(filename: str, *, allowed_suffixes: set[str] | None = None) 
 def _write_private_bytes(path: Path, content: bytes) -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
-    with os.fdopen(fd, "wb") as f:
-        f.write(content)
+    with os.fdopen(fd, "wb") as file_obj:
+        file_obj.write(content)
 
 
 def _write_private_json(path: Path, payload: dict) -> None:
@@ -117,8 +122,8 @@ def _write_private_json(path: Path, payload: dict) -> None:
 def _read_private_json(path: Path) -> dict:
     if not path.exists():
         return {}
-    with path.open("r", encoding="utf-8") as f:
-        payload = json.load(f)
+    with path.open("r", encoding="utf-8") as file_obj:
+        payload = json.load(file_obj)
     return payload if isinstance(payload, dict) else {}
 
 
@@ -129,15 +134,12 @@ def list_shopify_images(limit: int = 50):
 
     Returns image URLs, filenames, and existing alt text.
     """
-    try:
-        images = pull_image_urls(limit=limit)
-        return {
-            "status": "success",
-            "count": len(images),
-            "images": images,
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify images", e)
+    images = pull_image_urls(limit=limit)
+    return {
+        "status": "success",
+        "count": len(images),
+        "images": images,
+    }
 
 
 @router.get("/images/theme")
@@ -148,15 +150,12 @@ def list_theme_images(filter_prefix: str = "photo", limit: int = 250):
     XO Gallery stores estate sale photos as theme assets.
     filter_prefix: filter filenames starting with this (default: "photo")
     """
-    try:
-        images = pull_theme_assets(filter_prefix=filter_prefix, limit=limit)
-        return {
-            "status": "success",
-            "count": len(images),
-            "images": images,
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify theme images", e)
+    images = pull_theme_assets(filter_prefix=filter_prefix, limit=limit)
+    return {
+        "status": "success",
+        "count": len(images),
+        "images": images,
+    }
 
 
 @router.get("/images/page/{page_handle}")
@@ -166,16 +165,13 @@ def list_page_images(page_handle: str):
 
     Useful for finding XO Gallery images on a particular estate sale page.
     """
-    try:
-        images = pull_gallery_images_from_page(page_handle)
-        return {
-            "status": "success",
-            "page_handle": page_handle,
-            "count": len(images),
-            "images": images,
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify page images", e)
+    images = pull_gallery_images_from_page(page_handle)
+    return {
+        "status": "success",
+        "page_handle": page_handle,
+        "count": len(images),
+        "images": images,
+    }
 
 
 @router.get("/themes")
@@ -186,23 +182,20 @@ def list_themes():
     XO Gallery stores images under an older theme (e.g., theme 7)
     while the storefront uses the active/main theme.
     """
-    try:
-        themes = list_all_themes()
-        return {
-            "status": "success",
-            "count": len(themes),
-            "themes": [
-                {
-                    "id": t.get("id"),
-                    "name": t.get("name"),
-                    "role": t.get("role"),
-                    "created_at": t.get("created_at"),
-                }
-                for t in themes
-            ],
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify themes", e)
+    themes = list_all_themes()
+    return {
+        "status": "success",
+        "count": len(themes),
+        "themes": [
+            {
+                "id": t.get("id"),
+                "name": t.get("name"),
+                "role": t.get("role"),
+                "created_at": t.get("created_at"),
+            }
+            for t in themes
+        ],
+    }
 
 
 @router.get("/images/xo-gallery")
@@ -220,19 +213,16 @@ def list_xo_gallery_images(
 
     Use /api/vision/themes first to find the correct theme_id.
     """
-    try:
-        images = pull_xo_gallery_assets(
-            theme_id=theme_id,
-            filter_prefix=filter_prefix,
-            limit=limit,
-        )
-        return {
-            "status": "success",
-            "count": len(images),
-            "images": images,
-        }
-    except Exception as e:
-        raise_route_error(logger, "List XO Gallery images", e)
+    images = pull_xo_gallery_assets(
+        theme_id=theme_id,
+        filter_prefix=filter_prefix,
+        limit=limit,
+    )
+    return {
+        "status": "success",
+        "count": len(images),
+        "images": images,
+    }
 
 
 XO_GALLERY_DATA_FILE = os.path.join(
@@ -252,40 +242,37 @@ async def import_xo_gallery_data(request: Request):
 
     POST body: {galleries: {gid: {title, name, count, filenames: [...]}}, ...}
     """
-    try:
-        body = await request.json()
+    body = await request.json()
 
-        # Ensure data directory exists
-        os.makedirs(os.path.dirname(XO_GALLERY_DATA_FILE), exist_ok=True)
+    # Ensure data directory exists
+    os.makedirs(os.path.dirname(XO_GALLERY_DATA_FILE), exist_ok=True)
 
-        # Add metadata
-        from datetime import datetime
+    # Add metadata
+    from datetime import datetime
 
-        body["imported_at"] = datetime.utcnow().isoformat()
-        body["base_url"] = (
-            "https://cdn.shopify.com/s/files/1/0294/7966/5708/t/7/assets/"
-        )
+    body["imported_at"] = datetime.utcnow().isoformat()
+    body["base_url"] = (
+        "https://cdn.shopify.com/s/files/1/0294/7966/5708/t/7/assets/"
+    )
 
-        # Count totals
-        total_galleries = len(body.get("galleries", {}))
-        total_images = sum(
-            g.get("count", len(g.get("filenames", [])))
-            for g in body.get("galleries", {}).values()
-        )
+    # Count totals
+    total_galleries = len(body.get("galleries", {}))
+    total_images = sum(
+        g.get("count", len(g.get("filenames", [])))
+        for g in body.get("galleries", {}).values()
+    )
 
-        body["total_galleries"] = total_galleries
-        body["total_images"] = total_images
+    body["total_galleries"] = total_galleries
+    body["total_images"] = total_images
 
-        with open(XO_GALLERY_DATA_FILE, "w") as f:
-            json.dump(body, f, indent=2)
+    with open(XO_GALLERY_DATA_FILE, "w") as f:
+        json.dump(body, f, indent=2)
 
-        return {
-            "status": "success",
-            "message": f"Imported {total_galleries} galleries, {total_images} images",
-            "file": XO_GALLERY_DATA_FILE,
-        }
-    except Exception as e:
-        raise_route_error(logger, "Import XO Gallery data", e)
+    return {
+        "status": "success",
+        "message": f"Imported {total_galleries} galleries, {total_images} images",
+        "file": XO_GALLERY_DATA_FILE,
+    }
 
 
 @router.get("/images/xo-gallery/local")
@@ -296,49 +283,44 @@ def list_local_xo_gallery_images(gallery_id: str = None, limit: int = 100):
     Use gallery_id to filter to a specific gallery.
     Returns image URLs constructed from base_url + filename.
     """
-    try:
-        if not os.path.exists(XO_GALLERY_DATA_FILE):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="No local XO Gallery data. Use POST /images/xo-gallery/import first.",
+    if not os.path.exists(XO_GALLERY_DATA_FILE):
+        raise APIError(
+            status_code=404,
+            detail="No local XO Gallery data. Use POST /images/xo-gallery/import first.",
+        )
+
+    with open(XO_GALLERY_DATA_FILE) as f:
+        data = json.load(f)
+
+    base_url = data.get("base_url", "")
+    galleries = data.get("galleries", {})
+
+    if gallery_id:
+        galleries = {gallery_id: galleries.get(gallery_id, {})}
+
+    images = []
+    for gid, gallery in galleries.items():
+        for fname in gallery.get("filenames", []):
+            images.append(
+                {
+                    "url": base_url + fname,
+                    "filename": fname,
+                    "gallery_id": gid,
+                    "gallery_title": gallery.get("title", ""),
+                    "gallery_name": gallery.get("name", ""),
+                }
             )
-
-        with open(XO_GALLERY_DATA_FILE) as f:
-            data = json.load(f)
-
-        base_url = data.get("base_url", "")
-        galleries = data.get("galleries", {})
-
-        if gallery_id:
-            galleries = {gallery_id: galleries.get(gallery_id, {})}
-
-        images = []
-        for gid, gallery in galleries.items():
-            for fname in gallery.get("filenames", []):
-                images.append(
-                    {
-                        "url": base_url + fname,
-                        "filename": fname,
-                        "gallery_id": gid,
-                        "gallery_title": gallery.get("title", ""),
-                        "gallery_name": gallery.get("name", ""),
-                    }
-                )
-                if len(images) >= limit:
-                    break
             if len(images) >= limit:
                 break
+        if len(images) >= limit:
+            break
 
-        return {
-            "status": "success",
-            "total_available": data.get("total_images", 0),
-            "returned": len(images),
-            "images": images,
-        }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "List local XO Gallery images", e)
+    return {
+        "status": "success",
+        "total_available": data.get("total_images", 0),
+        "returned": len(images),
+        "images": images,
+    }
 
 
 @router.post("/analyze")
@@ -365,60 +347,65 @@ def analyze_images(
     This is a WRITE operation that calls the Anthropic API.
     Each image costs ~$0.01-0.05 depending on size.
     """
-    try:
-        if source == "xo-gallery":
-            images = pull_xo_gallery_assets(
-                filter_prefix="photo", limit=limit
+    if source == "xo-gallery":
+        images = pull_xo_gallery_assets(
+            filter_prefix="photo", limit=limit
+        )
+    elif source == "local":
+        if not os.path.exists(XO_GALLERY_DATA_FILE):
+            raise APIError(
+                status_code=404,
+                detail=(
+                    "No local XO Gallery data. Import it first via "
+                    "POST /api/vision/images/xo-gallery/import."
+                ),
             )
-        elif source == "local":
-            # Load from locally saved XO Gallery data
-            if not os.path.exists(XO_GALLERY_DATA_FILE):
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="No local data. Import first via POST /images/xo-gallery/import",
+        with open(XO_GALLERY_DATA_FILE) as f:
+            local_data = json.load(f)
+        base_url = local_data.get("base_url", "")
+        images = []
+        for _gid, gallery in local_data.get("galleries", {}).items():
+            for fname in gallery.get("filenames", []):
+                images.append(
+                    {
+                        "url": base_url + fname,
+                        "filename": fname,
+                        "gallery_name": gallery.get("name", ""),
+                    }
                 )
-            with open(XO_GALLERY_DATA_FILE) as f:
-                local_data = json.load(f)
-            base_url = local_data.get("base_url", "")
-            images = []
-            for _gid, gallery in local_data.get("galleries", {}).items():
-                for fname in gallery.get("filenames", []):
-                    images.append(
-                        {
-                            "url": base_url + fname,
-                            "filename": fname,
-                            "gallery_name": gallery.get("name", ""),
-                        }
-                    )
-                    if len(images) >= limit:
-                        break
                 if len(images) >= limit:
                     break
-        elif source == "theme":
-            images = pull_theme_assets(filter_prefix="photo", limit=limit)
-        elif source == "page" and page_handle:
-            images = pull_gallery_images_from_page(page_handle)
-        else:
-            images = pull_image_urls(limit=limit)
-
-        if not images:
-            return {
-                "status": "warning",
-                "detail": "No images found to analyze.",
-            }
-
-        result = analyze_gallery_images(
-            db=db,
-            image_urls=images,
-            gallery_name=gallery_name,
-            batch_size=limit,
+            if len(images) >= limit:
+                break
+    elif source == "theme":
+        images = pull_theme_assets(filter_prefix="photo", limit=limit)
+    elif source == "page":
+        if not page_handle:
+            raise APIError(
+                status_code=400,
+                detail="page_handle is required when source='page'.",
+            )
+        images = pull_gallery_images_from_page(page_handle)
+    elif source == "files":
+        images = pull_image_urls(limit=limit)
+    else:
+        raise APIError(
+            status_code=400,
+            detail=f"Unsupported image source '{source}'.",
         )
-        return result
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Analyze images", e)
+    if not images:
+        return {
+            "status": "warning",
+            "detail": "No images found to analyze.",
+        }
+
+    return analyze_gallery_images(
+        db=db,
+        image_urls=images,
+        gallery_name=gallery_name,
+        batch_size=limit,
+    )
 
 
 @router.post("/analyze/bulk")
@@ -444,14 +431,12 @@ def bulk_analyze(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = bulk_analyze_with_budget(
+    return service_result_or_raise(
+        bulk_analyze_with_budget(
             db=db,
             budget_dollars=budget,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Bulk analyze images", e)
+    )
 
 
 # Global status tracker for background alt text push
@@ -466,13 +451,21 @@ def _run_alt_push_background(force: bool):
     def progress_callback(stats):
         _alt_push_status["progress"] = stats
 
+    db = SessionLocal()
     try:
-        db = SessionLocal()
         result = bulk_push_alt_text(db=db, force=force, progress_callback=progress_callback)
-        db.close()
         _alt_push_status = {"running": False, "result": result}
-    except Exception as e:
-        _alt_push_status = {"running": False, "result": {"status": "error", "detail": str(e)}}
+    except Exception as exc:
+        _alt_push_status = {
+            "running": False,
+            "result": build_error_payload(
+                status_code=500,
+                detail=str(exc),
+                code="internal_server_error",
+            ),
+        }
+    finally:
+        db.close()
 
 
 @router.post("/push-alt-text")
@@ -523,8 +516,15 @@ def _run_fix_empty_background():
     try:
         result = fix_empty_alt_text(progress_callback=progress_callback)
         _fix_empty_status = {"running": False, "result": result}
-    except Exception as e:
-        _fix_empty_status = {"running": False, "result": {"status": "error", "detail": str(e)}}
+    except Exception as exc:
+        _fix_empty_status = {
+            "running": False,
+            "result": build_error_payload(
+                status_code=500,
+                detail=str(exc),
+                code="internal_server_error",
+            ),
+        }
 
 
 @router.post("/fix-empty-alt")
@@ -541,7 +541,6 @@ def start_fix_empty_alt(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    import threading
 
     if _fix_empty_status.get("running"):
         return {"status": "already_running", "detail": "Fix is already in progress. Check /fix-empty-alt/status"}
@@ -567,21 +566,14 @@ def compare_alt_text_quality(
 
     Returns side-by-side comparison for matched files so you can evaluate quality.
     """
-    try:
-        result = compare_alt_text(db=db, sample_size=sample_size)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Compare alt text", e)
+    return compare_alt_text(db=db, sample_size=sample_size)
 
 
 @router.get("/results")
 def get_results(db: Session = Depends(get_db)):
     """Get a summary of all image analysis results."""
-    try:
-        summary = get_analysis_summary(db)
-        return {"status": "success", **summary}
-    except Exception as e:
-        raise_route_error(logger, "Get image analysis results", e)
+    summary = get_analysis_summary(db)
+    return {"status": "success", **summary}
 
 
 @router.get("/debug/test-mutation")
@@ -598,76 +590,74 @@ def debug_test_mutation(
 
     from app.services.vision_service import _fetch_shopify_file_ids
 
-    try:
-        # Step 1: Get the token info
-        from app.services.shopify_service import _get_access_token
-        token = _get_access_token()
-        # Step 2: Fetch one file
-        page = _fetch_shopify_file_ids(limit=1)
-        if not page["files"]:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No files found")
+    from app.services.shopify_service import _get_access_token
 
-        file_info = page["files"][0]
-        file_id = file_info["id"]
-        filename = file_info["filename"]
-        current_alt = file_info["current_alt"]
+    token = _get_access_token()
 
-        # Step 3: Try the mutation and capture FULL response
-        store = os.getenv("SHOPIFY_STORE")
-        version = os.getenv("SHOPIFY_API_VERSION", "2024-10")
-        url = f"https://{store}.myshopify.com/admin/api/{version}/graphql.json"
-
-        mutation = """
-        mutation fileUpdate($input: [FileUpdateInput!]!) {
-            fileUpdate(files: $input) {
-                files {
-                    ... on MediaImage {
-                        id
-                        alt
-                        image {
-                            altText
-                        }
-                    }
-                }
-                userErrors {
-                    field
-                    message
-                    code
-                }
-            }
-        }
-        """
-        test_alt = current_alt if current_alt else f"Test alt text for {filename}"
-        variables = {
-            "input": [{
-                "id": file_id,
-                "alt": test_alt,
-            }]
-        }
-
-        resp = _httpx.post(
-            url,
-            headers={
-                "X-Shopify-Access-Token": token,
-                "Content-Type": "application/json",
-            },
-            json={"query": mutation, "variables": variables},
-            timeout=30,
+    page = _fetch_shopify_file_ids(limit=1)
+    if not page["files"]:
+        raise APIError(
+            status_code=404,
+            detail="No Shopify files found for mutation test.",
         )
 
-        return {
-            "status": "diagnostic",
-            "file_id": file_id,
-            "filename": filename,
-            "current_alt": current_alt,
-            "test_alt_text": test_alt,
-            "http_status": resp.status_code,
-            "raw_response": resp.json(),
+    file_info = page["files"][0]
+    file_id = file_info["id"]
+    filename = file_info["filename"]
+    current_alt = file_info["current_alt"]
+
+    store = os.getenv("SHOPIFY_STORE")
+    version = os.getenv("SHOPIFY_API_VERSION", "2024-10")
+    url = f"https://{store}.myshopify.com/admin/api/{version}/graphql.json"
+
+    mutation = """
+    mutation fileUpdate($input: [FileUpdateInput!]!) {
+        fileUpdate(files: $input) {
+            files {
+                ... on MediaImage {
+                    id
+                    alt
+                    image {
+                        altText
+                    }
+                }
+            }
+            userErrors {
+                field
+                message
+                code
+            }
         }
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "Vision debug mutation test", e)
+    }
+    """
+    test_alt = current_alt if current_alt else f"Test alt text for {filename}"
+    variables = {
+        "input": [{
+            "id": file_id,
+            "alt": test_alt,
+        }]
+    }
+
+    resp = _httpx.post(
+        url,
+        headers={
+            "X-Shopify-Access-Token": token,
+            "Content-Type": "application/json",
+        },
+        json={"query": mutation, "variables": variables},
+        timeout=30,
+    )
+
+    return {
+        "status": "diagnostic",
+        "token_configured": bool(token),
+        "file_id": file_id,
+        "filename": filename,
+        "current_alt": current_alt,
+        "test_alt_text": test_alt,
+        "http_status": resp.status_code,
+        "raw_response": resp.json(),
+    }
 
 
 @router.get("/debug/alt-text-audit")
@@ -680,35 +670,32 @@ def debug_alt_text_audit(
     """
     from app.services.vision_service import _fetch_shopify_file_ids
 
-    try:
-        empty_alt = []
-        has_alt = 0
-        total = 0
-        cursor = None
+    empty_alt = []
+    has_alt = 0
+    total = 0
+    cursor = None
 
-        while True:
-            page = _fetch_shopify_file_ids(cursor=cursor)
-            for f in page["files"]:
-                total += 1
-                current = f["current_alt"] or ""
-                if not current.strip():
-                    empty_alt.append({"filename": f["filename"], "id": f["id"]})
-                else:
-                    has_alt += 1
+    while True:
+        page = _fetch_shopify_file_ids(cursor=cursor)
+        for f in page["files"]:
+            total += 1
+            current = f["current_alt"] or ""
+            if not current.strip():
+                empty_alt.append({"filename": f["filename"], "id": f["id"]})
+            else:
+                has_alt += 1
 
-            if not page["has_next"]:
-                break
-            cursor = page["cursor"]
+        if not page["has_next"]:
+            break
+        cursor = page["cursor"]
 
-        return {
-            "total_files": total,
-            "has_alt_text": has_alt,
-            "empty_alt_text": len(empty_alt),
-            "coverage_pct": round(has_alt / total * 100, 1) if total else 0,
-            "empty_sample": empty_alt[:25],
-        }
-    except Exception as e:
-        raise_route_error(logger, "Vision debug alt-text audit", e)
+    return {
+        "total_files": total,
+        "has_alt_text": has_alt,
+        "empty_alt_text": len(empty_alt),
+        "coverage_pct": round(has_alt / total * 100, 1) if total else 0,
+        "empty_sample": empty_alt[:25],
+    }
 
 
 @router.get("/errors")
@@ -750,31 +737,26 @@ def export_csv(
     - Google Sheets import for review
     - Bulk alt text updates via Shopify
     """
-    try:
-        csv_content = export_analysis_csv(db, gallery_name=gallery_name)
-        return PlainTextResponse(
-            content=csv_content,
-            media_type="text/csv",
-            headers={
-                "Content-Disposition": "attachment; filename=image_analysis.csv"
-            },
-        )
-    except Exception as e:
-        raise_route_error(logger, "Export image analysis CSV", e)
+    csv_content = export_analysis_csv(db, gallery_name=gallery_name)
+    return PlainTextResponse(
+        content=csv_content,
+        media_type="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=image_analysis.csv"
+        },
+    )
 
 
 @router.get("/gallery-structure")
 def get_gallery_structure():
-    """Return xo_gallery_images.json for browser-side XLSX building."""
-    json_path = os.path.join(os.path.dirname(__file__), "..", "..", "data", "xo_gallery_images.json")
-    json_path = os.path.normpath(json_path)
-    if not os.path.exists(json_path):
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Gallery JSON not found at {json_path}",
-        )
-    with open(json_path, "r") as f:
-        return json.load(f)
+    """Retired insecure helper endpoint."""
+    raise APIError(
+        status_code=410,
+        detail=(
+            "This browser helper endpoint has been retired. "
+            f"Use the local operator workflow in {VISION_XO_RUNBOOK}."
+        ),
+    )
 
 
 @router.post("/save-file")
@@ -782,12 +764,12 @@ async def save_file(
     request: Request,
     _debug_tools: None = Depends(require_vision_debug_tools_enabled),
 ):
-    """Save uploaded base64 file to data directory."""
+    """Save an uploaded base64 file to the private data directory."""
     body = await request.json()
     filename = body.get("filename", "output.xlsx")
     b64data = body.get("data", "")
     if not b64data:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No data provided")
+        raise APIError(status_code=400, detail="No data provided")
 
     save_path = _safe_data_file(
         filename,
@@ -796,15 +778,10 @@ async def save_file(
     try:
         file_bytes = b64decode(b64data, validate=True)
     except (Base64Error, ValueError) as exc:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid base64 data",
-        ) from exc
+        raise APIError(status_code=400, detail="Invalid base64 data") from exc
+
     if len(file_bytes) > DEBUG_UPLOAD_MAX_BYTES:
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="Uploaded file is too large",
-        )
+        raise APIError(status_code=413, detail="Uploaded file is too large")
 
     _write_private_bytes(save_path, file_bytes)
     return {"status": "ok", "path": str(save_path), "size": len(file_bytes)}
@@ -815,14 +792,18 @@ def store_token(
     t: str = "",
     _debug_tools: None = Depends(require_vision_debug_tools_enabled),
 ):
-    """Store a session token sent via image beacon from the Shopify admin page."""
+    """Store an operator-provided session token in a private local file."""
     if not t:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No token")
+        raise APIError(status_code=400, detail="No token")
+
     token_path = _safe_data_file("xo_session_token.txt")
     _write_private_bytes(token_path, t.encode("utf-8"))
 
     from fastapi.responses import Response
-    pixel = b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg==")
+
+    pixel = b64decode(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+    )
     return Response(content=pixel, media_type="image/png")
 
 
@@ -830,22 +811,32 @@ def store_token(
 def get_stored_token(
     _debug_tools: None = Depends(require_vision_debug_tools_enabled),
 ):
-    """Return XO Gallery session token status without exposing the token."""
-    import base64 as b64
+    """Return token status metadata without exposing the raw token."""
+    import base64 as base64_mod
     import time
+
     token_path = _safe_data_file("xo_session_token.txt")
     if not os.path.exists(token_path):
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No token stored")
-    with open(token_path, "r", encoding="utf-8") as f:
-        token = f.read().strip()
+        raise APIError(status_code=404, detail="No token stored")
+
+    with open(token_path, "r", encoding="utf-8") as file_obj:
+        token = file_obj.read().strip()
+
     parts = token.split(".")
     if len(parts) == 3:
         padded = parts[1] + "=="
-        payload = b64.b64decode(padded)
+        payload = base64_mod.b64decode(padded)
         payload_json = json.loads(payload)
         exp = payload_json.get("exp", 0)
         now = int(time.time())
-        return {"status": "ok", "present": True, "exp": exp, "now": now, "expired": now > exp}
+        return {
+            "status": "ok",
+            "present": True,
+            "exp": exp,
+            "now": now,
+            "expired": now > exp,
+        }
+
     return {"status": "ok", "present": True, "expired": None}
 
 
@@ -855,11 +846,16 @@ async def xo_proxy(
     _debug_tools: None = Depends(require_vision_debug_tools_enabled),
 ):
     """
-    Server-side proxy for XO Gallery API calls.
-    Atomic login+fetch: logs in with token, captures cookies, immediately fetches data.
-    Body: { "url": "...", "method": "GET"|"POST"|"PUT"|"PATCH",
-            "token": "...", "body": {...}, "login": true/false,
-            "params": {"hmac": "...", "session": "...", "timestamp": "..."} }
+    Debug-only server-side proxy for XO Gallery API calls.
+
+    Body: {
+        "url": "...",
+        "method": "GET" | "POST" | "PUT" | "PATCH",
+        "token": "...",
+        "body": {...},
+        "login": true | false,
+        "params": {"hmac": "...", "session": "...", "timestamp": "..."}
+    }
     """
     import httpx
 
@@ -867,100 +863,104 @@ async def xo_proxy(
     target_url = body.get("url", "")
     method = body.get("method", "GET").upper()
     token = body.get("token", "")
-    payload = body.get("body", None)
+    payload = body.get("body")
     do_login = body.get("login", False)
     params = body.get("params", {})
 
     if not target_url:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="No url provided")
+        raise APIError(status_code=400, detail="No url provided")
     if target_url != "LOGIN_ONLY":
         _require_allowed_xo_proxy_url(target_url)
 
     cookies_path = _safe_data_file("xo_cookies.json")
 
+    async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
+        saved_cookies = {}
+        if os.path.exists(cookies_path):
+            try:
+                saved_cookies = _read_private_json(cookies_path)
+            except Exception:
+                saved_cookies = {}
+
+        login_info = None
+        if do_login and token:
+            hmac_val = params.get("hmac", "")
+            session_val = params.get("session", "")
+            timestamp_val = params.get("timestamp", "")
+            login_url = (
+                "https://gallery.xopify.com/app"
+                f"?embedded=1&hmac={hmac_val}"
+                "&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvb2xzLW9ubGluZQ"
+                f"&id_token={token}"
+                f"&locale=en-US&session={session_val}"
+                "&shop=ols-online.myshopify.com"
+                f"&timestamp={timestamp_val}"
+            )
+            login_resp = await client.get(login_url)
+            saved_cookies = dict(client.cookies)
+            _write_private_json(cookies_path, saved_cookies)
+            login_info = {
+                "login_status": login_resp.status_code,
+                "cookies_saved": len(saved_cookies),
+            }
+            if target_url == "LOGIN_ONLY":
+                return {"status": "ok", **login_info}
+
+        headers = {}
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+        if payload is not None:
+            headers["Content-Type"] = "application/json"
+
+        if method == "GET":
+            response = await client.get(
+                target_url,
+                headers=headers,
+                cookies=saved_cookies,
+            )
+        elif method == "POST":
+            response = await client.post(
+                target_url,
+                headers=headers,
+                cookies=saved_cookies,
+                json=payload,
+            )
+        elif method == "PUT":
+            response = await client.put(
+                target_url,
+                headers=headers,
+                cookies=saved_cookies,
+                json=payload,
+            )
+        elif method == "PATCH":
+            response = await client.patch(
+                target_url,
+                headers=headers,
+                cookies=saved_cookies,
+                json=payload,
+            )
+        else:
+            raise APIError(status_code=400, detail=f"Unsupported method: {method}")
+
+        new_cookies = dict(response.cookies)
+        if new_cookies:
+            saved_cookies.update(new_cookies)
+            _write_private_json(cookies_path, saved_cookies)
+
     try:
-        async with httpx.AsyncClient(timeout=30.0, follow_redirects=True) as client:
-            # Load saved cookies if they exist
-            saved_cookies = {}
-            if os.path.exists(cookies_path):
-                try:
-                    saved_cookies = _read_private_json(cookies_path)
-                except Exception:
-                    saved_cookies = {}
+        response_json = response.json()
+    except Exception:
+        response_json = None
 
-            # If login requested, hit the full app URL with ALL params to get session cookies
-            login_info = None
-            if do_login and token:
-                hmac_val = params.get("hmac", "")
-                session_val = params.get("session", "")
-                timestamp_val = params.get("timestamp", "")
-                login_url = (
-                    f"https://gallery.xopify.com/app"
-                    f"?embedded=1"
-                    f"&hmac={hmac_val}"
-                    f"&host=YWRtaW4uc2hvcGlmeS5jb20vc3RvcmUvb2xzLW9ubGluZQ"
-                    f"&id_token={token}"
-                    f"&locale=en-US"
-                    f"&session={session_val}"
-                    f"&shop=ols-online.myshopify.com"
-                    f"&timestamp={timestamp_val}"
-                )
-                login_resp = await client.get(login_url)
-                saved_cookies = dict(client.cookies)
-                _write_private_json(cookies_path, saved_cookies)
-                login_info = {
-                    "login_status": login_resp.status_code,
-                    "cookies_saved": len(saved_cookies),
-                }
-                # If only login requested, return
-                if target_url == "LOGIN_ONLY":
-                    return {"status": "ok", **login_info}
-
-            # Make the actual API request with cookies
-            headers = {}
-            if token:
-                headers["Authorization"] = f"Bearer {token}"
-            if payload is not None:
-                headers["Content-Type"] = "application/json"
-
-            if method == "GET":
-                resp = await client.get(target_url, headers=headers, cookies=saved_cookies)
-            elif method == "POST":
-                resp = await client.post(target_url, headers=headers, cookies=saved_cookies, json=payload)
-            elif method == "PUT":
-                resp = await client.put(target_url, headers=headers, cookies=saved_cookies, json=payload)
-            elif method == "PATCH":
-                resp = await client.patch(target_url, headers=headers, cookies=saved_cookies, json=payload)
-            else:
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail=f"Unsupported method: {method}",
-                )
-
-            # Update saved cookies
-            new_cookies = dict(resp.cookies)
-            if new_cookies:
-                saved_cookies.update(new_cookies)
-                _write_private_json(cookies_path, saved_cookies)
-
-        try:
-            resp_json = resp.json()
-        except Exception:
-            resp_json = None
-
-        result = {
-            "status": "ok",
-            "http_status": resp.status_code,
-            "body": resp_json,
-            "text": resp.text[:5000] if resp_json is None else None,
-        }
-        if login_info:
-            result["login_info"] = login_info
-        return result
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise_route_error(logger, "XO proxy", e)
+    result = {
+        "status": "ok",
+        "http_status": response.status_code,
+        "body": response_json,
+        "text": response.text[:5000] if response_json is None else None,
+    }
+    if login_info:
+        result["login_info"] = login_info
+    return result
 
 
 # reload-trigger 1775322499

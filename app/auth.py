@@ -1,43 +1,16 @@
 """
-API Key Authentication for OLS Operations API.
-
-All endpoints (except /health) require a valid API key
-passed via the X-API-Key header.
-
-Usage in routes:
-    from app.auth import require_api_key
-
-    @router.get("/endpoint")
-    def my_endpoint(api_key: str = Depends(require_api_key)):
-        ...
+API key authentication for the OLS Operations API.
 """
 
-import logging
 import secrets
 
 from fastapi import HTTPException, Security, status
 from fastapi.security import APIKeyHeader
 
-from app.runtime_config import configured_api_key
-
-logger = logging.getLogger(__name__)
+from app.settings import get_settings
 
 # Header name for API key
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
-
-
-def _get_api_key() -> str:
-    """
-    Get the configured API key from environment.
-
-    Production/server mode fails fast when OLS_API_KEY is absent. Development
-    may generate a process-local key, but never prints it to logs.
-    """
-    return configured_api_key()
-
-
-# Resolve once at import time
-_VALID_API_KEY = _get_api_key()
 
 
 async def require_api_key(
@@ -55,8 +28,7 @@ async def require_api_key(
         )
 
     # Use constant-time comparison to prevent timing attacks
-    if not secrets.compare_digest(api_key, _VALID_API_KEY):
-        logger.warning("Invalid API key attempt")
+    if not secrets.compare_digest(api_key, get_settings().api_key):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Invalid API key",

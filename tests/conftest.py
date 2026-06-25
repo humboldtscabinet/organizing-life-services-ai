@@ -10,8 +10,8 @@ import os
 
 import pytest
 
-# A deterministic API key for the whole test session. Must be set BEFORE
-# app.auth is imported, because the valid key is resolved at import time.
+# A deterministic API key for the whole test session. Must be set before the
+# FastAPI app imports runtime settings.
 TEST_API_KEY = "test-suite-api-key"
 os.environ.setdefault("OLS_API_KEY", TEST_API_KEY)
 

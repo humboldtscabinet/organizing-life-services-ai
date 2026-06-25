@@ -1,0 +1,9 @@
+title = "OLS repository gitleaks config"
+
+[allowlist]
+description = "Archived conversation exports are excluded from automated scanning until history cleanup is completed."
+paths = [
+  '''conversations/raw/.*\.jsonl\.gz''',
+  '''conversations/markdown/.*\.md''',
+  '''dashboard/node_modules/.*''',
+]

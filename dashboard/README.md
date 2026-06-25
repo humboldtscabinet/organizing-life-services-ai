@@ -38,14 +38,15 @@ Build and run the dashboard in Docker:
 
 ```bash
 docker build -t ols-dashboard .
-docker run -p 80:80 --network=host ols-dashboard
+docker run --env-file ../.env -p 80:80 --network=host ols-dashboard
 ```
 
 The dashboard will be accessible at `http://localhost` and will proxy API requests to `http://api:8000`.
 
 ## Configuration
 
-- **API Key**: Enter in the dashboard unlock screen. It is stored only in this browser's local storage.
+- **Development API Key**: Enter once per browser session in the dev UI. It is stored in `sessionStorage`, not in the bundle.
+- **Production API Key**: Supplied to nginx from `OLS_API_KEY` at container startup, then injected into `/api/*` proxy requests server-side.
 - **API URL**: Configure via `VITE_API_URL` environment variable (empty string uses proxy)
 - **Theme Colors**: Customize color palette in `src/App.jsx`
 
@@ -60,7 +61,7 @@ The dashboard communicates with these backend endpoints:
 - `GET /api/dashboard/metrics` - Get dashboard metrics
 - `GET /api/dashboard/metrics/channels` - Get channel status metrics
 
-All API requests include the operator-provided `X-API-Key` header for authentication.
+The backend still authenticates with `X-API-Key`, but the dashboard no longer hardcodes the key in source.
 
 ## Tech Stack
 

@@ -10,12 +10,12 @@ All endpoints are in manual-approval mode:
 All routes require X-API-Key authentication.
 """
 
-import logging
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
+from app.api_errors import APIError, service_result_or_raise
 from app.db.database import get_db
 from app.db.models import DashboardTask
 from app.safety import require_high_stakes_confirmation
@@ -33,8 +33,6 @@ from app.services.content_scheduler import (
     get_content_status,
     schedule_weekly_content,
 )
-
-logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/api/content", tags=["Content"])
 
@@ -67,18 +65,13 @@ def analyze_gaps(
             ]
         }
     """
-    try:
-        opportunities = analyze_content_gaps(db=db, days_back=days_back)
+    opportunities = analyze_content_gaps(db=db, days_back=days_back)
 
-        return {
-            "status": "success",
-            "gap_count": len(opportunities),
-            "opportunities": opportunities,
-        }
-
-    except Exception as e:
-        logger.error(f"Error analyzing content gaps: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return {
+        "status": "success",
+        "gap_count": len(opportunities),
+        "opportunities": opportunities,
+    }
 
 
 @router.post("/schedule-next")
@@ -121,13 +114,7 @@ def schedule_next(
             "message": "..."
         }
     """
-    try:
-        result = schedule_weekly_content(db=db, count=count)
-        return result
-
-    except Exception as e:
-        logger.error(f"Error scheduling weekly content: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return service_result_or_raise(schedule_weekly_content(db=db, count=count))
 
 
 @router.post("/generate-and-publish")
@@ -153,35 +140,23 @@ def generate_and_publish(
             "detail": str (on error)
         }
     """
-    try:
-        task = db.query(DashboardTask).filter(DashboardTask.id == task_id).first()
-        if not task:
-            raise HTTPException(status_code=404, detail=f"Task #{task_id} not found")
+    task = db.query(DashboardTask).filter(DashboardTask.id == task_id).first()
+    if not task:
+        raise APIError(status_code=404, detail=f"Task #{task_id} not found")
 
-        if task.status != "approved":
-            raise HTTPException(
-                status_code=400,
-                detail=f"Task status is '{task.status}', must be 'approved'",
-            )
-
-        require_high_stakes_confirmation(
-            task_type="content_publish",
-            human_confirmed=human_confirmed,
-            judge_verdict=judge_verdict,
+    if task.status != "approved":
+        raise APIError(
+            status_code=400,
+            detail=f"Task status is '{task.status}', must be 'approved'",
         )
 
-        result = publish_to_shopify(db=db, task_id=task_id)
+    require_high_stakes_confirmation(
+        task_type="content_publish",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
 
-        if result["status"] == "error":
-            raise HTTPException(status_code=500, detail=result.get("detail", "Unknown error"))
-
-        return result
-
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error publishing task: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return service_result_or_raise(publish_to_shopify(db=db, task_id=task_id))
 
 
 @router.get("/calendar")
@@ -212,18 +187,13 @@ def calendar(
             ]
         }
     """
-    try:
-        calendar = get_content_calendar(db=db, weeks=weeks)
+    calendar = get_content_calendar(db=db, weeks=weeks)
 
-        return {
-            "status": "success",
-            "weeks": weeks,
-            "calendar": calendar,
-        }
-
-    except Exception as e:
-        logger.error(f"Error getting content calendar: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return {
+        "status": "success",
+        "weeks": weeks,
+        "calendar": calendar,
+    }
 
 
 @router.get("/status")
@@ -248,13 +218,7 @@ def status(db: Session = Depends(get_db)):
             }
         }
     """
-    try:
-        result = get_content_status(db=db)
-        return result
-
-    except Exception as e:
-        logger.error(f"Error getting content status: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return service_result_or_raise(get_content_status(db=db))
 
 
 @router.post("/generate-preview")
@@ -286,47 +250,39 @@ def generate_preview(
             "word_count": int
         }
     """
-    try:
-        if post_type not in ["seo_blog", "service_area", "educational_guide"]:
-            raise HTTPException(
-                status_code=400,
-                detail=f"Invalid post_type: {post_type}",
-            )
-
-        post_data = generate_blog_post(
-            db=db,
-            topic=topic,
-            target_keyword=target_keyword,
-            post_type=post_type,
+    if post_type not in ["seo_blog", "service_area", "educational_guide"]:
+        raise APIError(
+            status_code=400,
+            detail=f"Invalid post_type: {post_type}",
         )
 
-        # Calculate word and character counts
-        body_text = post_data["body_html"].replace("<h2>", " ").replace("</h2>", " ")
-        body_text = body_text.replace("<h3>", " ").replace("</h3>", " ")
-        body_text = body_text.replace("<p>", " ").replace("</p>", " ")
-        body_text = body_text.replace("<a href=", "").replace("</a>", " ")
-        body_text = body_text.replace(">", " ")
+    post_data = generate_blog_post(
+        db=db,
+        topic=topic,
+        target_keyword=target_keyword,
+        post_type=post_type,
+    )
 
-        words = len(body_text.split())
-        chars = len(post_data["body_html"])
+    body_text = post_data["body_html"].replace("<h2>", " ").replace("</h2>", " ")
+    body_text = body_text.replace("<h3>", " ").replace("</h3>", " ")
+    body_text = body_text.replace("<p>", " ").replace("</p>", " ")
+    body_text = body_text.replace("<a href=", "").replace("</a>", " ")
+    body_text = body_text.replace(">", " ")
 
-        return {
-            "status": "success",
-            "title": post_data["title"],
-            "meta_description": post_data["meta_description"],
-            "body_html": post_data["body_html"],
-            "summary_html": post_data["summary_html"],
-            "handle": post_data["handle"],
-            "tags": post_data["tags"],
-            "character_count": chars,
-            "word_count": words,
-        }
+    words = len(body_text.split())
+    chars = len(post_data["body_html"])
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error generating preview: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    return {
+        "status": "success",
+        "title": post_data["title"],
+        "meta_description": post_data["meta_description"],
+        "body_html": post_data["body_html"],
+        "summary_html": post_data["summary_html"],
+        "handle": post_data["handle"],
+        "tags": post_data["tags"],
+        "character_count": chars,
+        "word_count": words,
+    }
 
 
 @router.post("/add-image")
@@ -350,45 +306,37 @@ def add_image_to_article(
         judge_verdict=judge_verdict,
     )
 
-    try:
-        image_data = _generate_blog_image(topic=topic, target_keyword=target_keyword)
-        if not image_data:
-            raise HTTPException(
-                status_code=500,
-                detail="Image generation failed — check OPENAI_API_KEY",
-            )
-
-        # Update the existing article with the image
-        update_body = {
-            "article": {
-                "id": article_id,
-                "image": {
-                    "src": image_data["src"],
-                    "alt": image_data["alt"],
-                },
-            }
-        }
-
-        response = _httpx.put(
-            _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
-            headers=_shopify_headers(),
-            json=update_body,
-            timeout=60,
+    image_data = _generate_blog_image(topic=topic, target_keyword=target_keyword)
+    if not image_data:
+        raise APIError(
+            status_code=503,
+            detail="Image generation is unavailable. Check OPENAI_API_KEY.",
         )
-        response.raise_for_status()
 
-        return {
-            "status": "success",
-            "article_id": article_id,
-            "image_alt": image_data["alt"],
-            "message": "Featured image added successfully",
+    update_body = {
+        "article": {
+            "id": article_id,
+            "image": {
+                "src": image_data["src"],
+                "alt": image_data["alt"],
+            },
         }
+    }
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error adding image to article: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    response = _httpx.put(
+        _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
+        headers=_shopify_headers(),
+        json=update_body,
+        timeout=60,
+    )
+    response.raise_for_status()
+
+    return {
+        "status": "success",
+        "article_id": article_id,
+        "image_alt": image_data["alt"],
+        "message": "Featured image added successfully",
+    }
 
 
 @router.post("/fix-article-content")
@@ -431,12 +379,12 @@ def fix_article_content(
 
     # Validate mode: must be either find/replace or append_html
     if append_html is None and (find is None or replace is None):
-        raise HTTPException(
+        raise APIError(
             status_code=400,
             detail="Must provide either (find + replace) for find/replace mode OR append_html for append mode",
         )
     if append_html is not None and (find is not None or replace is not None):
-        raise HTTPException(
+        raise APIError(
             status_code=400,
             detail="Cannot mix append_html with find/replace — use one mode at a time",
         )
@@ -448,131 +396,43 @@ def fix_article_content(
             judge_verdict=judge_verdict,
         )
 
-    try:
-        # 1. Fetch the current article
-        get_resp = _httpx.get(
-            _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
-            headers=_shopify_headers(),
-            timeout=30,
+    get_resp = _httpx.get(
+        _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
+        headers=_shopify_headers(),
+        timeout=30,
+    )
+    get_resp.raise_for_status()
+    article = get_resp.json().get("article", {})
+
+    current_title = article.get("title", "") or ""
+    current_body = article.get("body_html", "") or ""
+
+    if append_html is not None:
+        new_body = current_body + append_html
+        preview_snippet = (
+            "..." + current_body[-120:].replace("\n", " ")
+            + " [APPEND>] "
+            + append_html[:200].replace("\n", " ")
+            + "..."
         )
-        get_resp.raise_for_status()
-        article = get_resp.json().get("article", {})
 
-        current_title = article.get("title", "") or ""
-        current_body = article.get("body_html", "") or ""
-
-        # -----------------------------------------------------------
-        # Mode 2: append_html — append the given HTML to body_html
-        # -----------------------------------------------------------
-        if append_html is not None:
-            new_body = current_body + append_html
-            preview_snippet = (
-                "..." + current_body[-120:].replace("\n", " ") +
-                " [APPEND>] " + append_html[:200].replace("\n", " ") + "..."
-            )
-
-            if dry_run:
-                return {
-                    "status": "dry_run",
-                    "article_id": article_id,
-                    "dry_run": True,
-                    "mode": "append_html",
-                    "title": current_title,
-                    "current_body_length": len(current_body),
-                    "append_length": len(append_html),
-                    "new_body_length": len(new_body),
-                    "preview_snippets": [preview_snippet],
-                    "updated": False,
-                    "message": (
-                        f"DRY RUN: would append {len(append_html)} chars of HTML "
-                        f"to end of article {article_id}. Re-run with dry_run=false to commit."
-                    ),
-                }
-
-            # Commit the append
-            update_body = {
-                "article": {
-                    "id": article_id,
-                    "body_html": new_body,
-                }
-            }
-            put_resp = _httpx.put(
-                _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
-                headers=_shopify_headers(),
-                json=update_body,
-                timeout=60,
-            )
-            put_resp.raise_for_status()
-
+        if dry_run:
             return {
-                "status": "success",
+                "status": "dry_run",
                 "article_id": article_id,
-                "dry_run": False,
+                "dry_run": True,
                 "mode": "append_html",
                 "title": current_title,
                 "current_body_length": len(current_body),
                 "append_length": len(append_html),
                 "new_body_length": len(new_body),
                 "preview_snippets": [preview_snippet],
-                "updated": True,
-                "message": f"Appended {len(append_html)} chars of HTML to article {article_id}",
-            }
-
-        # -----------------------------------------------------------
-        # Mode 1: find/replace (original behavior)
-        # -----------------------------------------------------------
-        body_occurrences = current_body.count(find)
-        title_occurrences = current_title.count(find)
-        total = body_occurrences + title_occurrences
-
-        # 2. Build preview snippets (±60 chars around each match)
-        preview_snippets = []
-        idx = 0
-        search_from = 0
-        while True:
-            pos = current_body.find(find, search_from)
-            if pos == -1 or len(preview_snippets) >= 5:
-                break
-            start = max(0, pos - 60)
-            end = min(len(current_body), pos + len(find) + 60)
-            snippet = current_body[start:end].replace("\n", " ")
-            preview_snippets.append(f"...{snippet}...")
-            search_from = pos + len(find)
-            idx += 1
-
-        if total == 0:
-            return {
-                "status": "no_matches",
-                "article_id": article_id,
-                "dry_run": dry_run,
-                "title": current_title,
-                "body_occurrences": 0,
-                "title_occurrences": 0,
-                "preview_snippets": [],
-                "updated": False,
-                "message": f"String not found in article {article_id}",
-            }
-
-        # 3. Dry-run short-circuit
-        if dry_run:
-            return {
-                "status": "dry_run",
-                "article_id": article_id,
-                "dry_run": True,
-                "title": current_title,
-                "body_occurrences": body_occurrences,
-                "title_occurrences": title_occurrences,
-                "preview_snippets": preview_snippets,
                 "updated": False,
                 "message": (
-                    f"DRY RUN: would replace {total} occurrence(s) of "
-                    f"'{find}' with '{replace}'. Re-run with dry_run=false to commit."
+                    f"DRY RUN: would append {len(append_html)} chars of HTML "
+                    f"to end of article {article_id}. Re-run with dry_run=false to commit."
                 ),
             }
-
-        # 4. Commit the change
-        new_body = current_body.replace(find, replace)
-        new_title = current_title.replace(find, replace)
 
         update_body = {
             "article": {
@@ -580,9 +440,6 @@ def fix_article_content(
                 "body_html": new_body,
             }
         }
-        if title_occurrences > 0:
-            update_body["article"]["title"] = new_title
-
         put_resp = _httpx.put(
             _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
             headers=_shopify_headers(),
@@ -595,16 +452,89 @@ def fix_article_content(
             "status": "success",
             "article_id": article_id,
             "dry_run": False,
-            "title": new_title,
+            "mode": "append_html",
+            "title": current_title,
+            "current_body_length": len(current_body),
+            "append_length": len(append_html),
+            "new_body_length": len(new_body),
+            "preview_snippets": [preview_snippet],
+            "updated": True,
+            "message": f"Appended {len(append_html)} chars of HTML to article {article_id}",
+        }
+
+    body_occurrences = current_body.count(find)
+    title_occurrences = current_title.count(find)
+    total = body_occurrences + title_occurrences
+
+    preview_snippets = []
+    search_from = 0
+    while True:
+        pos = current_body.find(find, search_from)
+        if pos == -1 or len(preview_snippets) >= 5:
+            break
+        start = max(0, pos - 60)
+        end = min(len(current_body), pos + len(find) + 60)
+        snippet = current_body[start:end].replace("\n", " ")
+        preview_snippets.append(f"...{snippet}...")
+        search_from = pos + len(find)
+
+    if total == 0:
+        return {
+            "status": "no_matches",
+            "article_id": article_id,
+            "dry_run": dry_run,
+            "title": current_title,
+            "body_occurrences": 0,
+            "title_occurrences": 0,
+            "preview_snippets": [],
+            "updated": False,
+            "message": f"String not found in article {article_id}",
+        }
+
+    if dry_run:
+        return {
+            "status": "dry_run",
+            "article_id": article_id,
+            "dry_run": True,
+            "title": current_title,
             "body_occurrences": body_occurrences,
             "title_occurrences": title_occurrences,
             "preview_snippets": preview_snippets,
-            "updated": True,
-            "message": f"Replaced {total} occurrence(s) of '{find}' with '{replace}'",
+            "updated": False,
+            "message": (
+                f"DRY RUN: would replace {total} occurrence(s) of "
+                f"'{find}' with '{replace}'. Re-run with dry_run=false to commit."
+            ),
         }
 
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error fixing article content: {e}")
-        raise HTTPException(status_code=500, detail=str(e)) from e
+    new_body = current_body.replace(find, replace)
+    new_title = current_title.replace(find, replace)
+
+    update_body = {
+        "article": {
+            "id": article_id,
+            "body_html": new_body,
+        }
+    }
+    if title_occurrences > 0:
+        update_body["article"]["title"] = new_title
+
+    put_resp = _httpx.put(
+        _shopify_url(f"blogs/{SHOPIFY_BLOG_ID}/articles/{article_id}.json"),
+        headers=_shopify_headers(),
+        json=update_body,
+        timeout=60,
+    )
+    put_resp.raise_for_status()
+
+    return {
+        "status": "success",
+        "article_id": article_id,
+        "dry_run": False,
+        "title": new_title,
+        "body_occurrences": body_occurrences,
+        "title_occurrences": title_occurrences,
+        "preview_snippets": preview_snippets,
+        "updated": True,
+        "message": f"Replaced {total} occurrence(s) of '{find}' with '{replace}'",
+    }

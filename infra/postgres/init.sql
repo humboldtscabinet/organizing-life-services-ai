@@ -43,11 +43,6 @@ CREATE TABLE IF NOT EXISTS llm_audit (
     created_at          TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS ix_llm_audit_task_created
-    ON llm_audit (task_type, created_at);
-CREATE INDEX IF NOT EXISTS ix_llm_audit_risk_status
-    ON llm_audit (risk_level, status);
-
 -- ---------- SEO tables (Phase 1) ----------
 
 CREATE TABLE IF NOT EXISTS seo_reports (
@@ -185,6 +180,25 @@ CREATE TABLE IF NOT EXISTS ops_alerts (
         CHECK (occurrence_count >= 1)
 );
 
+CREATE INDEX IF NOT EXISTS ix_gsc_data_date ON gsc_data (date);
+CREATE INDEX IF NOT EXISTS ix_gsc_data_query ON gsc_data (query);
+CREATE INDEX IF NOT EXISTS ix_gsc_data_query_date ON gsc_data (query, date);
+CREATE INDEX IF NOT EXISTS ix_gsc_data_query_page_date ON gsc_data (query, page, date);
+
+CREATE INDEX IF NOT EXISTS ix_ga4_data_date ON ga4_data (date);
+CREATE INDEX IF NOT EXISTS ix_ga4_data_metric_date ON ga4_data (metric_name, date);
+CREATE INDEX IF NOT EXISTS ix_ga4_data_metric_dim_date ON ga4_data (metric_name, dimension_value, date);
+
+CREATE INDEX IF NOT EXISTS ix_google_ads_data_date ON google_ads_data (date);
+CREATE INDEX IF NOT EXISTS ix_google_ads_data_campaign_date ON google_ads_data (campaign_name, date);
+
+CREATE INDEX IF NOT EXISTS ix_llm_audit_task_created
+    ON llm_audit (task_type, created_at);
+CREATE INDEX IF NOT EXISTS ix_llm_audit_risk_status
+    ON llm_audit (risk_level, status);
+
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_status ON dashboard_tasks (status);
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_type_status ON dashboard_tasks (task_type, status);
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_status
     ON ops_alerts (status);
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_severity_status

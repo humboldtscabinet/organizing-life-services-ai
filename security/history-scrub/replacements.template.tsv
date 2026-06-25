@@ -1,0 +1,7 @@
+# label	match_type	find	replace
+# match_type must be either "literal" or "regex"
+# Keep the real manifest in security/history-scrub/replacements.local.tsv
+# Example:
+# ols_api_key	literal	OLD_OLS_API_KEY_VALUE	NEW_ROTATED_OLS_API_KEY_VALUE
+# openai_key	literal	sk-proj-OLDSECRET	***REMOVED***
+# session_bearer	regex	Bearer\s+OLDTOKENVALUE	Bearer ***REMOVED***

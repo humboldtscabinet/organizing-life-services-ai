@@ -17,7 +17,7 @@ Visit `http://localhost:5173`
 ```bash
 cd dashboard
 docker build -t ols-dashboard .
-docker run -p 80:80 --network=host ols-dashboard
+docker run --env-file ../.env -p 80:80 --network=host ols-dashboard
 ```
 
 Visit `http://localhost`
@@ -84,9 +84,10 @@ dashboard/
 
 ## API Integration
 
-All requests include the `X-API-Key` header supplied by the operator in the
-dashboard unlock screen. The key is stored in this browser's local storage and
-is not committed to the source bundle.
+The dashboard no longer embeds the API key in source.
+
+- In Vite dev mode, the operator enters `OLS_API_KEY` once per browser session and the key is stored only in `sessionStorage`.
+- In Docker/nginx mode, the container reads `OLS_API_KEY` from the environment and injects `X-API-Key` on proxied `/api/*` requests server-side.
 
 ### Endpoints Used
 
@@ -109,8 +110,9 @@ is not committed to the source bundle.
    - Output: `/app/dist` directory
 
 2. **Stage 2 (Nginx Alpine)**
-   - Copy built files to `/usr/share/nginx/html`
-   - Copy custom nginx config
+    - Copy built files to `/usr/share/nginx/html`
+   - Install `envsubst` support
+   - Render the nginx config from `OLS_API_KEY` at container startup
    - Expose port 80
    - Start nginx in foreground mode
 
@@ -129,7 +131,7 @@ is not committed to the source bundle.
 
 The Vite dev server automatically proxies `/api` requests to `http://localhost:8000`.
 
-No environment variables needed - just start with `npm run dev`.
+After the UI loads, enter the current `OLS_API_KEY` in the Development API Access panel once per browser session.
 
 ### Production (Nginx Proxy)
 
@@ -166,7 +168,7 @@ Priority Colors:
 **In Development:**
 - Ensure API is running on `http://localhost:8000`
 - Check that `vite.config.js` proxy is configured correctly
-- Re-enter the API key in the dashboard unlock screen
+- Verify API key in `src/api.js`
 
 **In Docker:**
 - Ensure API service is on the same Docker network
@@ -200,9 +202,9 @@ Charts use Recharts and require data to render. Check:
 
 ## Security
 
-- API key is operator-entered and stored only in browser local storage
-- CORS headers managed by nginx proxy
-- Do not expose the dashboard outside localhost/Tailscale without stronger auth
+- No production API key in the browser bundle
+- Dev-only API key stored in `sessionStorage` and clearable from the UI
+- CORS headers limited by the API service allowlist
 - All API requests use HTTPS (when deployed)
 
 ## Future Enhancements

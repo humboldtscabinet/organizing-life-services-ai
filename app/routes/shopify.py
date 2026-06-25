@@ -7,13 +7,11 @@ All endpoints are manual-approval mode:
 - No automated changes — human reviews everything first
 """
 
-import logging
-
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api_errors import service_result_or_raise
 from app.db.database import get_db
-from app.route_errors import raise_route_error
 from app.safety import require_high_stakes_confirmation
 from app.services.shopify_service import (
     consolidate_thin_pages,
@@ -31,7 +29,6 @@ from app.services.shopify_service import (
 )
 
 router = APIRouter(prefix="/api/shopify", tags=["Shopify"])
-logger = logging.getLogger(__name__)
 
 
 # ===================== Read Endpoints =====================
@@ -40,67 +37,58 @@ logger = logging.getLogger(__name__)
 @router.get("/products")
 def list_products(limit: int = 50):
     """List products from the Shopify store."""
-    try:
-        products = get_products(limit=limit)
-        return {
-            "status": "success",
-            "count": len(products),
-            "products": [
-                {
-                    "id": p["id"],
-                    "title": p.get("title"),
-                    "handle": p.get("handle"),
-                    "status": p.get("status"),
-                    "product_type": p.get("product_type"),
-                }
-                for p in products
-            ],
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify products", e)
+    products = get_products(limit=limit)
+    return {
+        "status": "success",
+        "count": len(products),
+        "products": [
+            {
+                "id": p["id"],
+                "title": p.get("title"),
+                "handle": p.get("handle"),
+                "status": p.get("status"),
+                "product_type": p.get("product_type"),
+            }
+            for p in products
+        ],
+    }
 
 
 @router.get("/pages")
 def list_pages(limit: int = 50):
     """List pages from the Shopify store."""
-    try:
-        pages = get_pages(limit=limit)
-        return {
-            "status": "success",
-            "count": len(pages),
-            "pages": [
-                {
-                    "id": p["id"],
-                    "title": p.get("title"),
-                    "handle": p.get("handle"),
-                }
-                for p in pages
-            ],
-        }
-    except Exception as e:
-        raise_route_error(logger, "List Shopify pages", e)
+    pages = get_pages(limit=limit)
+    return {
+        "status": "success",
+        "count": len(pages),
+        "pages": [
+            {
+                "id": p["id"],
+                "title": p.get("title"),
+                "handle": p.get("handle"),
+            }
+            for p in pages
+        ],
+    }
 
 
 @router.get("/blogs")
 def list_blogs():
     """List all blogs and their articles."""
-    try:
-        blogs = get_blogs()
-        result = []
-        for blog in blogs:
-            articles = get_blog_articles(blog["id"], limit=10)
-            result.append({
-                "id": blog["id"],
-                "title": blog.get("title"),
-                "articles_count": len(articles),
-                "articles": [
-                    {"id": a["id"], "title": a.get("title")}
-                    for a in articles
-                ],
-            })
-        return {"status": "success", "blogs": result}
-    except Exception as e:
-        raise_route_error(logger, "List Shopify blogs", e)
+    blogs = get_blogs()
+    result = []
+    for blog in blogs:
+        articles = get_blog_articles(blog["id"], limit=10)
+        result.append({
+            "id": blog["id"],
+            "title": blog.get("title"),
+            "articles_count": len(articles),
+            "articles": [
+                {"id": a["id"], "title": a.get("title")}
+                for a in articles
+            ],
+        })
+    return {"status": "success", "blogs": result}
 
 
 @router.get("/seo-data")
@@ -111,11 +99,8 @@ def get_seo_overview():
     Returns products, pages, and articles with their titles,
     handles, and content lengths for audit purposes.
     """
-    try:
-        data = get_site_seo_data()
-        return {"status": "success", **data}
-    except Exception as e:
-        raise_route_error(logger, "Shopify SEO overview", e)
+    data = get_site_seo_data()
+    return {"status": "success", **data}
 
 
 # ===================== Order Pipeline =====================
@@ -132,11 +117,9 @@ def trigger_orders_pull(
 
     Skips orders that already exist in the database.
     """
-    try:
-        result = pull_shopify_orders(db=db, limit=limit, status=status)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Pull Shopify orders", e)
+    return service_result_or_raise(
+        pull_shopify_orders(db=db, limit=limit, status=status)
+    )
 
 
 # ===================== SEO Update Endpoints =====================
@@ -162,16 +145,14 @@ def update_product_seo_fields(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = update_product_seo(
+    return service_result_or_raise(
+        update_product_seo(
             product_id=product_id,
             title=title,
             meta_description=meta_description,
             handle=handle,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Update Shopify product SEO", e)
+    )
 
 
 @router.put("/pages/{page_id}/seo")
@@ -193,16 +174,14 @@ def update_page_seo_fields(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = update_page_seo(
+    return service_result_or_raise(
+        update_page_seo(
             page_id=page_id,
             title=title,
             body_html=body_html,
             meta_description=meta_description,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Update Shopify page SEO", e)
+    )
 
 
 @router.put("/blogs/{blog_id}/articles/{article_id}/seo")
@@ -226,8 +205,8 @@ def update_article_seo_fields(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = update_article_seo(
+    return service_result_or_raise(
+        update_article_seo(
             blog_id=blog_id,
             article_id=article_id,
             title=title,
@@ -235,9 +214,7 @@ def update_article_seo_fields(
             summary_html=summary_html,
             meta_description=meta_description,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Update Shopify article SEO", e)
+    )
 
 
 # ===================== Page Management Endpoints =====================
@@ -264,17 +241,15 @@ def create_new_page(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = create_page(
+    return service_result_or_raise(
+        create_page(
             title=title,
             body_html=body_html,
             handle=handle,
             meta_description=meta_description,
             published=published,
         )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Create Shopify page", e)
+    )
 
 
 @router.post("/redirects/create")
@@ -295,11 +270,9 @@ def create_url_redirect(
         human_confirmed=human_confirmed,
         judge_verdict=judge_verdict,
     )
-    try:
-        result = create_redirect(from_path=from_path, to_path=to_path)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Create Shopify redirect", e)
+    return service_result_or_raise(
+        create_redirect(from_path=from_path, to_path=to_path)
+    )
 
 
 @router.post("/cleanup/thin-pages")
@@ -371,10 +344,7 @@ def cleanup_thin_pages(
         {"page_id": 104616755354, "from_handle": "brooksville-estate-sale-on-peruvian-lily-court", "to_handle": "estate-sale-citrus-county"},
     ]
 
-    try:
-        result = consolidate_thin_pages(
-            redirect_map=redirect_map, dry_run=dry_run
-        )
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Shopify thin-page cleanup", e)
+    return consolidate_thin_pages(
+        redirect_map=redirect_map,
+        dry_run=dry_run,
+    )

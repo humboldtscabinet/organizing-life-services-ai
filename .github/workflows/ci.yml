@@ -38,13 +38,16 @@ jobs:
           pip install ruff
 
       - name: Lint (ruff)
-        run: ruff check app tests data/_mutation_guard.py sitecustomize.py
+        run: ruff check app tests scripts data/_mutation_guard.py sitecustomize.py
 
       - name: Secret scan
         run: python scripts/scan_secrets.py
 
       - name: Byte-compile
-        run: python -m compileall -q app
+        run: python -m compileall -q app scripts tests
+
+      - name: Check schema parity
+        run: python scripts/check_schema_parity.py
 
       - name: Run tests
         run: pytest -q

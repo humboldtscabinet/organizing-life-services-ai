@@ -40,6 +40,10 @@ SKIP_DIRS = {
     "__pycache__",
 }
 
+SKIP_FILES = {
+    Path("tests/test_security_tools.py"),
+}
+
 
 def git_files() -> list[Path]:
     result = subprocess.run(
@@ -53,7 +57,7 @@ def git_files() -> list[Path]:
 
 
 def should_skip(path: Path) -> bool:
-    return any(part in SKIP_DIRS for part in path.parts)
+    return path in SKIP_FILES or any(part in SKIP_DIRS for part in path.parts)
 
 
 def read_text(path: Path) -> str | None:

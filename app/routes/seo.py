@@ -7,13 +7,13 @@ All endpoints are manual-approval mode:
 - No automated actions — human must trigger every operation
 """
 
-import logging
+from typing import Any, Callable
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from app.api_errors import APIError, build_error_payload, service_result_or_raise
 from app.db.database import get_db
-from app.route_errors import raise_route_error, raise_unavailable
 from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
@@ -29,7 +29,41 @@ from app.services.sheets_service import (
 )
 
 router = APIRouter(prefix="/api/seo", tags=["SEO"])
-logger = logging.getLogger(__name__)
+
+
+def _pipeline_response(*results: dict) -> dict:
+    status = "partial" if any(result.get("status") in {"error", "unavailable"} for result in results) else "success"
+    return {"status": status}
+
+
+def _step_failed(result: dict[str, Any]) -> bool:
+    return result.get("status") in {"error", "unavailable"}
+
+
+def _skipped_pipeline_step(detail: str) -> dict[str, Any]:
+    return {
+        "status": "skipped",
+        "detail": detail,
+        "code": "skipped_due_to_previous_failure",
+    }
+
+
+def _capture_pipeline_step(action: Callable[..., dict[str, Any]], *args, **kwargs) -> dict[str, Any]:
+    try:
+        return service_result_or_raise(action(*args, **kwargs))
+    except APIError as exc:
+        return build_error_payload(
+            status_code=exc.status_code,
+            detail=exc.detail,
+            code=exc.code,
+            extra=exc.extra,
+        )
+    except Exception as exc:
+        return build_error_payload(
+            status_code=500,
+            detail=str(exc),
+            code="internal_server_error",
+        )
 
 
 @router.post("/gsc/pull")
@@ -39,11 +73,7 @@ def trigger_gsc_pull(days_back: int = 7, db: Session = Depends(get_db)):
 
     Pulls the last N days of search analytics and stores in Postgres.
     """
-    try:
-        result = pull_gsc_data(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GSC pull", e)
+    return service_result_or_raise(pull_gsc_data(db=db, days_back=days_back))
 
 
 @router.post("/gsc/push-to-sheets")
@@ -55,11 +85,7 @@ def trigger_gsc_push_to_sheets(
 
     Writes to the 'GSC Data' tab of the operator dashboard spreadsheet.
     """
-    try:
-        result = push_gsc_to_sheets(db=db, limit=limit)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GSC push to Sheets", e)
+    return service_result_or_raise(push_gsc_to_sheets(db=db, limit=limit))
 
 
 @router.post("/gsc/pull-and-push")
@@ -72,16 +98,18 @@ def trigger_gsc_full_pipeline(
     Convenience endpoint that runs both steps in sequence.
     Still manual-trigger only.
     """
-    try:
-        pull_result = pull_gsc_data(db=db, days_back=days_back)
-        push_result = push_gsc_to_sheets(db=db, limit=limit)
-        return {
-            "status": "success",
-            "pull": pull_result,
-            "push": push_result,
-        }
-    except Exception as e:
-        raise_route_error(logger, "GSC pull and push", e)
+    pull_result = _capture_pipeline_step(pull_gsc_data, db=db, days_back=days_back)
+    if _step_failed(pull_result):
+        push_result = _skipped_pipeline_step(
+            "Skipped Sheets push because the GSC pull step failed."
+        )
+    else:
+        push_result = _capture_pipeline_step(push_gsc_to_sheets, db=db, limit=limit)
+    return {
+        **_pipeline_response(pull_result, push_result),
+        "pull": pull_result,
+        "push": push_result,
+    }
 
 
 # ===================== GA4 Endpoints =====================
@@ -94,11 +122,7 @@ def trigger_ga4_pull(days_back: int = 7, db: Session = Depends(get_db)):
 
     Pulls daily overview, top pages, and traffic sources for the last N days.
     """
-    try:
-        result = pull_ga4_data(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GA4 pull", e)
+    return service_result_or_raise(pull_ga4_data(db=db, days_back=days_back))
 
 
 @router.post("/ga4/push-to-sheets")
@@ -110,11 +134,7 @@ def trigger_ga4_push_to_sheets(
 
     Creates three tabs: GA4 Daily Overview, GA4 Top Pages, GA4 Traffic Sources.
     """
-    try:
-        result = push_ga4_to_sheets(db=db, limit=limit)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GA4 push to Sheets", e)
+    return service_result_or_raise(push_ga4_to_sheets(db=db, limit=limit))
 
 
 @router.post("/ga4/pull-and-push")
@@ -124,16 +144,18 @@ def trigger_ga4_full_pipeline(
     """
     Full pipeline: Pull GA4 data → store in Postgres → push to Sheets.
     """
-    try:
-        pull_result = pull_ga4_data(db=db, days_back=days_back)
-        push_result = push_ga4_to_sheets(db=db, limit=limit)
-        return {
-            "status": "success",
-            "pull": pull_result,
-            "push": push_result,
-        }
-    except Exception as e:
-        raise_route_error(logger, "GA4 pull and push", e)
+    pull_result = _capture_pipeline_step(pull_ga4_data, db=db, days_back=days_back)
+    if _step_failed(pull_result):
+        push_result = _skipped_pipeline_step(
+            "Skipped Sheets push because the GA4 pull step failed."
+        )
+    else:
+        push_result = _capture_pipeline_step(push_ga4_to_sheets, db=db, limit=limit)
+    return {
+        **_pipeline_response(pull_result, push_result),
+        "pull": pull_result,
+        "push": push_result,
+    }
 
 
 # ===================== GBP Endpoints =====================
@@ -147,19 +169,16 @@ def trigger_gbp_discover(account_name: str = None):
     Step 1: Call without params to list accounts.
     Step 2: Call with account_name (e.g. "accounts/123456") to list locations.
     """
-    try:
-        if account_name:
-            locations = discover_gbp_locations(account_name)
-            return {
-                "status": "success",
-                "account": account_name,
-                "locations": locations,
-            }
-        else:
-            accounts = discover_gbp_accounts()
-            return {"status": "success", "accounts": accounts}
-    except Exception as e:
-        raise_route_error(logger, "GBP discover", e)
+    if account_name:
+        locations = discover_gbp_locations(account_name)
+        return {
+            "status": "success",
+            "account": account_name,
+            "locations": locations,
+        }
+
+    accounts = discover_gbp_accounts()
+    return {"status": "success", "accounts": accounts}
 
 
 @router.post("/gbp/pull")
@@ -173,11 +192,7 @@ def trigger_gbp_pull(
     direction requests, calls, website clicks) and stores in Postgres.
     Default is 28 days since GBP data is typically reviewed monthly.
     """
-    try:
-        result = pull_gbp_data(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GBP pull", e)
+    return service_result_or_raise(pull_gbp_data(db=db, days_back=days_back))
 
 
 @router.post("/gbp/push-to-sheets")
@@ -189,11 +204,7 @@ def trigger_gbp_push_to_sheets(
 
     Creates two tabs: GBP Daily Metrics and GBP Metric Totals.
     """
-    try:
-        result = push_gbp_to_sheets(db=db, limit=limit)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "GBP push to Sheets", e)
+    return service_result_or_raise(push_gbp_to_sheets(db=db, limit=limit))
 
 
 @router.post("/gbp/pull-and-push")
@@ -203,16 +214,18 @@ def trigger_gbp_full_pipeline(
     """
     Full pipeline: Pull GBP data → store in Postgres → push to Sheets.
     """
-    try:
-        pull_result = pull_gbp_data(db=db, days_back=days_back)
-        push_result = push_gbp_to_sheets(db=db, limit=limit)
-        return {
-            "status": "success",
-            "pull": pull_result,
-            "push": push_result,
-        }
-    except Exception as e:
-        raise_route_error(logger, "GBP pull and push", e)
+    pull_result = _capture_pipeline_step(pull_gbp_data, db=db, days_back=days_back)
+    if _step_failed(pull_result):
+        push_result = _skipped_pipeline_step(
+            "Skipped Sheets push because the GBP pull step failed."
+        )
+    else:
+        push_result = _capture_pipeline_step(push_gbp_to_sheets, db=db, limit=limit)
+    return {
+        **_pipeline_response(pull_result, push_result),
+        "pull": pull_result,
+        "push": push_result,
+    }
 
 
 # ===================== Google Ads Endpoints =====================
@@ -228,11 +241,9 @@ def trigger_ads_pull(
     Pulls campaign and ad group performance for the last N days.
     Default is 30 days to match billing cycles.
     """
-    try:
-        result = pull_google_ads_data(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Google Ads pull", e)
+    return service_result_or_raise(
+        pull_google_ads_data(db=db, days_back=days_back)
+    )
 
 
 @router.post("/ads/push-to-sheets")
@@ -244,11 +255,9 @@ def trigger_ads_push_to_sheets(
 
     Creates two tabs: Ads Campaign Performance, Ads Ad Group Performance.
     """
-    try:
-        result = push_google_ads_to_sheets(db=db, limit=limit)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "Google Ads push to Sheets", e)
+    return service_result_or_raise(
+        push_google_ads_to_sheets(db=db, limit=limit)
+    )
 
 
 @router.post("/ads/pull-and-push")
@@ -258,16 +267,26 @@ def trigger_ads_full_pipeline(
     """
     Full pipeline: Pull Google Ads data → store in Postgres → push to Sheets.
     """
-    try:
-        pull_result = pull_google_ads_data(db=db, days_back=days_back)
-        push_result = push_google_ads_to_sheets(db=db, limit=limit)
-        return {
-            "status": "success",
-            "pull": pull_result,
-            "push": push_result,
-        }
-    except Exception as e:
-        raise_route_error(logger, "Google Ads pull and push", e)
+    pull_result = _capture_pipeline_step(
+        pull_google_ads_data,
+        db=db,
+        days_back=days_back,
+    )
+    if _step_failed(pull_result):
+        push_result = _skipped_pipeline_step(
+            "Skipped Sheets push because the Google Ads pull step failed."
+        )
+    else:
+        push_result = _capture_pipeline_step(
+            push_google_ads_to_sheets,
+            db=db,
+            limit=limit,
+        )
+    return {
+        **_pipeline_response(pull_result, push_result),
+        "pull": pull_result,
+        "push": push_result,
+    }
 
 
 # ----- Direct Google Ads API (Phase A) -----
@@ -276,10 +295,10 @@ def trigger_ads_full_pipeline(
 def ads_account_overview():
     """Customer info, campaign summary, conversion-action audit (direct API)."""
     from app.services.google_ads_service import get_account_overview
-    try:
-        return get_account_overview()
-    except Exception as e:
-        raise_route_error(logger, "Google Ads account overview", e)
+    overview = get_account_overview()
+    if overview.get("available") is False:
+        raise APIError(status_code=503, detail=overview.get("reason", "Google Ads direct API not configured"))
+    return overview
 
 
 @router.get("/ads/conversion-audit")
@@ -290,11 +309,11 @@ def ads_conversion_audit():
         direct_api_available,
     )
     if not direct_api_available():
-        raise_unavailable("GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.")
-    try:
-        return {"status": "success", **audit_conversion_actions()}
-    except Exception as e:
-        raise_route_error(logger, "Google Ads conversion audit", e)
+        raise APIError(
+            status_code=503,
+            detail="GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
+        )
+    return {"status": "success", **audit_conversion_actions()}
 
 
 @router.get("/ads/campaigns")
@@ -305,11 +324,11 @@ def ads_campaigns():
         list_campaigns,
     )
     if not direct_api_available():
-        raise_unavailable("GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.")
-    try:
-        return {"status": "success", "campaigns": list_campaigns()}
-    except Exception as e:
-        raise_route_error(logger, "Google Ads campaigns", e)
+        raise APIError(
+            status_code=503,
+            detail="GOOGLE_ADS_DEVELOPER_TOKEN + OAuth not configured.",
+        )
+    return {"status": "success", "campaigns": list_campaigns()}
 
 
 # ----- Google Tag Manager (Phase C) -----
@@ -323,13 +342,10 @@ def gtm_discover(account_id: str | None = None):
         discover_gtm_containers,
     )
     if not direct_api_available():
-        raise_unavailable("GTM credentials not configured.")
-    try:
-        if account_id:
-            return {"status": "success", "containers": discover_gtm_containers(account_id)}
-        return {"status": "success", "accounts": discover_gtm_accounts()}
-    except Exception as e:
-        raise_route_error(logger, "GTM discover", e)
+        raise APIError(status_code=503, detail="GTM credentials not configured.")
+    if account_id:
+        return {"status": "success", "containers": discover_gtm_containers(account_id)}
+    return {"status": "success", "accounts": discover_gtm_accounts()}
 
 
 @router.get("/gtm/overview")
@@ -344,11 +360,8 @@ def gtm_audit():
     """Just the audit findings (drift, dead tags, double-fires, page-view conversions)."""
     from app.services.gtm_service import audit_container, direct_api_available
     if not direct_api_available():
-        raise_unavailable("GTM credentials not configured.")
-    try:
-        return {"status": "success", **audit_container()}
-    except Exception as e:
-        raise_route_error(logger, "GTM audit", e)
+        raise APIError(status_code=503, detail="GTM credentials not configured.")
+    return {"status": "success", **audit_container()}
 
 
 # ===================== SEO Audit Endpoints =====================
@@ -365,11 +378,7 @@ def trigger_seo_audit(
     Generates findings and prioritized recommendations.
     Stores results in seo_reports table.
     """
-    try:
-        result = run_seo_audit(db=db, days_back=days_back)
-        return result
-    except Exception as e:
-        raise_route_error(logger, "SEO audit", e)
+    return service_result_or_raise(run_seo_audit(db=db, days_back=days_back))
 
 
 @router.post("/audit/push-to-sheets")
@@ -384,20 +393,24 @@ def trigger_audit_push_to_sheets(
     - SEO Recommendations: prioritized action items
     - SEO Opportunity Keywords: high-impression, low-CTR queries
     """
-    try:
-        audit_result = run_seo_audit(db=db, days_back=days_back)
-        push_result = push_audit_to_sheets(
-            db=db, audit_results=audit_result
+    audit_result = _capture_pipeline_step(run_seo_audit, db=db, days_back=days_back)
+    if _step_failed(audit_result):
+        push_result = _skipped_pipeline_step(
+            "Skipped Sheets push because the SEO audit step failed."
         )
-        return {
-            "status": "success",
-            "audit": {
-                "reports_created": audit_result.get("reports_created", 0),
-            },
-            "push": push_result,
-        }
-    except Exception as e:
-        raise_route_error(logger, "SEO audit push to Sheets", e)
+    else:
+        push_result = _capture_pipeline_step(
+            push_audit_to_sheets,
+            db=db,
+            audit_results=audit_result,
+        )
+    return {
+        **_pipeline_response(audit_result, push_result),
+        "audit": {
+            "reports_created": audit_result.get("reports_created", 0),
+        },
+        "push": push_result,
+    }
 
 
 # ===================== Deep SEO Audit Endpoints =====================
@@ -415,16 +428,15 @@ def trigger_deep_seo_audit(
     technical crawl, impression-weighted position, optional Shopify
     SEO-override check. Persists as SEOReport(report_type='deep_audit').
     """
-    try:
-        return run_deep_seo_audit(
+    return service_result_or_raise(
+        run_deep_seo_audit(
             db=db,
             period_days=period_days,
             include_crawl=include_crawl,
             include_shopify_overrides=include_shopify_overrides,
             max_urls=max_urls,
         )
-    except Exception as e:
-        raise_route_error(logger, "Deep SEO audit", e)
+    )
 
 
 @router.post("/audit/deep/push-to-sheets")
@@ -439,19 +451,28 @@ def trigger_deep_audit_push_to_sheets(
     Run deep audit and push the executive summary + tables to Sheets.
     Intended for n8n weekly cron.
     """
-    try:
-        audit = run_deep_seo_audit(
-            db=db,
-            period_days=period_days,
-            include_crawl=include_crawl,
-            include_shopify_overrides=include_shopify_overrides,
-            max_urls=max_urls,
+    audit = _capture_pipeline_step(
+        run_deep_seo_audit,
+        db=db,
+        period_days=period_days,
+        include_crawl=include_crawl,
+        include_shopify_overrides=include_shopify_overrides,
+        max_urls=max_urls,
+    )
+    if _step_failed(audit):
+        push = _skipped_pipeline_step(
+            "Skipped Sheets push because the deep audit step failed."
         )
-        push = push_deep_audit_to_sheets(audit_payload=audit)
-        return {"status": "success", "report_id": audit.get("report_id"),
-                "push": push}
-    except Exception as e:
-        raise_route_error(logger, "Deep SEO audit push to Sheets", e)
+    else:
+        push = _capture_pipeline_step(
+            push_deep_audit_to_sheets,
+            audit_payload=audit,
+        )
+    return {
+        **_pipeline_response(audit, push),
+        "report_id": audit.get("report_id"),
+        "push": push,
+    }
 
 
 @router.get("/audit/shopify-overrides")
@@ -463,7 +484,6 @@ def trigger_shopify_override_audit(include_products: bool = False):
     from app.services.shopify_seo_audit_service import (
         audit_shopify_seo_overrides,
     )
-    try:
-        return audit_shopify_seo_overrides(include_products=include_products)
-    except Exception as e:
-        raise_route_error(logger, "Shopify SEO override audit", e)
+    return service_result_or_raise(
+        audit_shopify_seo_overrides(include_products=include_products)
+    )
