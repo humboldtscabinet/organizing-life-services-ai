@@ -64,6 +64,11 @@ Tailscale is the approved off-network transport. It should carry SSH and
 Screen Sharing traffic over the private tailnet without exposing API,
 dashboard, n8n, Postgres, or Ollama to the public internet.
 
+The MacBook setup kit lives in
+[`remote-clients/macbook-pro/`](../remote-clients/macbook-pro/). Clone or pull
+the repo on the MacBook to use that folder for setup instructions and helper
+scripts; keep actual development work in the mini repo through Remote-SSH.
+
 | # | Step | Who | Notes |
 |---|------|-----|-------|
 | 1A.1 | Install Tailscale on the mini | BOTH | Use the official app/pkg or Homebrew cask. Sign into the chosen tailnet. |

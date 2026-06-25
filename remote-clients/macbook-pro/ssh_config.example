@@ -1,0 +1,22 @@
+Host ols-mini
+  HostName agent-eco-mini.<tailnet>.ts.net
+  User aiagentecosystem
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5678 127.0.0.1:5678
+
+Host ols-mini-lan
+  HostName agent-eco-mini.local
+  User aiagentecosystem
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5678 127.0.0.1:5678
+
