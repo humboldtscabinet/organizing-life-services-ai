@@ -24,9 +24,24 @@ or backup artifacts onto the MacBook.
 
 ## One-Time MacBook Steps
 
-1. Install Tailscale and sign into the same tailnet as the mini.
-2. Install VS Code.
-3. Install the VS Code extension `ms-vscode-remote.remote-ssh`.
+1. Install MacBook prerequisites:
+
+   ```bash
+   ./bootstrap_macbook_prereqs.sh
+   ```
+
+   This installs Tailscale, VS Code, and recommended VS Code extensions when
+   Homebrew and the `code` CLI are available. If the `code` CLI is not available
+   yet, install the listed extensions manually inside VS Code.
+
+2. Open Tailscale on the MacBook and sign into the same tailnet as the mini.
+
+3. Read the Tailscale notes:
+
+   ```bash
+   open TAILSCALE_NOTES.md
+   ```
+
 4. Install Tailscale on the mini from the MacBook or iMac when you can enter
    the mini admin password:
 
@@ -48,7 +63,7 @@ or backup artifacts onto the MacBook.
 6. Generate a MacBook SSH key if you do not already have one:
 
    ```bash
-   ssh-keygen -t ed25519 -C "macbook-pro-to-agent-eco-mini"
+   ./generate_macbook_ssh_key.sh
    ```
 
 7. Add the public key to the mini:
@@ -58,19 +73,31 @@ or backup artifacts onto the MacBook.
    ```
 
    This uses `~/.ssh/id_ed25519.pub` by default and appends it idempotently to
-   `/Users/aiagentecosystem/.ssh/authorized_keys` on the mini.
-
-8. Copy `ssh_config.example` into your MacBook SSH config, replacing
-   `<tailnet>` with the real MagicDNS tailnet name:
+   `/Users/aiagentecosystem/.ssh/authorized_keys` on the mini. By default it
+   uses `agent-eco-mini.local`; if you are away from home after Tailscale is
+   working, run it as:
 
    ```bash
-   cat ssh_config.example >> ~/.ssh/config
-   chmod 600 ~/.ssh/config
+   MINI_HOST=agent-eco-mini.<tailnet>.ts.net ./install_public_key_on_mini.sh
    ```
 
-9. Test:
+8. Configure your MacBook SSH alias, replacing `<tailnet>` with the real
+   MagicDNS tailnet name:
 
    ```bash
+   ./configure_ssh_alias.sh <tailnet>
+   ```
+
+   Example:
+
+   ```bash
+   ./configure_ssh_alias.sh example.ts.net
+   ```
+
+9. Test LAN and Tailscale SSH:
+
+   ```bash
+   ssh ols-mini-lan
    ssh ols-mini
    ./verify_macbook_client.sh
    ```
