@@ -2,7 +2,7 @@
 
 > Companion to [mac-mini-agent-server-plan.md](mac-mini-agent-server-plan.md).
 > Each step is tagged by who performs it and has an explicit gate.
-> Last updated: 2026-06-17.
+> Last updated: 2026-06-25.
 
 ## Legend
 
@@ -10,6 +10,16 @@
 - **AI** — assistant can run/edit over SSH once Remote Login works.
 - **BOTH** — assistant can drive, but the human must authorize or provide a
   secret/value.
+
+## Current Live Status
+
+As of the 2026-06-25 SSH check from the iMac:
+
+- The mini is reachable on LAN as `agent-eco-mini.local`.
+- The live repo is `/Users/aiagentecosystem/services/ols`.
+- Tailscale is not installed on the mini yet.
+- FileVault is on, `sleep` is disabled, and `autorestart` is still off.
+- API, dashboard, n8n, Postgres, and Ollama must remain localhost-first.
 
 ## Section 0 — Pre-flight
 
@@ -20,10 +30,12 @@ Do this before unboxing if possible.
 | 0.1 | Prepare `.env` values | HUMAN | Generate fresh `OLS_API_KEY`, `SECRET_KEY`, `POSTGRES_PASSWORD`, and `N8N_ENCRYPTION_KEY`. |
 | 0.2 | Gather Google/Shopify credentials | HUMAN | `.env` plus `credentials/google-service-account.json`. Never commit them. |
 | 0.3 | Rotate any previously exposed `OLS_API_KEY` | HUMAN | The old dashboard source contained a key; treat it as burned if it was live. |
-| 0.4 | Confirm GitHub auth method | HUMAN | New SSH key for the mini is preferred. |
-| 0.5 | Decide remote access style | HUMAN | Recommended: LAN/SSH first, Tailscale later before off-network use. |
+| 0.4 | Confirm GitHub auth method | HUMAN | The mini should have GitHub auth for commit/push history and backup. |
+| 0.5 | Use Tailscale for off-network access | BOTH | Tailscale is the chosen remote transport. Do not hardcode the mini's numeric LAN IP; DHCP has moved before. |
+| 0.6 | Decide FileVault/unattended recovery | HUMAN | Recommended target for a physically secure headless server: FileVault off plus auto-login. Keep FileVault on only if physical-theft protection matters more than unattended power recovery. |
 
-**Gate:** secrets exist outside git, and the mini has a planned GitHub auth path.
+**Gate:** secrets exist outside git, the mini has a GitHub auth path, and the
+operator understands the FileVault recovery tradeoff.
 
 ## Section 1 — Mac Foundation
 
@@ -38,25 +50,76 @@ Must start physically at the mini.
 | 1.5 | Install Git, OrbStack, and Ollama | AI | `brew install git ollama && brew install --cask orbstack`. |
 | 1.6 | Enable OrbStack start-on-login | HUMAN | GUI toggle. |
 | 1.7 | Enable Remote Login / SSH | HUMAN | Handoff gate for AI-driven terminal work. |
-| 1.8 | Disable sleep | BOTH | `sudo pmset -a sleep 0`; human enters password. |
-| 1.9 | Decide FileVault mode | HUMAN | Keep on for physical security; off only for unattended reboot priority. |
+| 1.8 | Disable sleep and disk/display sleep | BOTH | `sudo pmset -a sleep 0 displaysleep 0 disksleep 0`; human enters password. |
+| 1.9 | Enable power-loss restart | BOTH | `sudo pmset autorestart 1`; human enters password. |
+| 1.10 | Configure FileVault mode | HUMAN | If unattended recovery is the priority, turn FileVault off after confirming the mini is physically secure. |
+| 1.11 | Enable auto-login for `aiagentecosystem` | HUMAN | Needed for OrbStack GUI start-on-login after unattended reboot. This only works after FileVault is unlocked/off. |
+| 1.12 | Keep Screen Sharing as break-glass | HUMAN | Use only over LAN/Tailscale; optional HDMI dummy plug improves headless VNC resolution. |
 
 **Gate:** `ssh <mini-user>@mini.local` works from the workstation.
 
-## Section 2 — Secure OLS Deploy
+## Section 1A — Tailscale And Remote Clients
 
-Run remotely over SSH.
+Tailscale is the approved off-network transport. It should carry SSH and
+Screen Sharing traffic over the private tailnet without exposing API,
+dashboard, n8n, Postgres, or Ollama to the public internet.
 
 | # | Step | Who | Notes |
 |---|------|-----|-------|
-| 2.1 | Clone repo | AI | Recommended path: `~/services/ols`. |
+| 1A.1 | Install Tailscale on the mini | BOTH | Use the official app/pkg or Homebrew cask. Sign into the chosen tailnet. |
+| 1A.2 | Ensure Tailscale starts at boot | HUMAN | The goal is reachability before routine GUI use. Verify after reboot. |
+| 1A.3 | Enable MagicDNS | HUMAN | Use the stable Tailscale name, for example `agent-eco-mini.<tailnet>.ts.net`. Do not rely on `192.168.1.x`. |
+| 1A.4 | Install Tailscale on the iMac | HUMAN | Existing client; keep LAN SSH working as a fallback. |
+| 1A.5 | Install Tailscale on the MacBook Pro | HUMAN | New thin client. Sign into the same tailnet. |
+| 1A.6 | Generate MacBook SSH key | HUMAN | `ssh-keygen -t ed25519 -C "macbook-pro-to-agent-eco-mini"`. Never copy the private key to the mini. |
+| 1A.7 | Add MacBook public key to mini | BOTH | Append the `.pub` key to `/Users/aiagentecosystem/.ssh/authorized_keys`. |
+| 1A.8 | Test SSH by MagicDNS | HUMAN | From MacBook: `ssh aiagentecosystem@agent-eco-mini.<tailnet>.ts.net`. LAN mDNS can also use `agent-eco-mini.local`. |
+| 1A.9 | Disable SSH password auth after both clients work | BOTH | Set `PasswordAuthentication no` only after iMac and MacBook key login both pass. Keep Screen Sharing as break-glass. |
+
+**Gate:** iMac and MacBook can SSH to the mini through Tailscale by name, and
+no service ports are exposed beyond mini localhost.
+
+## Section 2 — Secure OLS Deploy And Daily Remote Editing
+
+Run remotely over SSH. The live repo on the mini is the source of truth for
+daily work; the iMac and MacBook are Remote-SSH clients, not separate runtime
+owners. GitHub remains the history/backup remote.
+
+| # | Step | Who | Notes |
+|---|------|-----|-------|
+| 2.1 | Clone or confirm live repo | AI | Live path: `/Users/aiagentecosystem/services/ols`. |
 | 2.2 | Transfer `.env` and credentials | HUMAN | AirDrop or `scp`; never GitHub. |
 | 2.3 | Create local dirs | AI | Ensure `data/` and `credentials/` exist. |
 | 2.4 | Run deploy script | AI | `infra/server/deploy_server.sh`; runs preflight, compose up, migrations, and stack verification. |
 | 2.5 | Fix deploy failures if any | BOTH | Preflight failures are usually missing secrets, credentials, or Docker/OrbStack not running. |
-| 2.6 | Unlock dashboard | HUMAN | Visit `http://localhost:3000` on the mini or through SSH tunnel and enter `OLS_API_KEY`. |
+| 2.6 | Unlock dashboard | HUMAN | Visit `http://localhost:3000` through Remote-SSH/SSH port forwarding and enter `OLS_API_KEY`. |
 | 2.7 | Verify services | AI | `infra/server/verify_stack.sh`; checks health, localhost port binding, and Postgres exposure. |
 | 2.8 | Reboot test | BOTH | Confirm OrbStack and containers recover after reboot/login. |
+| 2.9 | Use VS Code Remote-SSH from clients | HUMAN | Open `/Users/aiagentecosystem/services/ols` on the mini from either iMac or MacBook. |
+| 2.10 | Install remote VS Code extensions | HUMAN | Recommended on the remote host: GitHub Copilot, Copilot Chat, Python, Pylance, Ruff, Docker. |
+| 2.11 | Commit/push from remote session | BOTH | Make daily edits in the mini repo, commit there, push to GitHub, then rebuild in place. |
+
+Suggested MacBook `~/.ssh/config` entry:
+
+```sshconfig
+Host ols-mini
+  HostName agent-eco-mini.<tailnet>.ts.net
+  User aiagentecosystem
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5678 127.0.0.1:5678
+```
+
+VS Code Remote-SSH can also forward ports automatically. The explicit forwards
+above are useful when opening the dashboard/API/n8n from a normal browser:
+
+- dashboard: `http://localhost:3000`
+- API docs: `http://localhost:8000/docs`
+- n8n: `http://localhost:5678`
 
 **Gate:** API health is OK, dashboard/n8n load through approved access, and
 Postgres is not published to the LAN.

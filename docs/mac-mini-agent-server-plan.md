@@ -2,7 +2,8 @@
 
 > Reference plan for migrating Organizing Life Services AI to a dedicated
 > Mac mini server and growing it into a bounded multi-agent ecosystem.
-> Status: implementation-ready foundation. Last updated: 2026-06-17.
+> Status: live private server plus Remote-SSH client model. Last updated:
+> 2026-06-25.
 
 ## Vision
 
@@ -26,18 +27,27 @@ come before autonomy**.
 
 - **Data:** fresh start on the mini; no Postgres migration. GSC/GA4 data is
   re-pulled after backups are configured.
-- **Deploy:** manual SSH deploy from GitHub. Workstation pushes to GitHub; mini
-  pulls and rebuilds.
+- **Editing/deploy:** the mini repo at `/Users/aiagentecosystem/services/ols`
+  is the live source of truth. The iMac and MacBook Pro connect with VS Code
+  Remote-SSH, edit the mini repo directly, commit/push from the remote session,
+  and rebuild in place. GitHub remains history/backup, not the daily source of
+  deploy truth.
 - **Runtime:** OrbStack for containers; Ollama on the host for Apple Silicon
   acceleration.
 - **Server compose:** use `docker-compose.server.yml` on the mini, not the
   laptop dev compose.
+- **Clients:** iMac and MacBook Pro are thin clients only. Code, Docker,
+  Ollama, `.env`, Google credentials, n8n data, and backups stay on the mini.
 - **Local models:** `gemma4:12b` as default clerk; `gemma4:31b` as local
   heavyweight. Optional benchmark: `gemma4:26b` for throughput.
-- **Access:** localhost-first. Use SSH forwarding or Tailscale for remote access;
-  do not expose dashboard/API/n8n/Postgres/Ollama directly to the public internet.
+- **Access:** localhost-first. Tailscale is the approved off-network transport;
+  SSH/VS Code port forwarding exposes mini-local services only to the client.
+  Do not expose dashboard/API/n8n/Postgres/Ollama directly to the LAN or public
+  internet.
 - **Secrets:** `.env` and `credentials/google-service-account.json` are never
   committed. Rotate `OLS_API_KEY` before the mini becomes the durable server.
+- **Naming:** do not hardcode a numeric mini IP. DHCP has moved; use
+  `agent-eco-mini.local` on LAN and Tailscale MagicDNS off-network.
 
 ## Stage 0 — Repo and Security Readiness
 
@@ -59,15 +69,57 @@ come before autonomy**.
 1. Complete macOS first boot and all software updates.
 2. Create a dedicated admin user for the server.
 3. Connect via Ethernet, set a stable hostname, and reserve the LAN IP in the
-   router.
+   router if possible. Do not rely on the old `192.168.1.x` value in docs or
+   scripts.
 4. Install Xcode Command Line Tools, Homebrew, Git, OrbStack, and Ollama.
 5. Enable OrbStack start-on-login and Remote Login / SSH.
-6. Disable sleep: `sudo pmset -a sleep 0`.
-7. Decide FileVault tradeoff:
+6. Disable sleep and idle disk/display sleep:
+   ```bash
+   sudo pmset -a sleep 0 displaysleep 0 disksleep 0
+   ```
+7. Enable power-loss restart:
+   ```bash
+   sudo pmset autorestart 1
+   ```
+8. Decide FileVault tradeoff:
    - Physical security priority: keep FileVault on and accept manual unlock
      after power loss.
    - Unattended restart priority: FileVault off only if the mini is physically
      secure.
+9. For a headless server, enable auto-login for `aiagentecosystem` after the
+   FileVault decision so OrbStack's start-on-login path can recover containers
+   after a reboot. Keep Screen Sharing enabled as break-glass GUI access over
+   LAN/Tailscale only.
+
+## Stage 1A — Tailscale And Remote Clients
+
+Tailscale is the remote-access layer. It gives the iMac and MacBook Pro a
+private path to SSH, VS Code Remote-SSH, and Screen Sharing without changing any
+service bindings.
+
+1. Install Tailscale on the mini and sign into the tailnet.
+2. Ensure Tailscale starts at boot and verify after a mini reboot.
+3. Enable MagicDNS and use a stable name such as
+   `agent-eco-mini.<tailnet>.ts.net`.
+4. Install Tailscale on the iMac and MacBook Pro and sign them into the same
+   tailnet.
+5. Generate a MacBook SSH key:
+   ```bash
+   ssh-keygen -t ed25519 -C "macbook-pro-to-agent-eco-mini"
+   ```
+6. Append the MacBook public key to:
+   ```text
+   /Users/aiagentecosystem/.ssh/authorized_keys
+   ```
+7. Test both paths from the MacBook:
+   ```bash
+   ssh aiagentecosystem@agent-eco-mini.local
+   ssh aiagentecosystem@agent-eco-mini.<tailnet>.ts.net
+   ```
+8. After both iMac and MacBook key auth work, disable SSH password auth. Keep
+   Screen Sharing as break-glass access.
+9. Optional hardening after Tailscale is proven: tailnet ACLs and a macOS
+   firewall rule set that only allows SSH/Screen Sharing through trusted paths.
 
 ## Stage 2 — Secure OLS Deploy
 
@@ -85,6 +137,28 @@ come before autonomy**.
    - dashboard at `http://localhost:3000`
    - n8n at `http://localhost:5678`
    - Postgres is reachable only from Docker, not published to the LAN.
+6. Daily edits happen through VS Code Remote-SSH into
+   `/Users/aiagentecosystem/services/ols`, not through separate local clones.
+7. Commit and push from the remote session for GitHub history/backup, then
+   rebuild in place with the server deploy scripts.
+
+Recommended MacBook SSH alias:
+
+```sshconfig
+Host ols-mini
+  HostName agent-eco-mini.<tailnet>.ts.net
+  User aiagentecosystem
+  IdentityFile ~/.ssh/id_ed25519
+  IdentitiesOnly yes
+  ServerAliveInterval 30
+  ServerAliveCountMax 3
+  LocalForward 3000 127.0.0.1:3000
+  LocalForward 8000 127.0.0.1:8000
+  LocalForward 5678 127.0.0.1:5678
+```
+
+VS Code Remote-SSH may auto-forward ports, but explicit forwards make normal
+browser access predictable while preserving mini-local service bindings.
 
 ## Stage 3 — Backups Before Real Data
 
@@ -188,6 +262,12 @@ Parallel web systems are evidence collectors, not decision makers:
 
 - **Server:** stack survives reboot; `/health` is OK; dashboard and n8n load via
   localhost or approved tunnel; Postgres is not LAN-exposed.
+- **Remote clients:** iMac and MacBook can SSH to the mini through Tailscale by
+  name; VS Code Remote-SSH opens `/Users/aiagentecosystem/services/ols`; the
+  integrated terminal shows the mini hostname and live repo path.
+- **Headless recovery:** after `sudo reboot`, the mini returns on Tailscale,
+  OrbStack/Ollama restart, and `infra/server/verify_stack.sh` passes. If
+  FileVault remains on, this gate is manual-unlock only by design.
 - **Secrets:** no live API key is committed; `.env` contains unique server
   secrets; `N8N_ENCRYPTION_KEY` is backed up.
 - **Backups:** Postgres and n8n backup files are produced,
