@@ -33,10 +33,12 @@ from app.services.ops_alert_service import (
     acknowledge_alert,
     alert_to_dict,
     create_alert,
-    dismiss_alert as dismiss_ops_alert_service,
     get_alert_metrics,
     list_alerts,
     resolve_alert,
+)
+from app.services.ops_alert_service import (
+    dismiss_alert as dismiss_ops_alert_service,
 )
 from app.services.sheets_service import (
     push_ga4_to_sheets,

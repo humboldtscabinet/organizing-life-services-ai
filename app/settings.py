@@ -38,6 +38,8 @@ class Settings:
 
 def _parse_allowed_origins(raw_value: str) -> tuple[str, ...]:
     origins = [origin.strip() for origin in raw_value.split(",") if origin.strip()]
+    if "*" in origins:
+        raise RuntimeError("Wildcard CORS origins are not allowed; pin explicit origins.")
     return tuple(origins) if origins else DEFAULT_ALLOWED_ORIGINS
 
 
@@ -50,7 +52,8 @@ def get_settings() -> Settings:
         )
 
     database_url = os.getenv("DATABASE_URL", DEFAULT_DATABASE_URL).strip()
-    allowed_origins = _parse_allowed_origins(os.getenv("OLS_ALLOWED_ORIGINS", ""))
+    allowed_origins_raw = os.getenv("OLS_ALLOWED_ORIGINS") or os.getenv("CORS_ALLOW_ORIGINS", "")
+    allowed_origins = _parse_allowed_origins(allowed_origins_raw)
 
     return Settings(
         api_key=api_key,

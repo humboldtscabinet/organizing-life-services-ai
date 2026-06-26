@@ -2,11 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react'
 import {
   BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts'
-import { RefreshCw, Zap, CheckCircle, AlertCircle, Eye, X, Clock } from 'lucide-react'
+import { RefreshCw, Zap, CheckCircle, AlertCircle, Eye, Clock, Bell } from 'lucide-react'
 import {
+  acknowledgeAlert,
   clearDevApiKey,
   dismissTask,
+  dismissAlert,
   generateTasks,
+  getAlertMetrics,
+  getAlerts,
   getChannelMetrics,
   getDevApiKey,
   getMetrics,
@@ -38,6 +42,12 @@ const PRIORITY_COLORS = {
   LOW: '#10b981',
 }
 
+const ALERT_SEVERITY_COLORS = {
+  CRITICAL: '#ef4444',
+  WARNING: '#eab308',
+  INFO: '#3b82f6',
+}
+
 const DEV_AUTH_REQUIRED = isDevAuthRequired()
 
 const getErrorMessage = (error, fallback) => error?.detail || error?.message || fallback
@@ -63,6 +73,8 @@ const Toast = ({ message, type, onClose }) => {
 
 export default function App() {
   const [tasks, setTasks] = useState([])
+  const [alerts, setAlerts] = useState([])
+  const [alertMetrics, setAlertMetrics] = useState(null)
   const [metrics, setMetrics] = useState(null)
   const [channelMetrics, setChannelMetrics] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -83,14 +95,18 @@ export default function App() {
 
     try {
       setLoading(true)
-      const [tasksData, metricsData, channelsData] = await Promise.all([
+      const [tasksData, metricsData, channelsData, alertsData, alertMetricsData] = await Promise.all([
         getTasks({ limit: 50 }),
         getMetrics(),
         getChannelMetrics(),
+        getAlerts({ status: 'open', limit: 20 }),
+        getAlertMetrics(),
       ])
       setTasks(tasksData.tasks || [])
       setMetrics(metricsData.metrics || metricsData)
       setChannelMetrics(channelsData.metrics || channelsData)
+      setAlerts(alertsData.alerts || [])
+      setAlertMetrics(alertMetricsData.metrics || alertMetricsData)
     } catch (error) {
       console.error('Error fetching data:', error)
       setToast({ message: getErrorMessage(error, 'Failed to load dashboard data'), type: 'error' })
@@ -102,6 +118,8 @@ export default function App() {
   useEffect(() => {
     if (!hasRequiredApiKey) {
       setTasks([])
+      setAlerts([])
+      setAlertMetrics(null)
       setMetrics(null)
       setChannelMetrics(null)
       setLoading(false)
@@ -160,6 +178,28 @@ export default function App() {
     }
   }
 
+  const handleAcknowledgeAlert = async (id) => {
+    try {
+      await acknowledgeAlert(id)
+      setToast({ message: 'Alert acknowledged', type: 'success' })
+      await fetchData()
+    } catch (error) {
+      console.error('Error acknowledging alert:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to acknowledge alert'), type: 'error' })
+    }
+  }
+
+  const handleDismissAlert = async (id) => {
+    try {
+      await dismissAlert(id)
+      setToast({ message: 'Alert dismissed', type: 'success' })
+      await fetchData()
+    } catch (error) {
+      console.error('Error dismissing alert:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to dismiss alert'), type: 'error' })
+    }
+  }
+
   const handleRefreshAll = async () => {
     try {
       setRefreshingAll(true)
@@ -198,6 +238,8 @@ export default function App() {
     setSessionApiKey('')
     setApiKeyInput('')
     setTasks([])
+    setAlerts([])
+    setAlertMetrics(null)
     setMetrics(null)
     setChannelMetrics(null)
     setToast({ message: 'Session API key cleared', type: 'warning' })
@@ -213,6 +255,7 @@ export default function App() {
   const pendingCount = metrics?.status_breakdown?.pending || 0
   const highPriorityCount = metrics?.priority_breakdown?.HIGH || 0
   const activeChannels = channelMetrics ? Object.keys(channelMetrics).filter(k => k !== 'status').length : 0
+  const openAlertCount = alertMetrics?.open_count || 0
 
   const taskTypeData = metrics?.type_breakdown ? Object.entries(metrics.type_breakdown).map(([name, value]) => ({
     name: name.charAt(0).toUpperCase() + name.slice(1),
@@ -323,7 +366,7 @@ export default function App() {
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
         <KPICard
           title="Pending Tasks"
           value={pendingCount}
@@ -348,7 +391,21 @@ export default function App() {
           color="#3b82f6"
           icon={<Eye size={24} />}
         />
+        <KPICard
+          title="Open Alerts"
+          value={openAlertCount}
+          color={alertMetrics?.critical_open_count ? '#ef4444' : '#eab308'}
+          icon={<Bell size={24} />}
+        />
       </div>
+
+      <AlertsPanel
+        alerts={alerts}
+        loading={loading}
+        hasRequiredApiKey={hasRequiredApiKey}
+        onAcknowledge={handleAcknowledgeAlert}
+        onDismiss={handleDismissAlert}
+      />
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -542,7 +599,113 @@ function KPICard({ title, value, color, icon }) {
   )
 }
 
+function AlertsPanel({ alerts, loading, hasRequiredApiKey, onAcknowledge, onDismiss }) {
+  return (
+    <div style={{ backgroundColor: COLORS.cardBg }} className="rounded-lg p-6 mb-8">
+      <div className="flex items-center gap-3 mb-4">
+        <Bell size={22} style={{ color: '#eab308' }} />
+        <h2 className="text-2xl font-semibold" style={{ color: COLORS.text }}>
+          Alerts
+        </h2>
+      </div>
+
+      {!hasRequiredApiKey ? (
+        <div className="text-center py-6" style={{ color: COLORS.textDim }}>
+          Enter the API key above to load alerts.
+        </div>
+      ) : loading ? (
+        <div className="text-center py-6" style={{ color: COLORS.textDim }}>
+          Loading alerts...
+        </div>
+      ) : alerts.length === 0 ? (
+        <div className="flex items-center gap-3 rounded-lg p-4" style={{ backgroundColor: COLORS.bg }}>
+          <CheckCircle size={20} style={{ color: '#10b981' }} />
+          <span style={{ color: COLORS.textDim }}>No open operational alerts</span>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {alerts.map((alert) => (
+            <AlertCard
+              key={alert.id}
+              alert={alert}
+              onAcknowledge={onAcknowledge}
+              onDismiss={onDismiss}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+function AlertCard({ alert, onAcknowledge, onDismiss }) {
+  const severityColor = ALERT_SEVERITY_COLORS[alert.severity] || '#64748b'
+  const seenAt = alert.last_seen_at || alert.created_at
+
+  return (
+    <div
+      style={{ backgroundColor: COLORS.bg, borderLeft: `4px solid ${severityColor}` }}
+      className="rounded-lg p-4 flex flex-col md:flex-row md:items-start justify-between gap-4"
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex flex-wrap items-center gap-2 mb-2">
+          <span
+            className="px-2 py-1 rounded text-xs font-semibold text-white"
+            style={{ backgroundColor: severityColor }}
+          >
+            {alert.severity}
+          </span>
+          <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-gray-600">
+            {alert.source}
+          </span>
+          {alert.occurrence_count > 1 && (
+            <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-slate-600">
+              Seen {alert.occurrence_count}x
+            </span>
+          )}
+        </div>
+        <h3 className="font-bold mb-1" style={{ color: COLORS.text }}>
+          {alert.title}
+        </h3>
+        {alert.message && (
+          <p className="text-sm mb-2" style={{ color: COLORS.textDim }}>
+            {alert.message}
+          </p>
+        )}
+        <div className="flex flex-wrap gap-4 text-xs" style={{ color: COLORS.textDim }}>
+          {alert.created_at && (
+            <span>Created: {new Date(alert.created_at).toLocaleString()}</span>
+          )}
+          {seenAt && (
+            <span>Last seen: {new Date(seenAt).toLocaleString()}</span>
+          )}
+        </div>
+      </div>
+      <div className="flex gap-2 shrink-0">
+        <button
+          onClick={() => onAcknowledge(alert.id)}
+          className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+          style={{ backgroundColor: '#0f3460' }}
+        >
+          Acknowledge
+        </button>
+        <button
+          onClick={() => onDismiss(alert.id)}
+          className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+          style={{ backgroundColor: '#666' }}
+        >
+          Dismiss
+        </button>
+      </div>
+    </div>
+  )
+}
+
 function TaskCard({ task, onApprove, onDismiss, onDelay }) {
+  const leadScore = task.action_payload?.lead_score
+  const leadTier = task.action_payload?.lead_tier
+  const leadReasons = task.action_payload?.lead_relevance_reasons || []
+
   return (
     <div style={{ backgroundColor: COLORS.bg, borderLeft: `4px solid ${PRIORITY_COLORS[task.priority] || '#666'}` }} className="rounded-lg p-4 flex justify-between items-start gap-4">
       <div className="flex-1">
@@ -562,6 +725,17 @@ function TaskCard({ task, onApprove, onDismiss, onDelay }) {
           {task.status !== 'pending' && (
             <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-gray-600 capitalize">
               {task.status}
+            </span>
+          )}
+          {typeof leadScore === 'number' && (
+            <span
+              className="px-2 py-1 rounded text-xs font-semibold text-white"
+              style={{
+                backgroundColor: leadTier === 'HIGH' ? '#10b981' : leadTier === 'MEDIUM' ? '#eab308' : '#64748b',
+              }}
+              title={leadReasons.join('; ')}
+            >
+              Lead {leadTier || 'LOW'} {leadScore}/100
             </span>
           )}
         </div>

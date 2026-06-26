@@ -8,9 +8,9 @@ from fastapi import Depends, FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from sqlalchemy import text
 from starlette import status
 from starlette.exceptions import HTTPException as StarletteHTTPException
-from sqlalchemy import text
 
 from app.api_errors import (
     APIError,

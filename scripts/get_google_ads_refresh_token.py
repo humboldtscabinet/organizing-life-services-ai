@@ -40,7 +40,7 @@ if not CLIENT_ID or not CLIENT_SECRET:
     print("  4. Copy the Client ID and Client Secret into .env")
     sys.exit(1)
 
-from google_auth_oauthlib.flow import InstalledAppFlow
+from google_auth_oauthlib.flow import InstalledAppFlow  # noqa: E402
 
 # Google Ads API scope
 SCOPES = ["https://www.googleapis.com/auth/adwords"]

@@ -588,9 +588,8 @@ def debug_test_mutation(
     """
     import httpx as _httpx
 
-    from app.services.vision_service import _fetch_shopify_file_ids
-
     from app.services.shopify_service import _get_access_token
+    from app.services.vision_service import _fetch_shopify_file_ids
 
     token = _get_access_token()
 
