@@ -1,0 +1,91 @@
+name: Daily Platform Snapshot
+
+# Lightweight daily GSC + GA4 snapshot for trend review. Writes JSON artifacts
+# to data/audit_output/ and opens a PR for operator review.
+#
+# Required repo secrets:
+#   GOOGLE_SERVICE_ACCOUNT_JSON
+#   GA4_PROPERTY_ID
+#   GSC_SITE_URL
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Preflight required secrets
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          missing=0
+          for name in GOOGLE_SERVICE_ACCOUNT_JSON GA4_PROPERTY_ID GSC_SITE_URL; do
+            if [ -z "${!name}" ]; then
+              echo "::error::${name} secret is not configured."
+              missing=1
+            fi
+          done
+          if [ "$missing" -ne 0 ]; then
+            exit 1
+          fi
+
+      - name: Write service-account credentials from secret
+        run: |
+          mkdir -p credentials
+          printf '%s' "$GOOGLE_SERVICE_ACCOUNT_JSON" > credentials/google-service-account.json
+          chmod 600 credentials/google-service-account.json
+          python -m json.tool credentials/google-service-account.json >/dev/null
+        env:
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+
+      - name: Run daily platform snapshot
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: credentials/google-service-account.json
+          GA4_PROPERTY_ID: ${{ secrets.GA4_PROPERTY_ID }}
+          GSC_SITE_URL: ${{ secrets.GSC_SITE_URL }}
+        run: |
+          python scripts/daily_platform_snapshot.py
+
+      - name: Clean up credentials before commit
+        if: always()
+        run: |
+          rm -f credentials/google-service-account.json
+
+      - name: Create pull request with snapshot
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(seo): daily platform snapshot"
+          title: "Daily platform snapshot — ${{ github.run_id }}"
+          body: |
+            Automated daily GSC + GA4 snapshot.
+
+            Review the new JSON under `data/audit_output/` and merge if the
+            numbers look sane.
+          branch: "automation/daily-platform-snapshot-${{ github.run_id }}"
+          add-paths: |
+            data/audit_output/
+          delete-branch: true
