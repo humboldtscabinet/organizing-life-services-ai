@@ -146,6 +146,46 @@ export const refreshAllData = async () => {
   })
 }
 
+export const runPhase1Cycle = async (options = {}) => {
+  const params = new URLSearchParams()
+  if (options.daysBack) params.append('days_back', String(options.daysBack))
+  if (options.scheduleContentCount !== undefined) {
+    params.append('schedule_content_count', String(options.scheduleContentCount))
+  }
+  if (options.pushToSheets !== undefined) {
+    params.append('push_to_sheets', String(options.pushToSheets))
+  }
+
+  const queryString = params.toString()
+  const endpoint = queryString
+    ? `/dashboard/phase1-cycle?${queryString}`
+    : '/dashboard/phase1-cycle'
+
+  return fetchAPI(endpoint, {
+    method: 'POST',
+  })
+}
+
+export const previewContentForTask = async (taskId) => {
+  return fetchAPI(`/content/preview-for-task?task_id=${taskId}`, {
+    method: 'POST',
+  })
+}
+
+export const publishContentTask = async (taskId, { humanConfirmed, judgeVerdict }) => {
+  const params = new URLSearchParams({
+    task_id: String(taskId),
+    human_confirmed: humanConfirmed ? 'true' : 'false',
+  })
+  if (judgeVerdict) {
+    params.append('judge_verdict', judgeVerdict)
+  }
+
+  return fetchAPI(`/content/generate-and-publish?${params.toString()}`, {
+    method: 'POST',
+  })
+}
+
 export const getMetrics = async () => {
   return fetchAPI('/dashboard/metrics')
 }

@@ -185,6 +185,7 @@ def pull_gbp_data(
     data = resp.json()
 
     rows_inserted = 0
+    rows_updated = 0
     for daily_ts in _iter_daily_metric_series(data):
         metric_name = daily_ts.get("dailyMetric", "UNKNOWN")
 
@@ -201,18 +202,37 @@ def pull_gbp_data(
             )
             value = int(point.get("value", 0))
 
-            record = GBPInsight(
-                metric_name=metric_name,
-                metric_value=value,
-                period_start=date_obj,
-                period_end=date_obj,
-                data={
+            existing = (
+                db.query(GBPInsight)
+                .filter(
+                    GBPInsight.metric_name == metric_name,
+                    GBPInsight.period_start == date_obj,
+                    GBPInsight.data["location_id"].astext == location_id,
+                )
+                .first()
+            )
+
+            if existing:
+                existing.metric_value = value
+                existing.period_end = date_obj
+                existing.data = {
                     "location_id": location_id,
                     "source": "performance_api",
-                },
-            )
-            db.add(record)
-            rows_inserted += 1
+                }
+                rows_updated += 1
+            else:
+                record = GBPInsight(
+                    metric_name=metric_name,
+                    metric_value=value,
+                    period_start=date_obj,
+                    period_end=date_obj,
+                    data={
+                        "location_id": location_id,
+                        "source": "performance_api",
+                    },
+                )
+                db.add(record)
+                rows_inserted += 1
 
     db.commit()
 
@@ -225,6 +245,7 @@ def pull_gbp_data(
             "start_date": str(start_date),
             "end_date": str(end_date),
             "rows_inserted": rows_inserted,
+            "rows_updated": rows_updated,
             "metrics_requested": DAILY_METRICS,
         },
     )
@@ -237,4 +258,5 @@ def pull_gbp_data(
         "start_date": str(start_date),
         "end_date": str(end_date),
         "rows_inserted": rows_inserted,
+        "rows_updated": rows_updated,
     }

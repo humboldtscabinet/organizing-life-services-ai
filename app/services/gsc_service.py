@@ -50,20 +50,33 @@ def pull_gsc_data(
     end_date = datetime.utcnow().date() - timedelta(days=3)  # GSC data lags ~3 days
     start_date = end_date - timedelta(days=days_back)
 
-    request_body = {
-        "startDate": start_date.isoformat(),
-        "endDate": end_date.isoformat(),
-        "dimensions": ["query", "page", "date"],
-        "rowLimit": 1000,
-    }
+    row_limit = 1000
+    start_row = 0
+    rows = []
 
-    response = (
-        service.searchanalytics()
-        .query(siteUrl=site_url, body=request_body)
-        .execute()
-    )
+    while True:
+        request_body = {
+            "startDate": start_date.isoformat(),
+            "endDate": end_date.isoformat(),
+            "dimensions": ["query", "page", "date"],
+            "rowLimit": row_limit,
+            "startRow": start_row,
+        }
 
-    rows = response.get("rows", [])
+        response = (
+            service.searchanalytics()
+            .query(siteUrl=site_url, body=request_body)
+            .execute()
+        )
+
+        batch = response.get("rows", [])
+        rows.extend(batch)
+
+        if len(batch) < row_limit:
+            break
+
+        start_row += row_limit
+
     inserted = 0
     updated = 0
 
@@ -113,6 +126,7 @@ def pull_gsc_data(
             "site_url": site_url,
             "start_date": start_date.isoformat(),
             "end_date": end_date.isoformat(),
+            "rows_fetched": len(rows),
             "rows_inserted": inserted,
             "rows_updated": updated,
         },
@@ -125,5 +139,7 @@ def pull_gsc_data(
         "site_url": site_url,
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
+        "rows_fetched": len(rows),
         "rows_inserted": inserted,
+        "rows_updated": updated,
     }

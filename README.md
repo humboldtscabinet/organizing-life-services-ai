@@ -37,6 +37,11 @@ See `docs/architecture.md` for the full system overview.
 2. Generate evidence-based SEO opportunities from real performance data.
 3. Draft changes with strict human and judge gates before public writes.
 4. Measure impact through follow-up audits instead of trusting one-off changes.
+5. Run the gated Phase 1 automation cycle via dashboard, n8n, or
+   `scripts/scheduled_platform_sync.py`.
+
+See [docs/runbooks/phase1-automation.md](docs/runbooks/phase1-automation.md) for
+the operator schedule and publish flow.
 
 The broader multi-agent layer is intentionally deferred until the core SEO
 workflow is stable and measurable.

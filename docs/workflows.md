@@ -36,6 +36,12 @@ explicitly designed, reviewed, and protected for production writes.
 - Weekly measurement audit: GitHub Actions is the current owner because it
   produces repo-visible artifacts and PR review. Keep the n8n weekly audit
   workflow inactive unless you deliberately move ownership to the Mac mini.
+- Daily platform snapshot: GitHub Actions (`daily-platform-snapshot.yml`) archives
+  GSC + GA4 JSON under `data/audit_output/`.
+- Daily Postgres refresh: Mac mini cron or n8n `daily_platform_sync.json`
+  calling `POST /api/dashboard/refresh`.
+- Weekly gated Phase 1 cycle: Mac mini n8n `weekly_phase1_cycle.json` or
+  `scripts/scheduled_platform_sync.py --full-cycle`.
 - Public Shopify writes: manual approval through guarded API routes.
 - Direct `data/` scripts: historical/manual fallback only; see
   [runbooks/data-mutation-scripts.md](runbooks/data-mutation-scripts.md).

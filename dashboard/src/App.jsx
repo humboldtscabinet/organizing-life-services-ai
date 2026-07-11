@@ -16,7 +16,10 @@ import {
   getMetrics,
   getTasks,
   isDevAuthRequired,
+  previewContentForTask,
+  publishContentTask,
   refreshAllData,
+  runPhase1Cycle,
   setDevApiKey,
   approveTask,
   delayTask,
@@ -34,6 +37,7 @@ const TASK_TYPE_COLORS = {
   seo: '#3b82f6',
   ads: '#a855f7',
   shopify: '#10b981',
+  content: '#f97316',
 }
 
 const PRIORITY_COLORS = {
@@ -83,6 +87,11 @@ export default function App() {
   const [toast, setToast] = useState(null)
   const [generatingTasks, setGeneratingTasks] = useState(false)
   const [refreshingAll, setRefreshingAll] = useState(false)
+  const [runningPhase1Cycle, setRunningPhase1Cycle] = useState(false)
+  const [contentPreview, setContentPreview] = useState(null)
+  const [publishTarget, setPublishTarget] = useState(null)
+  const [previewLoadingTaskId, setPreviewLoadingTaskId] = useState(null)
+  const [publishLoading, setPublishLoading] = useState(false)
   const [sessionApiKey, setSessionApiKey] = useState(() => getDevApiKey())
   const [apiKeyInput, setApiKeyInput] = useState('')
   const hasRequiredApiKey = !DEV_AUTH_REQUIRED || Boolean(sessionApiKey)
@@ -219,6 +228,70 @@ export default function App() {
     }
   }
 
+  const handleRunPhase1Cycle = async () => {
+    try {
+      setRunningPhase1Cycle(true)
+      const result = await runPhase1Cycle({ scheduleContentCount: 1 })
+      setToast({
+        message: result.status === 'partial'
+          ? 'Phase 1 cycle completed with follow-up needed'
+          : 'Phase 1 cycle completed — review pending tasks',
+        type: result.status === 'partial' ? 'warning' : 'success',
+      })
+      await fetchData()
+    } catch (error) {
+      console.error('Error running Phase 1 cycle:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to run Phase 1 cycle'), type: 'error' })
+    } finally {
+      setRunningPhase1Cycle(false)
+    }
+  }
+
+  const handlePreviewContent = async (task) => {
+    try {
+      setPreviewLoadingTaskId(task.id)
+      const preview = await previewContentForTask(task.id)
+      setContentPreview({ task, preview })
+    } catch (error) {
+      console.error('Error generating preview:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to generate preview'), type: 'error' })
+    } finally {
+      setPreviewLoadingTaskId(null)
+    }
+  }
+
+  const handleOpenPublishModal = (task) => {
+    setPublishTarget(task)
+  }
+
+  const handlePublishContent = async ({ humanConfirmed, judgeVerdict }) => {
+    if (!publishTarget) {
+      return
+    }
+
+    try {
+      setPublishLoading(true)
+      const result = await publishContentTask(publishTarget.id, {
+        humanConfirmed,
+        judgeVerdict,
+      })
+      setPublishTarget(null)
+      setContentPreview(null)
+      setToast({
+        message: result.article_url
+          ? `Published: ${result.article_url}`
+          : 'Content published successfully',
+        type: 'success',
+      })
+      await fetchData()
+    } catch (error) {
+      console.error('Error publishing content:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to publish content'), type: 'error' })
+    } finally {
+      setPublishLoading(false)
+    }
+  }
+
   const handleSaveApiKey = async () => {
     const normalized = apiKeyInput.trim()
     if (!normalized) {
@@ -287,6 +360,15 @@ export default function App() {
           >
             <Zap size={18} className={refreshingAll ? 'animate-spin' : ''} />
             {refreshingAll ? 'Pulling Data...' : 'New Task Set'}
+          </button>
+          <button
+            onClick={handleRunPhase1Cycle}
+            disabled={runningPhase1Cycle || !hasRequiredApiKey}
+            className="flex items-center gap-2 px-4 py-2 rounded-lg transition disabled:opacity-50"
+            style={{ backgroundColor: '#f97316', color: '#fff' }}
+          >
+            <Zap size={18} />
+            {runningPhase1Cycle ? 'Running Phase 1...' : 'Run Phase 1 Cycle'}
           </button>
           <button
             onClick={handleGenerateTasks}
@@ -506,6 +588,7 @@ export default function App() {
             <option value="seo">SEO</option>
             <option value="ads">Ads</option>
             <option value="shopify">Shopify</option>
+            <option value="content">Content</option>
           </select>
         </div>
 
@@ -531,6 +614,9 @@ export default function App() {
                 onApprove={handleApproveTask}
                 onDismiss={handleDismissTask}
                 onDelay={handleDelayTask}
+                onPreviewContent={handlePreviewContent}
+                onPublishContent={handleOpenPublishModal}
+                previewLoadingTaskId={previewLoadingTaskId}
               />
             ))
           )}
@@ -568,6 +654,26 @@ export default function App() {
       </div>
 
       {/* Toast Notification */}
+      {contentPreview && (
+        <ContentPreviewModal
+          data={contentPreview}
+          onClose={() => setContentPreview(null)}
+          onPublish={() => {
+            setPublishTarget(contentPreview.task)
+            setContentPreview(null)
+          }}
+        />
+      )}
+
+      {publishTarget && (
+        <ContentPublishModal
+          task={publishTarget}
+          loading={publishLoading}
+          onClose={() => setPublishTarget(null)}
+          onPublish={handlePublishContent}
+        />
+      )}
+
       {toast && (
         <div className="fixed bottom-4 right-4 z-50">
           <Toast
@@ -701,7 +807,15 @@ function AlertCard({ alert, onAcknowledge, onDismiss }) {
   )
 }
 
-function TaskCard({ task, onApprove, onDismiss, onDelay }) {
+function TaskCard({
+  task,
+  onApprove,
+  onDismiss,
+  onDelay,
+  onPreviewContent,
+  onPublishContent,
+  previewLoadingTaskId,
+}) {
   const leadScore = task.action_payload?.lead_score
   const leadTier = task.action_payload?.lead_tier
   const leadReasons = task.action_payload?.lead_relevance_reasons || []
@@ -788,6 +902,124 @@ function TaskCard({ task, onApprove, onDismiss, onDelay }) {
           </button>
         </div>
       )}
+      {task.task_type === 'content' && task.status === 'approved' && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => onPreviewContent(task)}
+            disabled={previewLoadingTaskId === task.id}
+            className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80 disabled:opacity-50"
+            style={{ backgroundColor: '#3b82f6' }}
+          >
+            {previewLoadingTaskId === task.id ? 'Generating...' : 'Preview Draft'}
+          </button>
+          <button
+            onClick={() => onPublishContent(task)}
+            className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+            style={{ backgroundColor: '#f97316' }}
+          >
+            Publish
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function ContentPreviewModal({ data, onClose, onPublish }) {
+  const { task, preview } = data
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div
+        className="max-w-4xl w-full max-h-[90vh] overflow-y-auto rounded-lg p-6"
+        style={{ backgroundColor: COLORS.cardBg, color: COLORS.text }}
+      >
+        <div className="flex items-start justify-between gap-4 mb-4">
+          <div>
+            <h3 className="text-2xl font-bold">{preview.title}</h3>
+            <p className="text-sm mt-2" style={{ color: COLORS.textDim }}>
+              Task #{task.id} · {preview.word_count} words · /{preview.handle}
+            </p>
+          </div>
+          <button onClick={onClose} className="text-sm px-3 py-1 rounded" style={{ backgroundColor: '#666' }}>
+            Close
+          </button>
+        </div>
+        <p className="text-sm mb-4" style={{ color: COLORS.textDim }}>
+          {preview.meta_description}
+        </p>
+        <div
+          className="prose prose-invert max-w-none text-sm mb-6"
+          dangerouslySetInnerHTML={{ __html: preview.body_html }}
+        />
+        <div className="flex gap-3">
+          <button
+            onClick={onPublish}
+            className="px-4 py-2 rounded-lg text-white font-semibold"
+            style={{ backgroundColor: '#f97316' }}
+          >
+            Continue to Publish
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg" style={{ backgroundColor: '#666', color: '#fff' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ContentPublishModal({ task, loading, onClose, onPublish }) {
+  const [humanConfirmed, setHumanConfirmed] = useState(false)
+  const [judgeVerdict, setJudgeVerdict] = useState('PASS')
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div
+        className="max-w-lg w-full rounded-lg p-6"
+        style={{ backgroundColor: COLORS.cardBg, color: COLORS.text }}
+      >
+        <h3 className="text-xl font-bold mb-2">Publish Content Task</h3>
+        <p className="text-sm mb-4" style={{ color: COLORS.textDim }}>
+          {task.title}
+        </p>
+        <p className="text-sm mb-4" style={{ color: COLORS.textDim }}>
+          Publishing requires explicit human confirmation and an independent judge verdict of PASS.
+        </p>
+        <label className="flex items-center gap-2 mb-3 text-sm">
+          <input
+            type="checkbox"
+            checked={humanConfirmed}
+            onChange={(event) => setHumanConfirmed(event.target.checked)}
+          />
+          I have reviewed the draft and approve publishing to Shopify.
+        </label>
+        <label className="block text-sm mb-2" style={{ color: COLORS.textDim }}>
+          Judge verdict
+        </label>
+        <select
+          value={judgeVerdict}
+          onChange={(event) => setJudgeVerdict(event.target.value)}
+          className="w-full px-3 py-2 rounded-lg mb-6"
+          style={{ backgroundColor: COLORS.bg, color: COLORS.text, border: '1px solid #333' }}
+        >
+          <option value="PASS">PASS</option>
+          <option value="FAIL">FAIL</option>
+        </select>
+        <div className="flex gap-3">
+          <button
+            onClick={() => onPublish({ humanConfirmed, judgeVerdict })}
+            disabled={!humanConfirmed || judgeVerdict !== 'PASS' || loading}
+            className="px-4 py-2 rounded-lg text-white font-semibold disabled:opacity-50"
+            style={{ backgroundColor: '#f97316' }}
+          >
+            {loading ? 'Publishing...' : 'Publish to Shopify'}
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg" style={{ backgroundColor: '#666', color: '#fff' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

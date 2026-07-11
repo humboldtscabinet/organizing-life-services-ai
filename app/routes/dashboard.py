@@ -40,6 +40,7 @@ from app.services.ops_alert_service import (
 from app.services.ops_alert_service import (
     dismiss_alert as dismiss_ops_alert_service,
 )
+from app.services.phase1_automation_service import run_phase1_cycle
 from app.services.sheets_service import (
     push_ga4_to_sheets,
     push_google_ads_to_sheets,
@@ -318,6 +319,28 @@ def trigger_full_refresh(db: Session = Depends(get_db)):
         result["failed_steps"] = failed_steps
 
     return result
+
+
+@router.post("/phase1-cycle")
+def trigger_phase1_cycle(
+    days_back: int = Query(7, ge=1, le=90),
+    schedule_content_count: int = Query(1, ge=0, le=10),
+    push_to_sheets: bool = Query(True),
+    db: Session = Depends(get_db),
+):
+    """
+    Run the gated Phase 1 automation cycle.
+
+    Pulls platform data, generates dashboard tasks, schedules content
+    opportunities, and creates an operator alert. Does not publish content or
+    mutate customer-facing Shopify state.
+    """
+    return run_phase1_cycle(
+        db=db,
+        days_back=days_back,
+        schedule_content_count=schedule_content_count,
+        push_to_sheets=push_to_sheets,
+    )
 
 
 @router.post("/alerts", status_code=status.HTTP_201_CREATED)

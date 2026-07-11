@@ -117,6 +117,68 @@ def schedule_next(
     return service_result_or_raise(schedule_weekly_content(db=db, count=count))
 
 
+@router.post("/preview-for-task")
+def preview_for_task(
+    task_id: int = Query(..., description="Approved or pending content DashboardTask ID"),
+    db: Session = Depends(get_db),
+):
+    """
+    Generate a blog preview from a content dashboard task's action_payload.
+
+    Does not publish or change task state.
+    """
+    task = db.query(DashboardTask).filter(DashboardTask.id == task_id).first()
+    if not task:
+        raise APIError(status_code=404, detail=f"Task #{task_id} not found")
+
+    if task.task_type != "content":
+        raise APIError(
+            status_code=400,
+            detail=f"Task #{task_id} is type '{task.task_type}', expected 'content'",
+        )
+
+    payload = task.action_payload or {}
+    topic = payload.get("topic") or task.title.removeprefix("Blog Post: ")
+    target_keyword = payload.get("target_keyword")
+    post_type = payload.get("post_type", "seo_blog")
+
+    if not target_keyword:
+        raise APIError(
+            status_code=400,
+            detail=f"Task #{task_id} is missing action_payload.target_keyword",
+        )
+
+    if post_type not in ["seo_blog", "service_area", "educational_guide"]:
+        raise APIError(status_code=400, detail=f"Invalid post_type: {post_type}")
+
+    post_data = generate_blog_post(
+        db=db,
+        topic=topic,
+        target_keyword=target_keyword,
+        post_type=post_type,
+    )
+
+    body_text = post_data["body_html"].replace("<h2>", " ").replace("</h2>", " ")
+    body_text = body_text.replace("<h3>", " ").replace("</h3>", " ")
+    body_text = body_text.replace("<p>", " ").replace("</p>", " ")
+    body_text = body_text.replace("<a href=", "").replace("</a>", " ")
+    body_text = body_text.replace(">", " ")
+
+    return {
+        "status": "success",
+        "task_id": task_id,
+        "task_status": task.status,
+        "title": post_data["title"],
+        "meta_description": post_data["meta_description"],
+        "body_html": post_data["body_html"],
+        "summary_html": post_data["summary_html"],
+        "handle": post_data["handle"],
+        "tags": post_data["tags"],
+        "character_count": len(post_data["body_html"]),
+        "word_count": len(body_text.split()),
+    }
+
+
 @router.post("/generate-and-publish")
 def generate_and_publish(
     task_id: int = Query(..., description="DashboardTask ID to publish"),

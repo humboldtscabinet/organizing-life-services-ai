@@ -15,7 +15,7 @@ Architecture details: [docs/architecture.md](architecture.md).
 ## Repo layout
 
 ```
-app/                FastAPI backend (routes/, services/, agents/, skills/)
+app/                FastAPI backend (routes/, services/)
 dashboard/          React/Vite frontend
 data/               One-shot scripts for SEO operations + audit outputs
 docs/               Architecture, runbooks, SEO audits, design docs
@@ -77,9 +77,11 @@ credentials/        Service-account JSON (gitignored)
 | Read past SEO audits | [docs/seo-audits/](seo-audits/) |
 | See what's changed on the site | [docs/seo-audits/CHANGELOG.md](seo-audits/CHANGELOG.md) |
 | Run an SEO audit / push meta / deploy schema | [docs/runbooks/](runbooks/) |
-| Add a new API integration | [docs/google_ads_api_design_doc.md](google_ads_api_design_doc.md) is the template |
+| Run the Phase 1 automation cycle | [docs/runbooks/phase1-automation.md](runbooks/phase1-automation.md) |
+| Understand agent/model policy | [docs/agents.md](agents.md) |
 | Understand which Google APIs are live | [`/memories/repo/google_apis_status.md`](../memories/repo/google_apis_status.md) |
-| Add agents / skills | [docs/agents.md](agents.md), `app/skills/` |
+| Add a new API integration | [docs/google_ads_api_design_doc.md](google_ads_api_design_doc.md) is the template |
+| Add agents / skills | [docs/agents.md](agents.md) |
 | Understand private AI conversation backups | [conversations/README.md](../conversations/README.md) |
 
 ## Contributing

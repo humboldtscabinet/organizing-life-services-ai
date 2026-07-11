@@ -1,0 +1,59 @@
+{
+  "name": "Weekly Phase 1 Cycle",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * MON"
+            }
+          ]
+        }
+      },
+      "id": "trigger-weekly",
+      "name": "Every Monday 07:00 ET",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://api:8000/api/dashboard/phase1-cycle",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "days_back", "value": "7" },
+            { "name": "schedule_content_count", "value": "1" },
+            { "name": "push_to_sheets", "value": "true" }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "X-API-Key", "value": "={{$env.OLS_API_KEY}}" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "options": {
+          "timeout": 600000
+        }
+      },
+      "id": "run-phase1-cycle",
+      "name": "POST /api/dashboard/phase1-cycle",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [560, 300]
+    }
+  ],
+  "connections": {
+    "Every Monday 07:00 ET": {
+      "main": [[{ "node": "POST /api/dashboard/phase1-cycle", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
