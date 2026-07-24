@@ -55,9 +55,11 @@ Each entry should answer:
 - Legacy event page `tarpon-springs-estate-sale-in-woodfield` is report-only in this script; it is not redirected or noindexed automatically.
 
 **Result / next watch**
-- No live Shopify writes in this pass.
-- Before running `--apply`, review the dry-run report and confirm the 7 page bodies/titles/meta descriptions are acceptable.
-- After live apply, verify rendered H1 count, schema, canonical, internal links, IndexNow submission, and GSC indexing movement.
+- **Live applied (confirmed 2026-07-24):** all 7 first-wave pages are live with `SERVICE-AREA-FIRST-WAVE-V1` markers, including new hubs/pages `estate-sale-pinellas-county` and `estate-sale-tarpon-springs-florida`.
+- Idempotent re-dry-run 2026-07-24: `would_or_did_page_writes=0`, `would_or_did_meta_writes=0` (report `data/audit_output/session11_service_area_first_wave_20260724T233506Z.json`).
+- IndexNow submission for the 7 first-wave URLs is the follow-up ping after this confirmation.
+- Still open: legacy event page `tarpon-springs-estate-sale-in-woodfield` (redirect and/or noindex — not handled by this script).
+- Watch GSC indexing for the two new URLs and engagement on refreshed county/city hubs over 14–28 days.
 
 ---
 
