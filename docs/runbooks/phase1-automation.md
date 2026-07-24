@@ -27,15 +27,35 @@ It does **not** auto-publish blogs or mutate customer-facing Shopify state.
 
 ### Daily data refresh
 
+Requires an API image that includes `scripts/` (Dockerfile copies
+`scripts/` into `/app/scripts`). After pulling that change, redeploy before
+using `docker exec` cron paths.
+
 ```bash
 cd /Users/aiagentecosystem/services/ols
 docker exec ols-api python /app/scripts/scheduled_platform_sync.py --generate-tasks
+```
+
+API fallback (works even if scripts are missing from the image):
+
+```bash
+set -a && source .env && set +a
+curl -sS -X POST "http://127.0.0.1:8000/api/dashboard/refresh" \
+  -H "X-API-Key: ${OLS_API_KEY}"
 ```
 
 ### Weekly gated cycle (Monday)
 
 ```bash
 docker exec ols-api python /app/scripts/scheduled_platform_sync.py --full-cycle --schedule-content-count 1
+```
+
+API fallback:
+
+```bash
+set -a && source .env && set +a
+curl -sS -X POST "http://127.0.0.1:8000/api/dashboard/phase1-cycle?schedule_content_count=1" \
+  -H "X-API-Key: ${OLS_API_KEY}"
 ```
 
 Or import `workflows/n8n/weekly_phase1_cycle.json` into n8n and activate it on
