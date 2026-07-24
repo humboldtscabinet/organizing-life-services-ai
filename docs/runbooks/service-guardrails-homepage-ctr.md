@@ -29,22 +29,15 @@ how Session 10/11 scripts were applied.
 set -a && source .env && set +a
 ```
 
-## 2) Dry-run fee product noindex
+## 2) Dry-run homepage CTR meta + intlinks first
+
+Apply homepage **before** product noindex. Back-to-back theme PUTs can race;
+running products last avoids overwriting a fresh product block.
+
+On the Mac mini there is no repo `.venv` — use the API container:
 
 ```bash
-.venv/bin/python data/session12_noindex_fee_products.py
-```
-
-Review the JSON report under `data/audit_output/session12_noindex_fee_products_*.json`:
-
-- Theme patch status should be `would_patch` or `unchanged`
-- Handles: `product-cc-2-7-fee`, `product-cc-2-7-fee-2`, `processing-fee`
-- Missing handles are OK to note; do not invent new product SEO
-
-## 3) Dry-run homepage CTR meta + intlinks
-
-```bash
-.venv/bin/python data/session12_homepage_organizers_ctr.py
+docker exec ols-api python3 /app/data/session12_homepage_organizers_ctr.py
 ```
 
 Confirm:
@@ -53,33 +46,52 @@ Confirm:
 - Diff only touches `HOMEPAGE-SEO-META-V1` copy and adds `SEO-INTLINKS-ORGANIZERS-V1`
 - No product/collection SEO fields are modified
 
-## 4) Apply (mutation guard required)
-
-Only after dry-run review:
+## 3) Dry-run fee product noindex
 
 ```bash
-OLS_ALLOW_DATA_MUTATION=1 \
-OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
-.venv/bin/python data/session12_noindex_fee_products.py --apply
+docker exec ols-api python3 /app/data/session12_noindex_fee_products.py
+```
 
-OLS_ALLOW_DATA_MUTATION=1 \
-OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
-.venv/bin/python data/session12_homepage_organizers_ctr.py --apply
+Review the JSON report under `data/audit_output/session12_noindex_fee_products_*.json`:
+
+- Theme patch status should be `would_patch` or `unchanged`
+- Marker should be `SEO-ROBOTS-PRODUCTS-V2` (uses `request.path`)
+- Handles: `product-cc-2-7-fee`, `product-cc-2-7-fee-2`, `processing-fee`
+- Missing handles are OK to note; do not invent new product SEO
+
+## 4) Apply (mutation guard required)
+
+Only after dry-run review — **homepage first, then products**:
+
+```bash
+docker exec \
+  -e OLS_ALLOW_DATA_MUTATION=1 \
+  -e OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
+  ols-api python3 /app/data/session12_homepage_organizers_ctr.py --apply
+
+sleep 5
+
+docker exec \
+  -e OLS_ALLOW_DATA_MUTATION=1 \
+  -e OLS_DATA_MUTATION_CONFIRM=I_HAVE_REVIEWED_THIS_PRODUCTION_WRITE \
+  ols-api python3 /app/data/session12_noindex_fee_products.py --apply
 ```
 
 ## 5) Verify live
 
 ```bash
 curl -sL https://organizinglifeservices.com/ | tr '\n' ' ' | grep -o '<title>[^<]*</title>'
-curl -sL https://organizinglifeservices.com/products/product-cc-2-7-fee | tr '\n' ' ' | grep -oi 'name="robots"[^>]*'
-curl -sL https://organizinglifeservices.com/products/processing-fee | tr '\n' ' ' | grep -oi 'name="robots"[^>]*'
+curl -sL https://organizinglifeservices.com/ | tr '\n' ' ' | grep -o 'Estate Sale Organizers Serving Tampa Bay'
+curl -sL 'https://organizinglifeservices.com/products/product-cc-2-7-fee' | grep -i robots | head
+curl -sL 'https://organizinglifeservices.com/products/processing-fee' | grep -i robots | head
 ```
 
 Expect:
 
 - Homepage title: `Estate Sale Organizers Tampa Bay | Call OLS Today`
+- Homepage visible intlinks heading: `Estate Sale Organizers Serving Tampa Bay`
 - Fee product pages: `noindex,follow`
-- Homepage HTML includes organizer/service-area internal links
+- (Liquid comment markers like `SEO-INTLINKS-ORGANIZERS-V1` do not appear in HTML)
 
 ## 6) Measurement baseline
 

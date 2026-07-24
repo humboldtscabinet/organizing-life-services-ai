@@ -7,11 +7,12 @@ items exist for checkout/admin only. They must never be SEO targets.
 
 This script:
 1. Patches the live main theme ``layout/theme.liquid`` so known fee product
-   handles render ``noindex,follow`` (marker ``SEO-ROBOTS-PRODUCTS-V1``),
-   following the Session 10 collection noindex pattern.
+   URLs render ``noindex,follow`` (marker ``SEO-ROBOTS-PRODUCTS-V2``, via
+   ``request.path`` — ``product.handle`` does not evaluate in this theme's
+   layout head).
 2. Optionally upserts ``seo.robots=noindex,follow`` on those product
-   metafields when present in the store (defense in depth; theme handle
-   list is authoritative for rendering).
+   metafields when present in the store (defense in depth; theme path
+   checks are authoritative for rendering).
 
 Does NOT touch:
 - Real service pages
@@ -44,6 +45,7 @@ import argparse
 import difflib
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime, timezone
@@ -73,7 +75,17 @@ FEE_PRODUCT_HANDLES = (
     "processing-fee",
 )
 
-PRODUCT_NOINDEX_MARKER = "SEO-ROBOTS-PRODUCTS-V1"
+PRODUCT_NOINDEX_MARKER = "SEO-ROBOTS-PRODUCTS-V2"
+LEGACY_PRODUCT_NOINDEX_MARKER = "SEO-ROBOTS-PRODUCTS-V1"
+# V1 used product.handle; on this theme's layout that drop does not fire for
+# product templates, so live HTML never got robots. V2 keys off request.path.
+# Match through the trailing ``if ols_noindex_product`` / metafield ``elsif``
+# block — not just the first ``{% endif %}`` after the handle checks.
+LEGACY_PRODUCT_NOINDEX_RE = re.compile(
+    r"\n    \{%- comment -%\} SEO-ROBOTS-PRODUCTS-V1:.*?"
+    r"\{%- if ols_noindex_product -%\}.*?\{%- endif -%\}",
+    re.DOTALL,
+)
 PAGE_ROBOTS_BLOCK = """    {%- if page and page.metafields.seo.robots != blank -%}
     <meta name="robots" content="{{ page.metafields.seo.robots | escape }}">
     {%- endif -%}"""
@@ -181,35 +193,46 @@ def put_theme_asset(
 
 
 def build_product_noindex_patch() -> str:
-    handle_checks = []
-    for i, handle in enumerate(FEE_PRODUCT_HANDLES):
+    # Longer paths first so fee-2 is matched before its fee- prefix sibling
+    # if conditions are ever switched to `contains`.
+    handles = sorted(FEE_PRODUCT_HANDLES, key=len, reverse=True)
+    path_checks = []
+    for i, handle in enumerate(handles):
         keyword = "if" if i == 0 else "elsif"
-        handle_checks.append(
-            f"    {{%- {keyword} product and product.handle == '{handle}' -%}}\n"
+        path_checks.append(
+            f"    {{%- {keyword} request.path == '/products/{handle}' -%}}\n"
             "      {%- assign ols_noindex_product = true -%}"
         )
-    handle_block = "\n".join(handle_checks) + "\n    {%- endif -%}\n"
+    path_block = "\n".join(path_checks) + "\n    {%- endif -%}\n"
     return (
         f"\n    {{%- comment -%}} {PRODUCT_NOINDEX_MARKER}: noindex internal fee products {{%- endcomment -%}}\n"
         "    {%- assign ols_noindex_product = false -%}\n"
-        f"{handle_block}"
+        f"{path_block}"
         "    {%- if ols_noindex_product -%}\n"
         '    <meta name="robots" content="noindex,follow">\n'
-        "    {%- elsif product and product.metafields.seo.robots != blank -%}\n"
-        '    <meta name="robots" content="{{ product.metafields.seo.robots | escape }}">\n'
         "    {%- endif -%}"
     )
 
 
 def patch_product_noindex(source: str) -> tuple[str, bool]:
+    new_patch = build_product_noindex_patch()
+
     if PRODUCT_NOINDEX_MARKER in source:
         return source, False
+
+    if LEGACY_PRODUCT_NOINDEX_MARKER in source:
+        updated, n = LEGACY_PRODUCT_NOINDEX_RE.subn(new_patch, source, count=1)
+        if n != 1:
+            raise RuntimeError(
+                "Found legacy SEO-ROBOTS-PRODUCTS-V1 marker but could not replace block"
+            )
+        return updated, True
+
     if PAGE_ROBOTS_BLOCK not in source:
         raise RuntimeError(
             "Could not locate SEO-ROBOTS-V1 page robots block to attach product noindex"
         )
-    patch = PAGE_ROBOTS_BLOCK + build_product_noindex_patch()
-    return source.replace(PAGE_ROBOTS_BLOCK, patch, 1), True
+    return source.replace(PAGE_ROBOTS_BLOCK, PAGE_ROBOTS_BLOCK + new_patch, 1), True
 
 
 def list_products(headers: dict[str, str], base_url: str) -> list[dict]:
