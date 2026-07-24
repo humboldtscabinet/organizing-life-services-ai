@@ -71,6 +71,10 @@ def test_fee_product_noindex_upgrades_legacy_v1_block(fee_products):
     assert fee_products.PRODUCT_NOINDEX_MARKER in upgraded
     assert "request.path ==" in upgraded
     assert "product.handle" not in upgraded
+    # Full V1 block must be removed (not just through the first endif).
+    assert "product.metafields.seo.robots" not in upgraded
+    assert upgraded.count('content="noindex,follow"') == 1
+    assert upgraded.count("{%- if ols_noindex_product -%}") == 1
 
 
 def test_fee_product_noindex_uses_request_path(fee_products):

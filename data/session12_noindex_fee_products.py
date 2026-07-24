@@ -79,8 +79,11 @@ PRODUCT_NOINDEX_MARKER = "SEO-ROBOTS-PRODUCTS-V2"
 LEGACY_PRODUCT_NOINDEX_MARKER = "SEO-ROBOTS-PRODUCTS-V1"
 # V1 used product.handle; on this theme's layout that drop does not fire for
 # product templates, so live HTML never got robots. V2 keys off request.path.
+# Match through the trailing ``if ols_noindex_product`` / metafield ``elsif``
+# block — not just the first ``{% endif %}`` after the handle checks.
 LEGACY_PRODUCT_NOINDEX_RE = re.compile(
-    r"\n    \{%- comment -%\} SEO-ROBOTS-PRODUCTS-V1:.*?\{%- endif -%\}",
+    r"\n    \{%- comment -%\} SEO-ROBOTS-PRODUCTS-V1:.*?"
+    r"\{%- if ols_noindex_product -%\}.*?\{%- endif -%\}",
     re.DOTALL,
 )
 PAGE_ROBOTS_BLOCK = """    {%- if page and page.metafields.seo.robots != blank -%}
