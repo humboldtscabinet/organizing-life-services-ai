@@ -193,9 +193,12 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
     if not records:
         return tasks
 
-    # Aggregate by query
+    # Aggregate by query, excluding internal product/utility URLs so their
+    # impressions/clicks/CTR/position never inflate service-page stats.
     query_stats = {}
     for r in records:
+        if _is_seo_denylist_page(r.page):
+            continue
         q = r.query or "(unknown)"
         if q not in query_stats:
             query_stats[q] = {
@@ -204,15 +207,12 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "ctr_sum": 0.0,
                 "position_sum": 0.0,
                 "count": 0,
-                "pages": [],
             }
         query_stats[q]["clicks"] += r.clicks or 0
         query_stats[q]["impressions"] += r.impressions or 0
         query_stats[q]["ctr_sum"] += r.ctr or 0
         query_stats[q]["position_sum"] += r.position or 0
         query_stats[q]["count"] += 1
-        if r.page and r.page not in query_stats[q]["pages"]:
-            query_stats[q]["pages"].append(r.page)
 
     # Rule 1: High-impression, low-CTR queries (impressions >= 50, CTR < 3%)
     for q, stats in query_stats.items():
@@ -220,10 +220,6 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
             continue
         # Skip out-of-territory queries
         if _is_out_of_territory(q):
-            continue
-        # Skip queries that only appear on internal product/utility URLs
-        pages = stats["pages"]
-        if pages and all(_is_seo_denylist_page(p) for p in pages):
             continue
         avg_ctr = (stats["ctr_sum"] / stats["count"]) if stats["count"] else 0
         if stats["impressions"] >= 50 and avg_ctr < 0.03:
@@ -255,9 +251,6 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
             continue
         # Skip out-of-territory queries
         if _is_out_of_territory(q):
-            continue
-        pages = stats["pages"]
-        if pages and all(_is_seo_denylist_page(p) for p in pages):
             continue
         avg_pos = (stats["position_sum"] / stats["count"]) if stats["count"] else 0
         if 8 <= avg_pos <= 20 and stats["impressions"] >= 20:
@@ -512,7 +505,10 @@ def _generate_cross_channel_tasks(db: Session, cutoff: datetime) -> list[dict]:
 
     ga4_page_set = {p[0] for p in ga4_pages if p[0]}
     gsc_page_set = {p[0] for p in gsc_pages if p[0]}
-    shared_pages = ga4_page_set & gsc_page_set
+    # Exclude internal product/utility URLs that are outside SEO scope.
+    shared_pages = {
+        p for p in (ga4_page_set & gsc_page_set) if not _is_seo_denylist_page(p)
+    }
 
     # Simple heuristic: if traffic is low on a page that has GSC data, flag it
     if shared_pages:

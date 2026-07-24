@@ -191,13 +191,12 @@ def build_product_noindex_patch() -> str:
     handle_block = "\n".join(handle_checks) + "\n    {%- endif -%}\n"
     return (
         f"\n    {{%- comment -%}} {PRODUCT_NOINDEX_MARKER}: noindex internal fee products {{%- endcomment -%}}\n"
-        "    {%- if product and product.metafields.seo.robots != blank -%}\n"
-        '    <meta name="robots" content="{{ product.metafields.seo.robots | escape }}">\n'
-        "    {%- endif -%}\n"
         "    {%- assign ols_noindex_product = false -%}\n"
         f"{handle_block}"
         "    {%- if ols_noindex_product -%}\n"
         '    <meta name="robots" content="noindex,follow">\n'
+        "    {%- elsif product and product.metafields.seo.robots != blank -%}\n"
+        '    <meta name="robots" content="{{ product.metafields.seo.robots | escape }}">\n'
         "    {%- endif -%}"
     )
 

@@ -50,6 +50,24 @@ def test_fee_product_noindex_patch_is_idempotent(fee_products):
     assert twice == once
 
 
+def test_fee_product_noindex_emits_single_robots_tag(fee_products):
+    """Fee handles must not also emit a metafield robots tag."""
+    patch = fee_products.build_product_noindex_patch()
+    assert patch.count('<meta name="robots"') == 2
+    assert "ols_noindex_product -%}" in patch
+    assert (
+        '{%- if ols_noindex_product -%}\n'
+        '    <meta name="robots" content="noindex,follow">\n'
+        "    {%- elsif product and product.metafields.seo.robots != blank -%}\n"
+        '    <meta name="robots" content="{{ product.metafields.seo.robots | escape }}">\n'
+        "    {%- endif -%}"
+    ) in patch
+    # Metafield robots tag is mutually exclusive with fee-handle noindex.
+    assert patch.index("ols_noindex_product -%}") < patch.index(
+        "product.metafields.seo.robots != blank"
+    )
+
+
 def test_homepage_meta_lengths_and_replace(homepage_ctr):
     assert len(homepage_ctr.HOMEPAGE_TITLE) <= 60
     assert 120 <= len(homepage_ctr.HOMEPAGE_DESCRIPTION) <= 160
