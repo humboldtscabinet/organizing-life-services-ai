@@ -74,7 +74,8 @@ def run_phase1_cycle(
     result["pulls"]["ga4"] = _capture_step(pull_ga4_data, db, days_back=days_back)
     result["pulls"]["google_ads"] = _capture_step(pull_google_ads_data, db, days_back=days_back)
     result["pulls"]["gbp"] = _capture_step(pull_gbp_data, db, days_back=28)
-    result["pulls"]["shopify_orders"] = _capture_step(pull_shopify_orders, db, days_back=days_back)
+    # Shopify order pull uses limit/status, not a date window.
+    result["pulls"]["shopify_orders"] = _capture_step(pull_shopify_orders, db, limit=50)
 
     if push_to_sheets:
         result["pushes"]["gsc"] = _capture_step(push_gsc_to_sheets, db)

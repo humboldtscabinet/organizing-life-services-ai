@@ -78,7 +78,8 @@ def run_sync(
         result["pulls"]["ga4"] = _capture(pull_ga4_data, db, days_back=days_back)
         result["pulls"]["google_ads"] = _capture(pull_google_ads_data, db, days_back=days_back)
         result["pulls"]["gbp"] = _capture(pull_gbp_data, db, days_back=28)
-        result["pulls"]["shopify_orders"] = _capture(pull_shopify_orders, db, days_back=days_back)
+        # Shopify order pull uses limit/status, not a date window.
+        result["pulls"]["shopify_orders"] = _capture(pull_shopify_orders, db, limit=50)
 
         if push_to_sheets:
             result["pushes"]["gsc"] = _capture(push_gsc_to_sheets, db)
