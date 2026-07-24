@@ -21,6 +21,53 @@ def test_shopify_write_requires_high_stakes_confirmation(client, auth_headers, m
     assert called is False
 
 
+def test_product_seo_write_blocked_by_service_policy(client, auth_headers, monkeypatch):
+    """Product SEO writes fail closed even with high-stakes confirmation."""
+    called = False
+
+    def fake_update_product_seo(*_args, **_kwargs):
+        nonlocal called
+        called = True
+        return {"status": "updated"}
+
+    # Route must refuse before any service write helper runs.
+    monkeypatch.setattr(
+        "app.services.shopify_service.update_product_seo",
+        fake_update_product_seo,
+    )
+
+    response = client.put(
+        "/api/shopify/products/123/seo",
+        params={
+            "title": "Should Not Write",
+            "meta_description": "Internal fee product",
+            "human_confirmed": "true",
+            "judge_verdict": "PASS",
+        },
+        headers=auth_headers,
+    )
+
+    assert response.status_code == 403
+    body = response.json()
+    detail = body.get("detail") or body.get("message") or ""
+    assert "policy" in detail.lower()
+    assert called is False
+
+
+def test_update_product_seo_service_raises_policy_error():
+    from app.services.shopify_service import (
+        PRODUCT_SEO_POLICY_DETAIL,
+        ShopifyProductSeoPolicyError,
+        update_product_seo,
+    )
+
+    try:
+        update_product_seo(product_id=1, title="x")
+        assert False, "expected ShopifyProductSeoPolicyError"
+    except ShopifyProductSeoPolicyError as exc:
+        assert str(exc) == PRODUCT_SEO_POLICY_DETAIL
+
+
 def test_shopify_write_runs_after_pass_and_human_confirmation(
     client, auth_headers, monkeypatch
 ):

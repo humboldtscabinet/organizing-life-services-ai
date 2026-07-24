@@ -10,6 +10,30 @@ Each entry should answer:
 
 ---
 
+## 2026-07-24 — Service-only Shopify guardrails + homepage organizers CTR prep
+
+**What**
+- Documented hard policy: Shopify products/utility collections are internal-only and never SEO/ads/content targets.
+- API product SEO writes fail closed by policy.
+- Fee/internal product URLs get noindex treatment via guarded script.
+- Dashboard GSC task generation skips `/products/*` and utility collections.
+- Homepage CTR script prepared to refine `HOMEPAGE-SEO-META-V1` + service-intent reinforcement for `estate sale organizers`.
+
+**Why**
+- OLS is a service business; fee “products” previously caused bad SEO/ads assumptions.
+- Homepage still has high impressions / near-zero clicks for organizer queries (Jul 20 baseline).
+
+**How**
+- Code/docs in the service-guardrails + homepage CTR PR.
+- Guarded scripts: [`data/session12_noindex_fee_products.py`](../../data/session12_noindex_fee_products.py), [`data/session12_homepage_organizers_ctr.py`](../../data/session12_homepage_organizers_ctr.py).
+- Operator runbook: [`docs/runbooks/service-guardrails-homepage-ctr.md`](../runbooks/service-guardrails-homepage-ctr.md).
+- Live Shopify apply remains operator-gated on the Mac mini (dry-run → mutation confirm).
+
+**Result / next watch**
+- After live apply: confirm fee product URLs render `noindex`; confirm homepage title/meta; watch GSC CTR for `estate sale organizers` / `estate sale organizer` over 14–28 days.
+
+---
+
 ## 2026-06-23 — First-wave service-area Shopify dry-run scaffold
 
 **What**

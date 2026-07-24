@@ -76,11 +76,11 @@ CHANGED_URLS = [
     {
         "label": "Homepage",
         "url": SITE_URL_DEFAULT,
-        "expected_title": "Estate Sale Organizers Tampa Bay | Appraisals & Downsizing",
+        "expected_title": "Estate Sale Organizers Tampa Bay | Call OLS Today",
         "expected_meta": (
-            "Tampa Bay estate sale organizers for estate sales, appraisals, "
-            "downsizing, and cleanouts across Pinellas, Pasco, Hillsborough, "
-            "Hernando, and Citrus."
+            "Need estate sale organizers in Tampa Bay? OLS runs estate sales, "
+            "appraisals, and downsizing across Pinellas to Citrus. "
+            "Call (727) 542-6028."
         ),
         "expected_h1_count": 1,
         "allowed_issues": {"low_alt_text_coverage"},
@@ -132,6 +132,42 @@ CHANGED_URLS = [
         "url": f"{SITE_URL_DEFAULT}collections/fees-products",
         "expected_robots_contains": "noindex",
         "allowed_issues": {"noindex", "missing_meta_description", "multiple_h1"},
+    },
+    {
+        "label": "Fee Product CC 2.7",
+        "url": f"{SITE_URL_DEFAULT}products/product-cc-2-7-fee",
+        "expected_robots_contains": "noindex",
+        "allowed_issues": {
+            "noindex",
+            "missing_meta_description",
+            "multiple_h1",
+            "title_too_long",
+            "low_alt_text_coverage",
+        },
+    },
+    {
+        "label": "Fee Product CC 2.7 Duplicate",
+        "url": f"{SITE_URL_DEFAULT}products/product-cc-2-7-fee-2",
+        "expected_robots_contains": "noindex",
+        "allowed_issues": {
+            "noindex",
+            "missing_meta_description",
+            "multiple_h1",
+            "title_too_long",
+            "low_alt_text_coverage",
+        },
+    },
+    {
+        "label": "Processing Fee Product",
+        "url": f"{SITE_URL_DEFAULT}products/processing-fee",
+        "expected_robots_contains": "noindex",
+        "allowed_issues": {
+            "noindex",
+            "missing_meta_description",
+            "multiple_h1",
+            "title_too_long",
+            "low_alt_text_coverage",
+        },
     },
 ]
 

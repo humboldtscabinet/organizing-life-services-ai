@@ -48,6 +48,37 @@ OUT_OF_TERRITORY_STATES = {
     'washington', 'west virginia', 'wisconsin', 'wyoming'
 }
 
+# Internal Shopify utilities — never generate SEO tasks for these URLs.
+SEO_DENYLIST_PATH_PREFIXES = (
+    "/products/",
+)
+SEO_DENYLIST_EXACT_PATHS = {
+    "/collections/all",
+    "/collections/fees-products",
+}
+
+
+def _page_path(page: str) -> str:
+    """Normalize a GSC page URL/path to a path beginning with '/'."""
+    if not page:
+        return ""
+    value = page.strip()
+    if "://" in value:
+        value = value.split("://", 1)[1]
+        value = value.split("/", 1)[1] if "/" in value else ""
+        value = f"/{value}"
+    if not value.startswith("/"):
+        value = f"/{value}"
+    return value.split("?", 1)[0].rstrip("/") or "/"
+
+
+def _is_seo_denylist_page(page: str) -> bool:
+    """True when the page is an internal product/utility URL outside SEO scope."""
+    path = _page_path(page)
+    if path.startswith(SEO_DENYLIST_PATH_PREFIXES):
+        return True
+    return path in SEO_DENYLIST_EXACT_PATHS
+
 
 def _is_out_of_territory(query: str) -> bool:
     """
@@ -190,6 +221,10 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
         # Skip out-of-territory queries
         if _is_out_of_territory(q):
             continue
+        # Skip queries that only appear on internal product/utility URLs
+        pages = stats["pages"]
+        if pages and all(_is_seo_denylist_page(p) for p in pages):
+            continue
         avg_ctr = (stats["ctr_sum"] / stats["count"]) if stats["count"] else 0
         if stats["impressions"] >= 50 and avg_ctr < 0.03:
             lead = score_lead_relevance(q)
@@ -221,6 +256,9 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
         # Skip out-of-territory queries
         if _is_out_of_territory(q):
             continue
+        pages = stats["pages"]
+        if pages and all(_is_seo_denylist_page(p) for p in pages):
+            continue
         avg_pos = (stats["position_sum"] / stats["count"]) if stats["count"] else 0
         if 8 <= avg_pos <= 20 and stats["impressions"] >= 20:
             lead = score_lead_relevance(q)
@@ -251,6 +289,8 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
     for r in records:
         p = r.page or "(unknown)"
         q = r.query or "(unknown)"
+        if _is_seo_denylist_page(p):
+            continue
         if p not in page_stats:
             page_stats[p] = {"clicks": 0, "impressions": 0}
             page_queries[p] = []

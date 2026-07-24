@@ -480,10 +480,12 @@ def trigger_shopify_override_audit(include_products: bool = False):
     """
     Compare Shopify-stored SEO title/meta vs rendered <title> on every
     page + article. Flags theme overrides and length issues at the source.
+
+    Products are never included (service-only policy). ``include_products``
+    is ignored for backward compatibility.
     """
     from app.services.shopify_seo_audit_service import (
         audit_shopify_seo_overrides,
     )
-    return service_result_or_raise(
-        audit_shopify_seo_overrides(include_products=include_products)
-    )
+    del include_products
+    return service_result_or_raise(audit_shopify_seo_overrides())

@@ -86,6 +86,16 @@ def infer_error_status_code(detail: str, default: int = 500) -> int:
     if any(
         phrase in text
         for phrase in (
+            "policy blocked",
+            "disabled by policy",
+            "service business",
+        )
+    ):
+        return 403
+
+    if any(
+        phrase in text
+        for phrase in (
             "not pending",
             "must be",
             "already scheduled",

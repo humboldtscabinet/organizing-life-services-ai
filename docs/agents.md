@@ -29,6 +29,22 @@ judge_verdict=PASS
 This applies before Shopify/content/lifecycle writes, bulk alt-text pushes, ads
 budget changes, and any future operation that changes customer-facing state.
 
+## Service-Only Shopify Rule
+
+OLS sells services, not merchandise. Shopify products (credit-card fees,
+processing fees, etc.) and utility collections are internal-only.
+
+Agents **must not**:
+
+- Call product SEO write endpoints or “optimize” `/products/*` for search
+- Generate ads creatives, landing pages, or blogs that treat fee products as goods
+- Create dashboard SEO tasks for `/products/*` or utility collections
+- Suggest indexing `/collections/all` or `/collections/fees-products`
+
+Agents **may** work on service pages, service-area pages, the homepage, and
+blog articles. Product SEO writes are policy-blocked in the API even if a human
+confirmation flag is present.
+
 ## SEO Operating Principle
 
 Agents should improve the measurement loop, not replace it:

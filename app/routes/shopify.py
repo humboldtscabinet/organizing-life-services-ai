@@ -7,13 +7,14 @@ All endpoints are manual-approval mode:
 - No automated changes — human reviews everything first
 """
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.api_errors import service_result_or_raise
 from app.db.database import get_db
 from app.safety import require_high_stakes_confirmation
 from app.services.shopify_service import (
+    PRODUCT_SEO_POLICY_DETAIL,
     consolidate_thin_pages,
     create_page,
     create_redirect,
@@ -25,7 +26,6 @@ from app.services.shopify_service import (
     pull_shopify_orders,
     update_article_seo,
     update_page_seo,
-    update_product_seo,
 )
 
 router = APIRouter(prefix="/api/shopify", tags=["Shopify"])
@@ -135,23 +135,16 @@ def update_product_seo_fields(
     judge_verdict: str | None = None,
 ):
     """
-    Update a product's SEO fields (title, meta description, handle).
+    Disabled by policy.
 
-    Only updates fields that are provided.
-    This is a WRITE operation — use only after human review.
+    OLS is a service business. Shopify products are internal checkout/admin
+    utilities only. Product SEO writes are refused even when
+    human_confirmed/judge_verdict are supplied.
     """
-    require_high_stakes_confirmation(
-        task_type="shopify_update",
-        human_confirmed=human_confirmed,
-        judge_verdict=judge_verdict,
-    )
-    return service_result_or_raise(
-        update_product_seo(
-            product_id=product_id,
-            title=title,
-            meta_description=meta_description,
-            handle=handle,
-        )
+    del product_id, title, meta_description, handle, human_confirmed, judge_verdict
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail=PRODUCT_SEO_POLICY_DETAIL,
     )
 
 

@@ -125,10 +125,15 @@ def audit_shopify_seo_overrides(
     max_articles_per_blog: int = 100,
 ) -> dict:
     """
-    Walk Shopify pages + articles (and optionally products) and report
-    every resource whose stored SEO title/meta differs from the live HTML
-    rendering, or whose stored values exceed length limits.
+    Walk Shopify pages + articles and report every resource whose stored SEO
+    title/meta differs from the live HTML rendering, or whose stored values
+    exceed length limits.
+
+    Products are never audited: OLS products are internal checkout utilities
+    and are outside the SEO allowlist. ``include_products`` is accepted for
+    backward compatibility but ignored.
     """
+    del include_products  # policy: product SEO audits stay off
     results: list[dict] = []
 
     # Pages
@@ -144,13 +149,6 @@ def audit_shopify_seo_overrides(
         )
         for a in articles:
             cmp = _compare(a, "article", blog_handle=blog.get("handle"))
-            if cmp:
-                results.append(cmp)
-
-    # Products (optional)
-    if include_products:
-        for prod in shopify_service.get_products(limit=250):
-            cmp = _compare(prod, "product")
             if cmp:
                 results.append(cmp)
 

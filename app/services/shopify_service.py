@@ -141,6 +141,17 @@ def get_store_metafields() -> list:
 # ===================== Write Operations (SEO) =====================
 
 
+PRODUCT_SEO_POLICY_DETAIL = (
+    "Policy blocked: OLS is a service business. Shopify product SEO writes are "
+    "disabled. Products are internal checkout/admin utilities only and must "
+    "never be optimized for search, ads, or public landing pages."
+)
+
+
+class ShopifyProductSeoPolicyError(PermissionError):
+    """Raised when product SEO writes are attempted against OLS policy."""
+
+
 def update_product_seo(
     product_id: int,
     title: str = None,
@@ -148,38 +159,13 @@ def update_product_seo(
     handle: str = None,
 ) -> dict:
     """
-    Update a product's SEO fields.
+    Intentionally disabled.
 
-    Only updates fields that are provided (non-None).
+    OLS products (fee/utility items) are internal-only. This function fails
+    closed and never calls Shopify, regardless of caller confirmation.
     """
-    headers = _shopify_headers()
-    url = _shopify_url(f"products/{product_id}.json")
-
-    product_data = {}
-    if title is not None:
-        product_data["title"] = title
-    if meta_description is not None:
-        product_data["metafields_global_description_tag"] = meta_description
-    if handle is not None:
-        product_data["handle"] = handle
-
-    if not product_data:
-        return {"status": "no_changes", "product_id": product_id}
-
-    product_data["id"] = product_id
-
-    resp = httpx.put(
-        url,
-        headers=headers,
-        json={"product": product_data},
-        timeout=30,
-    )
-    resp.raise_for_status()
-    return {
-        "status": "updated",
-        "product_id": product_id,
-        "fields_updated": list(product_data.keys()),
-    }
+    del title, meta_description, handle  # unused; policy blocks all writes
+    raise ShopifyProductSeoPolicyError(PRODUCT_SEO_POLICY_DETAIL)
 
 
 def update_page_seo(
