@@ -42,7 +42,7 @@ def test_fee_product_noindex_patch_is_idempotent(fee_products):
     once, changed = fee_products.patch_product_noindex(base)
     assert changed is True
     assert fee_products.PRODUCT_NOINDEX_MARKER in once
-    assert "product-cc-2-7-fee" in once
+    assert "request.path == '/products/product-cc-2-7-fee'" in once
     assert 'content="noindex,follow"' in once
 
     twice, changed_again = fee_products.patch_product_noindex(once)
@@ -50,22 +50,38 @@ def test_fee_product_noindex_patch_is_idempotent(fee_products):
     assert twice == once
 
 
-def test_fee_product_noindex_emits_single_robots_tag(fee_products):
-    """Fee handles must not also emit a metafield robots tag."""
-    patch = fee_products.build_product_noindex_patch()
-    assert patch.count('<meta name="robots"') == 2
-    assert "ols_noindex_product -%}" in patch
-    assert (
-        '{%- if ols_noindex_product -%}\n'
+def test_fee_product_noindex_upgrades_legacy_v1_block(fee_products):
+    legacy = (
+        fee_products.PAGE_ROBOTS_BLOCK
+        + "\n    {%- comment -%} SEO-ROBOTS-PRODUCTS-V1: noindex internal fee products {%- endcomment -%}\n"
+        "    {%- assign ols_noindex_product = false -%}\n"
+        "    {%- if product and product.handle == 'processing-fee' -%}\n"
+        "      {%- assign ols_noindex_product = true -%}\n"
+        "    {%- endif -%}\n"
+        "    {%- if ols_noindex_product -%}\n"
         '    <meta name="robots" content="noindex,follow">\n'
         "    {%- elsif product and product.metafields.seo.robots != blank -%}\n"
         '    <meta name="robots" content="{{ product.metafields.seo.robots | escape }}">\n'
-        "    {%- endif -%}"
-    ) in patch
-    # Metafield robots tag is mutually exclusive with fee-handle noindex.
-    assert patch.index("ols_noindex_product -%}") < patch.index(
-        "product.metafields.seo.robots != blank"
+        "    {%- endif -%}\n"
+        "    <!-- rest -->\n"
     )
+    upgraded, changed = fee_products.patch_product_noindex(legacy)
+    assert changed is True
+    assert "SEO-ROBOTS-PRODUCTS-V1" not in upgraded
+    assert fee_products.PRODUCT_NOINDEX_MARKER in upgraded
+    assert "request.path ==" in upgraded
+    assert "product.handle" not in upgraded
+
+
+def test_fee_product_noindex_uses_request_path(fee_products):
+    """Layout head must key off request.path; product.handle does not fire here."""
+    patch = fee_products.build_product_noindex_patch()
+    assert patch.count('<meta name="robots"') == 1
+    assert "request.path == '/products/product-cc-2-7-fee-2'" in patch
+    assert "request.path == '/products/product-cc-2-7-fee'" in patch
+    assert "request.path == '/products/processing-fee'" in patch
+    assert "product.handle" not in patch
+    assert "product.metafields.seo.robots" not in patch
 
 
 def test_homepage_meta_lengths_and_replace(homepage_ctr):
