@@ -6,11 +6,35 @@ Improve qualified organic traffic, local visibility, and business inquiries for
 Organizing Life Services by making measured, reviewable improvements to the
 Shopify site.
 
+## Business Model Constraint (Non-Negotiable)
+
+OLS is a **service business** (estate sales, appraisals, downsizing, cleanouts,
+organization). Shopify “products” and some collections exist only for internal
+checkout/admin use (for example credit-card processing fees). They are **not**
+public merchandise and must never be treated as SEO, ads, or content targets.
+
+### SEO allowlist
+
+- Service pages (`/pages/...` with service or service-area intent)
+- Blog articles (`/blogs/news/...`)
+- Homepage (`/`)
+- Accurate local/service schema tied to visible content
+
+### SEO denylist
+
+- `/products/*` (internal fee/utility items)
+- Utility collections such as `/collections/all` and `/collections/fees-products`
+- Ads creatives, landing pages, or blog posts that treat fee products as sellable goods
+- Dashboard tasks or meta rewrites that optimize product URLs for search
+
+Do not confuse `/pages/fees-products` (public pricing/info page) with
+`/collections/fees-products` (utility collection; keep noindexed).
+
 ## Data Sources
 
 - Google Search Console (GSC): queries, pages, impressions, clicks, CTR, rank
 - Google Analytics 4 (GA4): sessions, conversions, landing-page behavior
-- Shopify: pages, articles, image/gallery assets, SEO fields
+- Shopify: pages, articles, image/gallery assets, SEO fields (not products for SEO)
 - Google Ads: GA4-derived paid traffic now; direct Ads API when credentials and
   developer-token access are available
 - Google Business Profile (GBP): pending/limited until API access is available
@@ -33,6 +57,8 @@ Shopify site.
 - Treating n8n or agents as production-safe just because they can call the API.
 - Optimizing for vanity traffic that is unlikely to produce estate sale,
   downsizing, cleanout, or organization leads.
+- Using Shopify products or utility collections for SEO, ads, or content.
+- “Optimizing” fee/product URLs that should remain noindexed and internal.
 
 ## Best Current Levers
 

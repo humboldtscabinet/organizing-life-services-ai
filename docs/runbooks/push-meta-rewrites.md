@@ -7,6 +7,18 @@ Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify
 - `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_ADMIN_API_TOKEN` set in `.env` (see [`.env.example`](../../.env.example)).
 - An OpenAI / Anthropic key for the draft-generation step (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`).
 
+## Scope: Service Pages And Blogs Only
+
+OLS is a service business. **Refuse** meta rewrites for:
+
+- `/products/*` (internal fee/utility items)
+- Utility collections (`/collections/all`, `/collections/fees-products`)
+- Any draft whose target is a Shopify product resource
+
+Allowed targets: homepage theme meta (Session 10 / homepage CTR scripts),
+service `/pages/...`, and blog articles. Product SEO writes are blocked in the
+API (`PUT /api/shopify/products/{id}/seo`) by policy.
+
 ## Procedure
 
 1. **Pull current live meta** to know baseline:
