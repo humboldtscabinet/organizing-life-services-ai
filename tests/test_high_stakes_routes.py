@@ -64,7 +64,7 @@ def test_update_product_seo_service_raises_policy_error():
 
     try:
         update_product_seo(product_id=1, title="x")
-        assert False, "expected ShopifyProductSeoPolicyError"
+        raise AssertionError("expected ShopifyProductSeoPolicyError")
     except ShopifyProductSeoPolicyError as exc:
         assert str(exc) == PRODUCT_SEO_POLICY_DETAIL
 
