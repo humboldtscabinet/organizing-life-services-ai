@@ -144,6 +144,17 @@ def infer_error_code(status_code: int, detail: str = "") -> str:
     if status_code == 401:
         return "missing_api_key"
     if status_code == 403:
+        # Auth failures and policy refusals both use 403; distinguish by detail
+        # so valid keys blocked by product-SEO policy are not logged as bad keys.
+        if any(
+            phrase in text
+            for phrase in (
+                "policy blocked",
+                "disabled by policy",
+                "service business",
+            )
+        ):
+            return "policy_blocked"
         return "invalid_api_key"
     if status_code == 404:
         return "not_found"

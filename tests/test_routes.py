@@ -103,6 +103,7 @@ def test_bad_key_is_forbidden(client):
     """A present-but-wrong key returns 403 (not 401, not 200)."""
     r = client.get("/api/dashboard/metrics", headers={"X-API-Key": "wrong"})
     assert r.status_code == 403
+    assert r.json()["code"] == "invalid_api_key"
 
 
 def test_method_not_allowed_uses_specific_error_code(client, auth_headers):

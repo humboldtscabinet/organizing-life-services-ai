@@ -51,6 +51,7 @@ def test_product_seo_write_blocked_by_service_policy(client, auth_headers, monke
     body = response.json()
     detail = body.get("detail") or body.get("message") or ""
     assert "policy" in detail.lower()
+    assert body.get("code") == "policy_blocked"
     assert called is False
 
 
