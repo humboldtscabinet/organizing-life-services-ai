@@ -27,10 +27,13 @@ Each entry should answer:
 - Code/docs in the service-guardrails + homepage CTR PR.
 - Guarded scripts: [`data/session12_noindex_fee_products.py`](../../data/session12_noindex_fee_products.py), [`data/session12_homepage_organizers_ctr.py`](../../data/session12_homepage_organizers_ctr.py).
 - Operator runbook: [`docs/runbooks/service-guardrails-homepage-ctr.md`](../runbooks/service-guardrails-homepage-ctr.md).
-- Live Shopify apply remains operator-gated on the Mac mini (dry-run → mutation confirm).
+- Live Shopify apply is operator-gated on the Mac mini (dry-run → mutation confirm).
 
 **Result / next watch**
-- After live apply: confirm fee product URLs render `noindex`; confirm homepage title/meta; watch GSC CTR for `estate sale organizers` / `estate sale organizer` over 14–28 days.
+- **Live applied (Mac mini) 2026-07-24 ~23:02Z:** upgraded fee-product theme block `SEO-ROBOTS-PRODUCTS-V1` → `SEO-ROBOTS-PRODUCTS-V2` (`request.path`). Report: `data/audit_output/session12_noindex_fee_products_20260724T230219Z.json`. Snapshot: `data/audit_output/theme_layout_snapshot_pre_session12_products_20260724T230219Z.liquid`.
+- Verified live `noindex,follow` on `/products/product-cc-2-7-fee`, `/products/product-cc-2-7-fee-2`, `/products/processing-fee` (fee URL needed a theme comment cache-bust after Shopify `page_cache` lag).
+- Homepage CTR/intlinks were already applied earlier the same day (see `session12_homepage_organizers_ctr_20260724T221500Z.json`).
+- Watch GSC CTR for `estate sale organizers` / `estate sale organizer` over 14–28 days; confirm fee URLs drop from index coverage.
 
 ---
 
