@@ -303,11 +303,62 @@ def update_tag(
     return _summarize_tag(updated)
 
 
+def _looks_like_ga4_measurement_id(value: str | None) -> bool:
+    return bool(value) and value.strip().upper().startswith("G-")
+
+
+def _tag_measurement_hint(tag: dict) -> str | None:
+    """Return a GA4 G- ID or config tag name hint from a tag resource."""
+    params = tag.get("parameter") or []
+    for key in (
+        "measurementIdOverride",
+        "measurementId",
+        "tagId",
+        "measurement_id",
+    ):
+        value = _param(key, params)
+        if _looks_like_ga4_measurement_id(value):
+            return value
+    name = tag.get("name") or ""
+    if _looks_like_ga4_measurement_id(name):
+        return name
+    return None
+
+
 def _resolve_measurement_params(tags: list[dict]) -> list[dict]:
-    """Build GA4 Event measurement parameters from existing config or env."""
+    """Build GA4 Event measurement parameters from existing config or env.
+
+    Prefer real GA4 ``G-`` streams over Google Ads ``AW-`` Google tags.
+    """
+    env_measurement = os.getenv("GA4_MEASUREMENT_ID", "").strip()
+    if _looks_like_ga4_measurement_id(env_measurement):
+        return [
+            {
+                "type": "template",
+                "key": "measurementIdOverride",
+                "value": env_measurement,
+            }
+        ]
+
+    ga4_config = next(
+        (t for t in tags if (t.get("type") or "").lower() == "gaawc"),
+        None,
+    )
+    if ga4_config:
+        return [
+            {
+                "type": "tagReference",
+                "key": "measurementId",
+                "value": ga4_config["name"],
+            }
+        ]
+
     for tag in tags:
         type_lc = (tag.get("type") or "").lower()
-        if type_lc in {"gaawc", "googtag"}:
+        if type_lc != "googtag":
+            continue
+        hint = _tag_measurement_hint(tag)
+        if hint or "G-" in (tag.get("name") or "").upper():
             return [
                 {
                     "type": "tagReference",
@@ -315,39 +366,42 @@ def _resolve_measurement_params(tags: list[dict]) -> list[dict]:
                     "value": tag["name"],
                 }
             ]
-        if type_lc == "gaawe":
-            ref = _param("measurementId", tag.get("parameter"))
-            if ref:
-                return [
-                    {
-                        "type": "tagReference",
-                        "key": "measurementId",
-                        "value": ref,
-                    }
-                ]
-            override = _param("measurementIdOverride", tag.get("parameter"))
-            if override:
-                return [
-                    {
-                        "type": "template",
-                        "key": "measurementIdOverride",
-                        "value": override,
-                    }
-                ]
 
-    measurement_id = os.getenv("GA4_MEASUREMENT_ID", "").strip()
-    if measurement_id:
+    for tag in tags:
+        if (tag.get("type") or "").lower() != "gaawe":
+            continue
+        ref = _param("measurementId", tag.get("parameter"))
+        if ref and "AW-" not in ref.upper():
+            return [
+                {
+                    "type": "tagReference",
+                    "key": "measurementId",
+                    "value": ref,
+                }
+            ]
+        override = _param("measurementIdOverride", tag.get("parameter"))
+        if _looks_like_ga4_measurement_id(override):
+            return [
+                {
+                    "type": "template",
+                    "key": "measurementIdOverride",
+                    "value": override,
+                }
+            ]
+
+    if env_measurement:
         return [
             {
                 "type": "template",
                 "key": "measurementIdOverride",
-                "value": measurement_id,
+                "value": env_measurement,
             }
         ]
 
     raise ValueError(
-        "Cannot resolve GA4 measurement ID. Set GA4_MEASUREMENT_ID or ensure "
-        "a GA4 Config / Google tag exists in the container."
+        "Cannot resolve GA4 measurement ID. Set GA4_MEASUREMENT_ID to a G- ID "
+        "(GA4 Admin → Data streams), or ensure a GA4 Config / Google tag for "
+        "the G- stream exists in the container. Ads AW- Google tags are not used."
     )
 
 
