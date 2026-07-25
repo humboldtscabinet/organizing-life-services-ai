@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 
 from app.api_errors import APIError, build_error_payload, service_result_or_raise
 from app.db.database import get_db
+from app.safety import require_high_stakes_confirmation
 from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import discover_gbp_accounts, discover_gbp_locations, pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
@@ -362,6 +363,78 @@ def gtm_audit():
     if not direct_api_available():
         raise APIError(status_code=503, detail="GTM credentials not configured.")
     return {"status": "success", **audit_container()}
+
+
+@router.post("/gtm/ensure-phone-clicks")
+def gtm_ensure_phone_clicks(
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+    create_version: bool = True,
+    dry_run: bool = False,
+    version_name: str | None = None,
+    version_notes: str = "",
+):
+    """Idempotently ensure tel: → GA4 phone_call_clicks in the workspace.
+
+    Creates/updates trigger + tag, optionally creates a container version.
+    Does **not** publish live — use POST /gtm/publish for that.
+
+    High-stakes: requires human_confirmed=true and judge_verdict=PASS
+    unless dry_run=true.
+    """
+    from app.services.gtm_service import (
+        direct_api_available,
+        ensure_phone_call_clicks_tracking,
+    )
+
+    if not dry_run:
+        require_high_stakes_confirmation(
+            task_type="gtm_workspace_write",
+            human_confirmed=human_confirmed,
+            judge_verdict=judge_verdict,
+        )
+    if not direct_api_available():
+        raise APIError(status_code=503, detail="GTM credentials not configured.")
+    try:
+        result = ensure_phone_call_clicks_tracking(
+            dry_run=dry_run,
+            create_version_after=create_version,
+            version_name=version_name,
+            version_notes=version_notes,
+        )
+        return {"status": "success", "result": result}
+    except ValueError as exc:
+        raise APIError(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise APIError(status_code=502, detail=f"GTM ensure failed: {exc}") from exc
+
+
+@router.post("/gtm/publish")
+def gtm_publish(
+    version_path: str,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+):
+    """Publish a specific container version live.
+
+    High-stakes: requires human_confirmed=true and judge_verdict=PASS.
+    """
+    from app.services.gtm_service import direct_api_available, publish_version
+
+    require_high_stakes_confirmation(
+        task_type="gtm_publish",
+        human_confirmed=human_confirmed,
+        judge_verdict=judge_verdict,
+    )
+    if not direct_api_available():
+        raise APIError(status_code=503, detail="GTM credentials not configured.")
+    try:
+        result = publish_version(version_path)
+        return {"status": "success", "result": result}
+    except ValueError as exc:
+        raise APIError(status_code=400, detail=str(exc)) from exc
+    except Exception as exc:
+        raise APIError(status_code=502, detail=f"GTM publish failed: {exc}") from exc
 
 
 # ===================== SEO Audit Endpoints =====================

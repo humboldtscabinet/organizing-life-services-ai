@@ -32,6 +32,8 @@ HIGH_STAKES_TASK_TYPES = {
     "content_publish",
     "bulk_alt_text_push",
     "ads_budget_change",
+    "gtm_workspace_write",
+    "gtm_publish",
 }
 
 
