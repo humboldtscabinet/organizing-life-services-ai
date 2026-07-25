@@ -10,6 +10,68 @@ Each entry should answer:
 
 ---
 
+## 2026-07-25 — Session 15 organic growth hubs (planned / dry-run)
+
+**What**
+- Appraisal deepen (`SD-APPRAISAL-V2` on `personal-property-appraisal`).
+- Tampa/Hillsborough deepen (`SD-TAMPA-V2`) with neighborhood proof + soft organizer cannibalization note.
+- Pinellas hub intlink reinforcement (`SEO-INTLINKS-PINELLAS-V1`) on homepage theme + Clearwater/Tarpon when missing.
+- Operator checklist: [`2026-07-25-organic-growth-next-steps.md`](2026-07-25-organic-growth-next-steps.md).
+
+**Why**
+- Audit: appraisal near-me striking distance; Tampa ~600 impr / 0 clicks; Pinellas hub needs stronger internal links; organizers demand should not center on the Tampa hub.
+
+**How**
+- Script: [`data/session15_organic_growth_hubs.py`](../../data/session15_organic_growth_hubs.py)
+- Dry-run / apply: see next-steps doc (Mac mini `docker exec ols-api`).
+
+**Result / next watch**
+- Pending dry-run report under `data/audit_output/session15_organic_growth_hubs_*.json`.
+- After apply: verify markers live; IndexNow on changed URLs; GSC Tampa clicks + appraisal near-me in ~14–28 days.
+
+---
+
+## 2026-07-25 — P0 follow-through: Tarpon intlinks + Palm Harbor SD + watch docs
+
+**What**
+- Retargeted service-intent Woodfield gallery hrefs → permanent `/pages/estate-sale-tarpon-springs-florida` in homepage theme intlinks + 6 A4 blog articles.
+- Confirmed Palm Harbor title/meta; appended striking-distance block `SD-ESPH-V1` (“Estate Sales Palm Harbor”).
+- Added GA4 operator checklist and homepage organizers CTR watch checklist.
+- Source scripts updated so re-runs do not restore Woodfield service links: [`data/article_apply_intlinks_a4.py`](../../data/article_apply_intlinks_a4.py), [`data/session5_schema_intlinks_noindex.py`](../../data/session5_schema_intlinks_noindex.py).
+
+**Why**
+- Audit showed Tarpon Springs demand still routing through the noindexed gallery URL via internal links; Palm Harbor sits at pos ~9.3 with weak CTR; organizer homepage copy needs a timed CTR watch; GA4 key events still inflate lead metrics.
+
+**How**
+- Guarded script: [`data/session13_woodfield_tarpon_palm_harbor.py`](../../data/session13_woodfield_tarpon_palm_harbor.py)
+- Report: [`data/audit_output/session13_woodfield_tarpon_palm_harbor_20260725T153205Z.json`](../../data/audit_output/session13_woodfield_tarpon_palm_harbor_20260725T153205Z.json)
+- Checklists: [`2026-07-25-ga4-key-event-cleanup-checklist.md`](2026-07-25-ga4-key-event-cleanup-checklist.md), [`2026-07-25-homepage-organizers-ctr-watch.md`](2026-07-25-homepage-organizers-ctr-watch.md)
+
+**Result / next watch**
+- Live verified: homepage + sample article link to permanent Tarpon page; Palm Harbor title + `SD-ESPH-V1` H2 present; organizers homepage title/intlinks still live.
+- **Operator:** complete GA4 key-event unmarks in UI (property 396184354), then re-run measurement baseline ~2026-07-27 and ~2026-08-22.
+- Organizers CTR GSC check-ins: **2026-08-08** and **2026-08-22**.
+
+---
+
+## 2026-07-25 — Comprehensive SEO audit (post Session 11/12)
+
+**What**
+- Ran [`data/deep_seo_audit.py`](../../data/deep_seo_audit.py) and [`data/post_deploy_measurement_baseline.py`](../../data/post_deploy_measurement_baseline.py).
+- Synthesized recommendations in [`docs/seo-audits/2026-07-25-comprehensive-seo-audit.md`](2026-07-25-comprehensive-seo-audit.md).
+
+**Why**
+- Need a fresh 28-day baseline after service-guardrails, homepage organizers CTR, first-wave service-area pages, and Woodfield noindex.
+
+**How**
+- Raw: [`data/audit_output/deep_seo_audit_20260725_150718.{md,json}`](../../data/audit_output/deep_seo_audit_20260725_150718.md), [`docs/seo-audits/2026-07-25-post-deploy-measurement-baseline.md`](2026-07-25-post-deploy-measurement-baseline.md).
+
+**Result / next watch**
+- Impressions up, clicks/CTR down; organic sessions up strongly. Top levers: GA4 key-event cleanup, Palm Harbor striking distance, Tampa hub rescue, organizer cannibalization cleanup, Tarpon intlink retarget.
+- GSC window ends 2026-07-22 — Jul 24 live applies not yet in search stats.
+
+---
+
 ## 2026-07-24 — Service-only Shopify guardrails + homepage organizers CTR prep
 
 **What**
