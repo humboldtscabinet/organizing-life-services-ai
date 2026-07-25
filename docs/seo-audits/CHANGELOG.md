@@ -10,12 +10,54 @@ Each entry should answer:
 
 ---
 
-## 2026-07-25 — Session 15 organic growth hubs (planned / dry-run)
+## 2026-07-25 — Session 16: install GTM on theme (live applied)
+
+**What**
+- Injected public container `GTM-KQ76X4NR` into Shopify `theme.liquid` (`OLS-GTM-INSTALL-V1`).
+- Paused GTM `GA4-Config-G-4HSTXZKG9E` so page_view stays on Shopify Google channel only (avoids double-count).
+- Set `waitForTags=true` on OLS tel click trigger; created GTM container **version 9**.
+
+**Why**
+- Storefront had GA4 via Shopify channel (`G-4HSTXZKG9E`) but no GTM snippet, so published phone-click tags never fired.
+
+**How**
+- Script: [`data/session16_install_gtm.py`](../../data/session16_install_gtm.py)
+- Mac mini apply + GTM version create; publish version 9 (UI or `--publish`)
+- Runbook: [`docs/runbooks/gtm-write-and-publish.md`](../runbooks/gtm-write-and-publish.md)
+
+**Result / next watch**
+- Live HTML includes `GTM-KQ76X4NR`. GA4 Realtime showed `phone_call_clicks` as a key event after a test call click.
+- Standard Reports → Events may lag Realtime; keep Shopify channel + paused GTM config as the single page_view path.
+
+---
+
+## 2026-07-25 — Session 14: GTM `phone_call_clicks` (live applied)
+
+**What**
+- Gated GTM write path: tag/trigger CRUD, version create/publish, `ensure_phone_call_clicks_tracking()`.
+- Created OLS tel-click trigger + GA4 event tag for measurement ID `G-4HSTXZKG9E` (prefer `G-` over Ads `AW-`).
+- Operator paused legacy duplicate **Event - Phone Call**; published container version 8 in UI before Session 16 theme install.
+
+**Why**
+- Need a durable, gated operator path for phone lead events instead of one-off UI edits; Ads IDs must not bind as GA4 measurement IDs.
+
+**How**
+- Code: `app/services/gtm_service.py`, gated routes in `app/routes/seo.py`, tests `tests/test_gtm_write_control.py`
+- Script: [`data/session14_gtm_phone_clicks.py`](../../data/session14_gtm_phone_clicks.py)
+- Env on mini: `GTM_ACCOUNT_ID=6201388805`, `GTM_CONTAINER_ID=168770630`, `GA4_MEASUREMENT_ID=G-4HSTXZKG9E`
+
+**Result / next watch**
+- Workspace objects + versions created; events only after Session 16 installed GTM on the theme.
+- Still: unmark noisy GA4 key events in UI (property 396184354) per [`2026-07-25-ga4-key-event-cleanup-checklist.md`](2026-07-25-ga4-key-event-cleanup-checklist.md).
+
+---
+
+## 2026-07-25 — Session 15 organic growth hubs (live applied)
 
 **What**
 - Appraisal deepen (`SD-APPRAISAL-V2` on `personal-property-appraisal`).
 - Tampa/Hillsborough deepen (`SD-TAMPA-V2`) with neighborhood proof + soft organizer cannibalization note.
-- Pinellas hub intlink reinforcement (`SEO-INTLINKS-PINELLAS-V1`) on homepage theme + Clearwater/Tarpon when missing.
+- Pinellas hub intlink on homepage theme (`SEO-INTLINKS-PINELLAS-V1`); Clearwater/Tarpon/Palm Harbor already had hub links.
 - Operator checklist: [`2026-07-25-organic-growth-next-steps.md`](2026-07-25-organic-growth-next-steps.md).
 
 **Why**
@@ -23,11 +65,13 @@ Each entry should answer:
 
 **How**
 - Script: [`data/session15_organic_growth_hubs.py`](../../data/session15_organic_growth_hubs.py)
-- Dry-run / apply: see next-steps doc (Mac mini `docker exec ols-api`).
+- Mac mini apply on `cursor/gtm-gated-write-control`: report `data/audit_output/session15_organic_growth_hubs_20260725T174221Z.json`
+- Live verified via curl: `SD-APPRAISAL-V2`, `SD-TAMPA-V2`, homepage `estate-sale-pinellas-county`
+- IndexNow skipped (no key in container)
 
 **Result / next watch**
-- Pending dry-run report under `data/audit_output/session15_organic_growth_hubs_*.json`.
-- After apply: verify markers live; IndexNow on changed URLs; GSC Tampa clicks + appraisal near-me in ~14–28 days.
+- Track A (GTM install + `phone_call_clicks`) completed in Sessions 14–16; measurement baseline when site 429 cools.
+- GSC: Tampa clicks + appraisal near-me ~14–28 days; organizers CTR Aug 8 / Aug 22.
 
 ---
 
