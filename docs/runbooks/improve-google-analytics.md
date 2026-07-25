@@ -242,7 +242,7 @@ Use that number — not total GA4 “Conversions” — when evaluating SEO work
 | Conversions still look huge | Old polluted days in 28d window | Wait for window to age; confirm Key events list is clean |
 | `form_submit` stops | Form / GTM regression | GTM Preview on contact form submit |
 | `phone_call_clicks` stays empty | No `tel:` links or broken trigger | Step 4 |
-| Measurement script says Admin API unavailable | Expected | Use GA4 UI; Admin API is disabled in GCP |
+| Measurement script says Admin API unavailable | Expected until enabled | Enable via [gcp-apis-to-enable.md](gcp-apis-to-enable.md); UI cleanup still works |
 | Ads still optimize to page views | Ads conversion action misconfigured | Remap Ads to `form_submit` |
 
 ---
