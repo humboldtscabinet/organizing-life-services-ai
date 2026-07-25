@@ -24,14 +24,16 @@ GA4 should **not** count passive behavior as key events:
 
 ## Current Problem Found
 
-The 2026-06-23 measurement baseline found:
+The 2026-07-25 measurement baseline found (window `2026-06-27 → 2026-07-24`):
 
-- `page_view`: 1,287 key events
-- `ads_conversion_Contact_Page_load_https_1`: 73 key events
-- `form_submit`: 8 key events
+- `page_view`: 1,870 key events
+- `ads_conversion_Contact_Page_load_https_1`: 94 key events
+- `form_submit`: 17 key events (only real lead-intent signal in that set)
 
 That makes the reported conversion count look much larger than real lead volume.
 Do not use GA4 conversion/key-event totals as a business KPI until this is fixed.
+
+Earlier 2026-06-23 baseline (for history): `page_view` 1,287 / contact-page-load 73 / `form_submit` 8.
 
 ## Cleanup Steps In GA4 UI
 
@@ -93,8 +95,8 @@ is disabled in the GCP project. Until it is enabled, use the GA4 UI steps above.
 
 To enable future API-based inspection:
 
-1. In Google Cloud Console, enable **Google Analytics Admin API** for the service-account project.
-2. Confirm the service account has GA4 property access.
+1. In Google Cloud Console, enable **Google Analytics Admin API** for the service-account project (see [gcp-apis-to-enable.md](gcp-apis-to-enable.md)).
+2. Confirm the service account has GA4 property access (Viewer to list; Editor to delete).
 3. Keep API cleanup behind an explicit human confirmation; do not delete key events automatically from weekly jobs.
 
 Reference:

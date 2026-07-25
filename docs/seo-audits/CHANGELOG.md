@@ -10,6 +10,112 @@ Each entry should answer:
 
 ---
 
+## 2026-07-25 — Session 16: install GTM on theme (live applied)
+
+**What**
+- Injected public container `GTM-KQ76X4NR` into Shopify `theme.liquid` (`OLS-GTM-INSTALL-V1`).
+- Paused GTM `GA4-Config-G-4HSTXZKG9E` so page_view stays on Shopify Google channel only (avoids double-count).
+- Set `waitForTags=true` on OLS tel click trigger; created GTM container **version 9**.
+
+**Why**
+- Storefront had GA4 via Shopify channel (`G-4HSTXZKG9E`) but no GTM snippet, so published phone-click tags never fired.
+
+**How**
+- Script: [`data/session16_install_gtm.py`](../../data/session16_install_gtm.py)
+- Mac mini apply + GTM version create; publish version 9 (UI or `--publish`)
+- Runbook: [`docs/runbooks/gtm-write-and-publish.md`](../runbooks/gtm-write-and-publish.md)
+
+**Result / next watch**
+- Live HTML includes `GTM-KQ76X4NR`. GA4 Realtime showed `phone_call_clicks` as a key event after a test call click.
+- Standard Reports → Events may lag Realtime; keep Shopify channel + paused GTM config as the single page_view path.
+
+---
+
+## 2026-07-25 — Session 14: GTM `phone_call_clicks` (live applied)
+
+**What**
+- Gated GTM write path: tag/trigger CRUD, version create/publish, `ensure_phone_call_clicks_tracking()`.
+- Created OLS tel-click trigger + GA4 event tag for measurement ID `G-4HSTXZKG9E` (prefer `G-` over Ads `AW-`).
+- Operator paused legacy duplicate **Event - Phone Call**; published container version 8 in UI before Session 16 theme install.
+
+**Why**
+- Need a durable, gated operator path for phone lead events instead of one-off UI edits; Ads IDs must not bind as GA4 measurement IDs.
+
+**How**
+- Code: `app/services/gtm_service.py`, gated routes in `app/routes/seo.py`, tests `tests/test_gtm_write_control.py`
+- Script: [`data/session14_gtm_phone_clicks.py`](../../data/session14_gtm_phone_clicks.py)
+- Env on mini: `GTM_ACCOUNT_ID=6201388805`, `GTM_CONTAINER_ID=168770630`, `GA4_MEASUREMENT_ID=G-4HSTXZKG9E`
+
+**Result / next watch**
+- Workspace objects + versions created; events only after Session 16 installed GTM on the theme.
+- Still: unmark noisy GA4 key events in UI (property 396184354) per [`2026-07-25-ga4-key-event-cleanup-checklist.md`](2026-07-25-ga4-key-event-cleanup-checklist.md).
+
+---
+
+## 2026-07-25 — Session 15 organic growth hubs (live applied)
+
+**What**
+- Appraisal deepen (`SD-APPRAISAL-V2` on `personal-property-appraisal`).
+- Tampa/Hillsborough deepen (`SD-TAMPA-V2`) with neighborhood proof + soft organizer cannibalization note.
+- Pinellas hub intlink on homepage theme (`SEO-INTLINKS-PINELLAS-V1`); Clearwater/Tarpon/Palm Harbor already had hub links.
+- Operator checklist: [`2026-07-25-organic-growth-next-steps.md`](2026-07-25-organic-growth-next-steps.md).
+
+**Why**
+- Audit: appraisal near-me striking distance; Tampa ~600 impr / 0 clicks; Pinellas hub needs stronger internal links; organizers demand should not center on the Tampa hub.
+
+**How**
+- Script: [`data/session15_organic_growth_hubs.py`](../../data/session15_organic_growth_hubs.py)
+- Mac mini apply on `cursor/gtm-gated-write-control`: report `data/audit_output/session15_organic_growth_hubs_20260725T174221Z.json`
+- Live verified via curl: `SD-APPRAISAL-V2`, `SD-TAMPA-V2`, homepage `estate-sale-pinellas-county`
+- IndexNow skipped (no key in container)
+
+**Result / next watch**
+- Track A (GTM install + `phone_call_clicks`) completed in Sessions 14–16; measurement baseline when site 429 cools.
+- GSC: Tampa clicks + appraisal near-me ~14–28 days; organizers CTR Aug 8 / Aug 22.
+
+---
+
+## 2026-07-25 — P0 follow-through: Tarpon intlinks + Palm Harbor SD + watch docs
+
+**What**
+- Retargeted service-intent Woodfield gallery hrefs → permanent `/pages/estate-sale-tarpon-springs-florida` in homepage theme intlinks + 6 A4 blog articles.
+- Confirmed Palm Harbor title/meta; appended striking-distance block `SD-ESPH-V1` (“Estate Sales Palm Harbor”).
+- Added GA4 operator checklist and homepage organizers CTR watch checklist.
+- Source scripts updated so re-runs do not restore Woodfield service links: [`data/article_apply_intlinks_a4.py`](../../data/article_apply_intlinks_a4.py), [`data/session5_schema_intlinks_noindex.py`](../../data/session5_schema_intlinks_noindex.py).
+
+**Why**
+- Audit showed Tarpon Springs demand still routing through the noindexed gallery URL via internal links; Palm Harbor sits at pos ~9.3 with weak CTR; organizer homepage copy needs a timed CTR watch; GA4 key events still inflate lead metrics.
+
+**How**
+- Guarded script: [`data/session13_woodfield_tarpon_palm_harbor.py`](../../data/session13_woodfield_tarpon_palm_harbor.py)
+- Report: [`data/audit_output/session13_woodfield_tarpon_palm_harbor_20260725T153205Z.json`](../../data/audit_output/session13_woodfield_tarpon_palm_harbor_20260725T153205Z.json)
+- Checklists: [`2026-07-25-ga4-key-event-cleanup-checklist.md`](2026-07-25-ga4-key-event-cleanup-checklist.md), [`2026-07-25-homepage-organizers-ctr-watch.md`](2026-07-25-homepage-organizers-ctr-watch.md)
+
+**Result / next watch**
+- Live verified: homepage + sample article link to permanent Tarpon page; Palm Harbor title + `SD-ESPH-V1` H2 present; organizers homepage title/intlinks still live.
+- **Operator:** complete GA4 key-event unmarks in UI (property 396184354), then re-run measurement baseline ~2026-07-27 and ~2026-08-22.
+- Organizers CTR GSC check-ins: **2026-08-08** and **2026-08-22**.
+
+---
+
+## 2026-07-25 — Comprehensive SEO audit (post Session 11/12)
+
+**What**
+- Ran [`data/deep_seo_audit.py`](../../data/deep_seo_audit.py) and [`data/post_deploy_measurement_baseline.py`](../../data/post_deploy_measurement_baseline.py).
+- Synthesized recommendations in [`docs/seo-audits/2026-07-25-comprehensive-seo-audit.md`](2026-07-25-comprehensive-seo-audit.md).
+
+**Why**
+- Need a fresh 28-day baseline after service-guardrails, homepage organizers CTR, first-wave service-area pages, and Woodfield noindex.
+
+**How**
+- Raw: [`data/audit_output/deep_seo_audit_20260725_150718.{md,json}`](../../data/audit_output/deep_seo_audit_20260725_150718.md), [`docs/seo-audits/2026-07-25-post-deploy-measurement-baseline.md`](2026-07-25-post-deploy-measurement-baseline.md).
+
+**Result / next watch**
+- Impressions up, clicks/CTR down; organic sessions up strongly. Top levers: GA4 key-event cleanup, Palm Harbor striking distance, Tampa hub rescue, organizer cannibalization cleanup, Tarpon intlink retarget.
+- GSC window ends 2026-07-22 — Jul 24 live applies not yet in search stats.
+
+---
+
 ## 2026-07-24 — Service-only Shopify guardrails + homepage organizers CTR prep
 
 **What**
