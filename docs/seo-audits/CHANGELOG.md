@@ -58,8 +58,9 @@ Each entry should answer:
 - **Live applied (confirmed 2026-07-24):** all 7 first-wave pages are live with `SERVICE-AREA-FIRST-WAVE-V1` markers, including new hubs/pages `estate-sale-pinellas-county` and `estate-sale-tarpon-springs-florida`.
 - Idempotent re-dry-run 2026-07-24: `would_or_did_page_writes=0`, `would_or_did_meta_writes=0` (report `data/audit_output/session11_service_area_first_wave_20260724T233506Z.json`).
 - **IndexNow submitted 2026-07-24 ~23:37Z** for all 7 first-wave URLs: api.indexnow.org=200, bing.com/indexnow=200, yandex.com/indexnow=202 (report `data/audit_output/session11_indexnow_20260724T233704Z.json`).
-- Still open: legacy event page `tarpon-springs-estate-sale-in-woodfield` (redirect and/or noindex — not handled by this script).
-- Watch GSC indexing for the two new URLs and engagement on refreshed county/city hubs over 14–28 days.
+- **Legacy gallery noindexed 2026-07-24 ~23:42Z:** `tarpon-springs-estate-sale-in-woodfield` (past sale photo gallery, not a service page) now has `seo.robots=noindex,follow` and live HTML verified after a page-body cache-bust (report `data/audit_output/woodfield_noindex_20260724T234157Z.json`). Permanent service URL remains `/pages/estate-sale-tarpon-springs-florida`.
+- Optional later: retarget internal links that still use Woodfield as the “Tarpon Springs estate sales” anchor (e.g. homepage/article intlinks) to the permanent service page.
+- Watch GSC indexing for the two new URLs and engagement on refreshed county/city hubs over 14–28 days; confirm Woodfield drops from index coverage.
 
 ---
 
