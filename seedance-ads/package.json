@@ -13,8 +13,9 @@
   },
   "scripts": {
     "generate": "tsx scripts/generate-ad.ts",
+    "reframe": "tsx scripts/reframe-ad.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/**/*.test.ts"
+    "test": "tsx --test src/**/*.test.ts src/prompts/**/*.test.ts"
   },
   "keywords": [
     "seedance",

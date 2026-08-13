@@ -110,6 +110,14 @@ export function buildSeevioPayload(
       imageUrls.push(requirePublicUrl(url, `referenceImages[${index}]`));
     }
   }
+  // reference-to-video cannot use first+last-frame mode. Put the CTA first
+  // so prompts can call it [Image 1].
+  if (generationType === "reference-to-video" && options.lastFrameImage) {
+    const cta = requirePublicUrl(options.lastFrameImage, "lastFrameImage");
+    if (!imageUrls.includes(cta)) {
+      imageUrls.unshift(cta);
+    }
+  }
 
   const payload: SeevioPayload = {
     model,

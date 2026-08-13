@@ -1,0 +1,20 @@
+{
+  "ctaImageUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-ols-cta-9x16.png",
+  "outputDir": "output/reframe",
+  "videos": [
+    { "id": "estate-sales-01", "service": "estate-sales", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-estate-sales-01.mp4" },
+    { "id": "estate-sales-02", "service": "estate-sales", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-estate-sales-02.mp4" },
+    { "id": "liquidation-01", "service": "liquidation", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-liquidation-01.mp4" },
+    { "id": "liquidation-02", "service": "liquidation", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-liquidation-02.mp4" },
+    { "id": "downsizing-01", "service": "downsizing", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-downsizing-01.mp4" },
+    { "id": "downsizing-02", "service": "downsizing", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-downsizing-02.mp4" },
+    { "id": "cleanouts-01", "service": "cleanouts", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-cleanouts-01.mp4" },
+    { "id": "cleanouts-02", "service": "cleanouts", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-cleanouts-02.mp4" },
+    { "id": "listing-prep-01", "service": "listing-prep", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-listing-prep-01.mp4" },
+    { "id": "listing-prep-02", "service": "listing-prep", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-listing-prep-02.mp4" },
+    { "id": "appraisals-01", "service": "appraisals", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-appraisals-01.mp4" },
+    { "id": "appraisals-02", "service": "appraisals", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-appraisals-02.mp4" },
+    { "id": "jewelry-01", "service": "jewelry", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-jewelry-01.mp4" },
+    { "id": "jewelry-02", "service": "jewelry", "sourceVideoUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/REPLACE-jewelry-02.mp4" }
+  ]
+}

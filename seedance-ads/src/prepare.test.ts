@@ -1,7 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
+import { TEXT_TO_VIDEO_ACCURACY_WARNING } from "./brand.ts";
 import { prepareGeneration } from "./client.ts";
-import { FRAMING_RULES, hasFramingRule } from "./framing.ts";
+import { FRAMING_CTA_RULES, FRAMING_RULES, hasFramingRule } from "./framing.ts";
 import {
   ASPECT_RATIOS,
   DEFAULT_SEEDANCE_MODEL,
@@ -24,6 +25,8 @@ describe("prepareGeneration — framing is mandatory", () => {
       assert.ok(hasFramingRule(prepared.framedPrompt, ratio));
       assert.ok(prepared.framedPrompt.includes(FRAMING_RULES[ratio]));
       assert.ok(prepared.framedPrompt.startsWith(BRIEF));
+      assert.ok(prepared.warnings.includes(TEXT_TO_VIDEO_ACCURACY_WARNING));
+      assert.equal(prepared.framedPrompt.includes("uploaded CTA card"), false);
     });
   }
 
@@ -43,6 +46,38 @@ describe("prepareGeneration — framing is mandatory", () => {
     assert.ok(
       prepared.warnings.some((warning) => warning.includes("inherits the source image ratio")),
     );
+  });
+
+  it("uses reference-to-video and mentions Image 1 when stills are provided", () => {
+    const prepared = prepareGeneration(
+      generateAdOptionsSchema.parse({
+        prompt: BRIEF,
+        aspectRatio: "9:16",
+        referenceImages: [
+          "https://cdn.example.com/sale-1.jpg",
+          "https://cdn.example.com/sale-2.jpg",
+        ],
+      }),
+      DEFAULT_SEEDANCE_MODEL,
+    );
+
+    assert.equal(prepared.mode, "reference-to-video");
+    assert.ok(prepared.framedPrompt.includes("[Image 1]"));
+    assert.ok(prepared.framedPrompt.includes("[Image 2]"));
+    assert.equal(prepared.warnings.includes(TEXT_TO_VIDEO_ACCURACY_WARNING), false);
+  });
+
+  it("adds the CTA hold when a last-frame image is provided", () => {
+    const prepared = prepareGeneration(
+      generateAdOptionsSchema.parse({
+        prompt: BRIEF,
+        aspectRatio: "1:1",
+        lastFrameImage: "https://cdn.example.com/cta.jpg",
+      }),
+      DEFAULT_SEEDANCE_MODEL,
+    );
+
+    assert.ok(prepared.framedPrompt.includes(FRAMING_CTA_RULES["1:1"]));
   });
 
   it("clamps Seedance 2.5 1080p requests to 720p without dropping framing", () => {
