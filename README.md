@@ -30,6 +30,9 @@ local Ollama/Gemma verification, and post-reboot checks.
 
 See `docs/architecture.md` for the full system overview.
 
+Google Ads video creatives (Seedance / BytePlus ModelArk) live in
+[`seedance-ads/`](seedance-ads/README.md).
+
 ## Current Operating Focus
 
 1. Pull and store SEO/business data from GSC, GA4, Shopify, Google Ads, and GBP
