@@ -26,9 +26,8 @@ ffmpeg must be on PATH for CTA canvases and the 3-second end-card concat.
 
 ## Reframe an existing 9:16 ad (recommended)
 
-1. Upload the 14 source MP4s and the 9:16 CTA still to Shopify Files (Seevio only accepts public HTTPS URLs).
-2. Fill [`examples/ols-reframe.manifest.json`](examples/ols-reframe.manifest.json).
-3. Dry-run, then live-run one service batch.
+1. Upload the 9:16 CTA still to Shopify Files (the 14 source MP4s are already in [`examples/ols-reframe.manifest.json`](examples/ols-reframe.manifest.json)). Paste the CTA CDN URL into `ctaImageUrl`.
+2. Dry-run, then live-run one service batch.
 
 ```bash
 npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --dry-run
