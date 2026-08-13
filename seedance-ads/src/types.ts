@@ -40,17 +40,19 @@ export const PIXEL_RESOLUTION: Record<
   },
 };
 
-export const DEFAULT_SEEDANCE_MODEL = "dreamina-seedance-2-0-260128";
+export const DEFAULT_SEEDANCE_MODEL = "seedance-2-5";
 export const DEFAULT_DURATION_SECONDS = 8;
 export const DEFAULT_RESOLUTION: VideoResolution = "720p";
 export const CTA_HOLD_SECONDS = 3;
+
+export type SeedanceProvider = "seevio" | "bytedance";
 
 export const generateAdOptionsSchema = z.object({
   /** Creative brief / scene description. Framing is appended automatically. */
   prompt: z.string().min(1, "prompt is required"),
   aspectRatio: aspectRatioSchema.default("9:16"),
-  /** Clip length in seconds. Seedance 2.0 supports 4–15s. */
-  duration: z.number().int().min(4).max(15).default(DEFAULT_DURATION_SECONDS),
+  /** Clip length in seconds. Seedance 2.5 supports 4–30s; 2.0 supports 4–15s. */
+  duration: z.number().int().min(4).max(30).default(DEFAULT_DURATION_SECONDS),
   /**
    * First-frame image for image-to-video.
    * HTTP(S) URL, data URI, or local filesystem path.
@@ -108,7 +110,9 @@ export interface SeedanceClientConfig {
   apiKey?: string;
   model?: string;
   baseURL?: string;
-  /** Poll interval while waiting for ModelArk (default 5s). */
+  /** seevio = Seevio/seedance2.ai (default). bytedance = BytePlus ModelArk. */
+  provider?: SeedanceProvider;
+  /** Poll interval while waiting (Seevio requires >= 10s). */
   pollIntervalMs?: number;
   /** Give up after this many ms (default 15 minutes). */
   pollTimeoutMs?: number;

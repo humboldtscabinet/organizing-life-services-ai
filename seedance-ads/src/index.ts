@@ -25,6 +25,7 @@ export type {
   ParsedGenerateAdOptions,
   PreparedGeneration,
   SeedanceClientConfig,
+  SeedanceProvider,
   VideoResolution,
 } from "./types.ts";
 
@@ -37,6 +38,7 @@ export {
 } from "./framing.ts";
 
 export { SeedanceClient, prepareGeneration } from "./client.ts";
+export { buildSeevioPayload, SEEVIO_BASE_URL } from "./seevio.ts";
 export { generateFullAdSet, generateSingleAd, getDefaultClient } from "./generate.ts";
 
 export type {

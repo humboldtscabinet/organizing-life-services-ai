@@ -45,7 +45,7 @@ describe("prepareGeneration — framing is mandatory", () => {
     );
   });
 
-  it("clamps Seedance 2.0 1080p requests to 720p without dropping framing", () => {
+  it("clamps Seedance 2.5 1080p requests to 720p without dropping framing", () => {
     const prepared = prepareGeneration(
       generateAdOptionsSchema.parse({
         prompt: BRIEF,

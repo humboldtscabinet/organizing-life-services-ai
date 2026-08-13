@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { createByteDance } from "@ai-sdk/bytedance";
 import {
@@ -9,10 +9,15 @@ import { config as loadEnv } from "dotenv";
 import { buildPrompt, hasFramingRule } from "./framing.ts";
 import { logger } from "./logger.ts";
 import {
+  DEFAULT_SEEVIO_MODEL,
+  SEEVIO_BASE_URL,
+  SeevioApi,
+  buildSeevioPayload,
+} from "./seevio.ts";
+import {
   ASPECT_RATIOS,
   DEFAULT_DURATION_SECONDS,
   DEFAULT_RESOLUTION,
-  DEFAULT_SEEDANCE_MODEL,
   PIXEL_RESOLUTION,
   generateAdOptionsSchema,
   type AspectRatio,
@@ -22,43 +27,77 @@ import {
   type ParsedGenerateAdOptions,
   type PreparedGeneration,
   type SeedanceClientConfig,
+  type SeedanceProvider,
   type VideoResolution,
 } from "./types.ts";
 
 loadEnv({ quiet: true });
 
-const DEFAULT_POLL_INTERVAL_MS = 5_000;
+const DEFAULT_POLL_INTERVAL_MS = 10_000;
 const DEFAULT_POLL_TIMEOUT_MS = 15 * 60 * 1000;
 const DEFAULT_OUTPUT_DIR = "output";
 
-const IMAGE_MIME: Record<string, string> = {
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".webp": "image/webp",
-  ".gif": "image/gif",
-};
+function resolveApiKey(config: SeedanceClientConfig, provider: SeedanceProvider): string {
+  if (config.apiKey) return config.apiKey;
 
-function isHttpOrDataUri(value: string): boolean {
-  return /^(https?:\/\/|data:)/i.test(value);
+  if (provider === "seevio") {
+    const key =
+      process.env.SEEDANCE_API_KEY ??
+      process.env.SEEVIO_API_KEY ??
+      process.env.ARK_API_KEY;
+    if (!key) {
+      throw new Error(
+        "Missing SEEDANCE_API_KEY. Add your Seevio (seedance2.ai) sk_live_ key as a Cursor Runtime Secret named SEEDANCE_API_KEY, then restart this agent.",
+      );
+    }
+    return key;
+  }
+
+  const key = process.env.ARK_API_KEY;
+  if (!key) {
+    throw new Error(
+      "Missing ARK_API_KEY. BytePlus ModelArk requires this env var.",
+    );
+  }
+  return key;
 }
 
-function isSeedance2(model: string): boolean {
-  return /seedance-2/i.test(model);
+function resolveProvider(config: SeedanceClientConfig): SeedanceProvider {
+  const raw = config.provider ?? process.env.SEEDANCE_PROVIDER ?? "seevio";
+  if (raw === "seevio" || raw === "bytedance") return raw;
+  throw new Error(`Unknown SEEDANCE_PROVIDER "${raw}". Use seevio or bytedance.`);
+}
+
+function isSeedance25(model: string): boolean {
+  return /2-5|2\.5/.test(model);
 }
 
 function clampResolution(model: string, requested: VideoResolution): {
   resolution: VideoResolution;
   warning?: string;
 } {
-  if (requested === "1080p" && isSeedance2(model)) {
+  // Seevio Seedance 2.5 and BytePlus ModelArk Seedance 2.0 are 720p-max.
+  if (requested === "1080p" && (isSeedance25(model) || /dreamina-seedance-2-0/.test(model))) {
     return {
       resolution: "720p",
-      warning:
-        "Seedance 2.0 supports 480p and 720p only. Requested 1080p was clamped to 720p.",
+      warning: `${model} supports 480p and 720p only. Requested 1080p was clamped to 720p.`,
     };
   }
   return { resolution: requested };
+}
+
+function clampDuration(model: string, duration: number): {
+  duration: number;
+  warning?: string;
+} {
+  const max = isSeedance25(model) ? 30 : 15;
+  if (duration > max) {
+    return {
+      duration: max,
+      warning: `${model} max duration is ${max}s. Requested ${duration}s was clamped.`,
+    };
+  }
+  return { duration };
 }
 
 /**
@@ -83,29 +122,26 @@ export function prepareGeneration(
     model,
     options.resolution,
   );
+  const { duration, warning: durationWarning } = clampDuration(model, options.duration);
   const pixelResolution = PIXEL_RESOLUTION[resolution][aspectRatio];
   const mode = options.image ? "image-to-video" : "text-to-video";
   const warnings: string[] = [];
 
-  if (resolutionWarning) {
-    warnings.push(resolutionWarning);
-  }
+  if (resolutionWarning) warnings.push(resolutionWarning);
+  if (durationWarning) warnings.push(durationWarning);
 
-  // Newer Seedance models inherit ratio from first-frame / first-last-frame
-  // media and reject an explicit aspectRatio on those paths.
   let sdkAspectRatio: AspectRatio | "adaptive" = aspectRatio;
   if (mode === "image-to-video") {
     sdkAspectRatio = "adaptive";
     warnings.push(
-      `Image-to-video inherits the source image ratio on Seedance 2.x. ` +
-        `Framing for ${aspectRatio} was still appended — provide a ${aspectRatio} source image (and CTA card) for Performance Max.`,
+      `Image-to-video inherits the source image ratio. Framing for ${aspectRatio} was still appended — provide a ${aspectRatio} source image (and CTA card) for Performance Max.`,
     );
   }
 
   return {
     aspectRatio,
     framedPrompt,
-    duration: options.duration,
+    duration,
     resolution,
     pixelResolution,
     mode,
@@ -123,50 +159,34 @@ function defaultFileName(aspectRatio: AspectRatio): string {
   return `ad-${stamp}-${ratioFileToken(aspectRatio)}.mp4`;
 }
 
-function warningText(warning: unknown): string {
-  if (typeof warning === "string") return warning;
-  if (warning && typeof warning === "object") {
-    const record = warning as Record<string, unknown>;
-    return (
-      String(record.message ?? record.details ?? record.feature ?? "") ||
-      JSON.stringify(warning)
-    );
-  }
-  return String(warning);
-}
-
-function extractTaskId(metadata: unknown): string | undefined {
-  if (!metadata || typeof metadata !== "object") return undefined;
-  const bytedance = (metadata as Record<string, unknown>).bytedance;
-  if (!bytedance || typeof bytedance !== "object") return undefined;
-  const taskId = (bytedance as Record<string, unknown>).taskId;
-  return typeof taskId === "string" ? taskId : undefined;
-}
-
 export class SeedanceClient {
   private readonly apiKey: string;
   private readonly model: string;
-  private readonly baseURL: string | undefined;
+  private readonly baseURL: string;
+  private readonly provider: SeedanceProvider;
   private readonly pollIntervalMs: number;
   private readonly pollTimeoutMs: number;
 
   constructor(config: SeedanceClientConfig = {}) {
-    const apiKey = config.apiKey ?? process.env.ARK_API_KEY;
-    if (!apiKey) {
-      throw new Error(
-        "Missing ARK_API_KEY. Copy seedance-ads/.env.example to .env and add your BytePlus ModelArk key.",
-      );
-    }
-
-    this.apiKey = apiKey;
-    this.model = config.model ?? process.env.SEEDANCE_MODEL ?? DEFAULT_SEEDANCE_MODEL;
-    this.baseURL = config.baseURL;
+    this.provider = resolveProvider(config);
+    this.apiKey = resolveApiKey(config, this.provider);
+    this.model =
+      config.model ??
+      process.env.SEEDANCE_MODEL ??
+      (this.provider === "seevio" ? DEFAULT_SEEVIO_MODEL : "dreamina-seedance-2-0-260128");
+    this.baseURL =
+      config.baseURL ??
+      (this.provider === "seevio" ? SEEVIO_BASE_URL : "https://ark.ap-southeast.bytepluses.com/api/v3");
     this.pollIntervalMs = config.pollIntervalMs ?? DEFAULT_POLL_INTERVAL_MS;
     this.pollTimeoutMs = config.pollTimeoutMs ?? DEFAULT_POLL_TIMEOUT_MS;
   }
 
   getModel(): string {
     return this.model;
+  }
+
+  getProvider(): SeedanceProvider {
+    return this.provider;
   }
 
   /**
@@ -179,11 +199,12 @@ export class SeedanceClient {
     const started = Date.now();
 
     logger.info("Starting Seedance generation", {
+      provider: this.provider,
       model: this.model,
       aspectRatio: prepared.aspectRatio,
       duration: prepared.duration,
       mode: prepared.mode,
-      resolution: prepared.pixelResolution,
+      resolution: prepared.resolution,
       framingApplied: hasFramingRule(prepared.framedPrompt, prepared.aspectRatio),
     });
 
@@ -191,100 +212,11 @@ export class SeedanceClient {
       logger.warn(warning);
     }
 
-    const byteDance = createByteDance({
-      apiKey: this.apiKey,
-      ...(this.baseURL ? { baseURL: this.baseURL } : {}),
-    });
-
-    const bytedanceOptions: {
-      watermark: boolean;
-      cameraFixed?: boolean;
-      generateAudio?: boolean;
-      lastFrameImage?: string;
-      referenceImages?: string[];
-      referenceVideos?: string[];
-      referenceAudio?: string[];
-    } = {
-      watermark: options.watermark,
-    };
-
-    if (options.cameraFixed != null) {
-      bytedanceOptions.cameraFixed = options.cameraFixed;
-    }
-    if (options.generateAudio != null) {
-      bytedanceOptions.generateAudio = options.generateAudio;
-    }
-    if (options.lastFrameImage) {
-      bytedanceOptions.lastFrameImage = await this.resolveUrlOrDataUri(
-        options.lastFrameImage,
-      );
-    }
-    if (options.referenceImages?.length) {
-      bytedanceOptions.referenceImages = options.referenceImages;
-    }
-    if (options.referenceVideos?.length) {
-      bytedanceOptions.referenceVideos = options.referenceVideos;
-    }
-    if (options.referenceAudio?.length) {
-      bytedanceOptions.referenceAudio = options.referenceAudio;
-    }
-
-    const prompt = options.image
-      ? {
-          text: prepared.framedPrompt,
-          image: await this.resolveMedia(options.image),
-        }
-      : prepared.framedPrompt;
-
     try {
-      const { video, warnings: sdkWarnings, providerMetadata } = await generateVideo({
-        model: byteDance.video(this.model),
-        prompt,
-        aspectRatio: prepared.sdkAspectRatio,
-        duration: prepared.duration,
-        resolution: prepared.pixelResolution,
-        seed: options.seed,
-        generateAudio: options.generateAudio,
-        poll: {
-          intervalMs: this.pollIntervalMs,
-          timeoutMs: this.pollTimeoutMs,
-        },
-        providerOptions: {
-          bytedance: bytedanceOptions,
-        },
-      });
-
-      const resultWarnings = [
-        ...prepared.warnings,
-        ...(sdkWarnings ?? []).map(warningText).filter(Boolean),
-      ];
-
-      const taskId = extractTaskId(providerMetadata);
-      let videoPath: string | undefined;
-
-      if (!options.skipDownload) {
-        const outputDir = options.outputDir ?? DEFAULT_OUTPUT_DIR;
-        videoPath = await this.persistVideo(
-          video,
-          outputDir,
-          defaultFileName(prepared.aspectRatio),
-        );
-      }
-
-      const result: GenerateAdResult = {
-        aspectRatio: prepared.aspectRatio,
-        prompt: options.prompt,
-        framedPrompt: prepared.framedPrompt,
-        duration: prepared.duration,
-        model: this.model,
-        resolution: prepared.resolution,
-        pixelResolution: prepared.pixelResolution,
-        mode: prepared.mode,
-        videoPath,
-        taskId,
-        warnings: resultWarnings,
-        elapsedMs: Date.now() - started,
-      };
+      const result =
+        this.provider === "seevio"
+          ? await this.generateViaSeevio(options, prepared, started)
+          : await this.generateViaByteDance(options, prepared, started);
 
       logger.info("Seedance generation complete", {
         aspectRatio: result.aspectRatio,
@@ -296,18 +228,6 @@ export class SeedanceClient {
       return result;
     } catch (error) {
       const elapsedMs = Date.now() - started;
-      if (NoVideoGeneratedError.isInstance(error)) {
-        logger.error("Seedance returned no video", {
-          aspectRatio: prepared.aspectRatio,
-          elapsedMs,
-          cause: error.cause,
-        });
-        throw new Error(
-          `Seedance generated no video for ${prepared.aspectRatio} (${elapsedMs}ms): ${String(error.cause ?? error.message)}`,
-          { cause: error },
-        );
-      }
-
       const message = error instanceof Error ? error.message : String(error);
       logger.error("Seedance generation failed", {
         aspectRatio: prepared.aspectRatio,
@@ -363,29 +283,136 @@ export class SeedanceClient {
     return { results, failures };
   }
 
-  private async resolveMedia(source: string): Promise<string | Uint8Array> {
-    if (isHttpOrDataUri(source)) {
-      return source;
+  private async generateViaSeevio(
+    options: ParsedGenerateAdOptions,
+    prepared: PreparedGeneration,
+    started: number,
+  ): Promise<GenerateAdResult> {
+    const api = new SeevioApi(this.apiKey, this.baseURL);
+    const payload = buildSeevioPayload(options, prepared, this.model);
+    const created = await api.createTask(payload);
+    const task = await api.waitForVideo(created.taskId ?? "", {
+      intervalMs: this.pollIntervalMs,
+      timeoutMs: this.pollTimeoutMs,
+    });
+
+    const videoUrl = task.data?.results?.[0];
+    if (!videoUrl) {
+      throw new Error(`Seevio task ${created.taskId} completed with no video URL.`);
     }
 
-    const buffer = await readFile(source);
-    logger.info("Loaded local media file", { source, bytes: buffer.byteLength });
-    return new Uint8Array(buffer);
+    let videoPath: string | undefined;
+    if (!options.skipDownload) {
+      videoPath = await this.persistVideo(
+        { url: videoUrl },
+        options.outputDir ?? DEFAULT_OUTPUT_DIR,
+        defaultFileName(prepared.aspectRatio),
+      );
+    }
+
+    return {
+      aspectRatio: prepared.aspectRatio,
+      prompt: options.prompt,
+      framedPrompt: prepared.framedPrompt,
+      duration: prepared.duration,
+      model: this.model,
+      resolution: prepared.resolution,
+      pixelResolution: prepared.pixelResolution,
+      mode: prepared.mode,
+      videoUrl,
+      videoPath,
+      taskId: created.taskId,
+      warnings: prepared.warnings,
+      elapsedMs: Date.now() - started,
+    };
   }
 
-  private async resolveUrlOrDataUri(source: string): Promise<string> {
-    if (isHttpOrDataUri(source)) {
-      return source;
-    }
-
-    const buffer = await readFile(source);
-    const mime = IMAGE_MIME[path.extname(source).toLowerCase()] ?? "image/png";
-    logger.info("Encoded local image as data URI", {
-      source,
-      bytes: buffer.byteLength,
-      mime,
+  private async generateViaByteDance(
+    options: ParsedGenerateAdOptions,
+    prepared: PreparedGeneration,
+    started: number,
+  ): Promise<GenerateAdResult> {
+    const byteDance = createByteDance({
+      apiKey: this.apiKey,
+      baseURL: this.baseURL,
     });
-    return `data:${mime};base64,${buffer.toString("base64")}`;
+
+    const prompt = options.image
+      ? { text: prepared.framedPrompt, image: options.image }
+      : prepared.framedPrompt;
+
+    try {
+      const { video, warnings: sdkWarnings, providerMetadata } = await generateVideo({
+        model: byteDance.video(this.model),
+        prompt,
+        aspectRatio: prepared.sdkAspectRatio,
+        duration: prepared.duration,
+        resolution: prepared.pixelResolution,
+        seed: options.seed,
+        generateAudio: options.generateAudio,
+        poll: {
+          intervalMs: this.pollIntervalMs,
+          timeoutMs: this.pollTimeoutMs,
+        },
+        providerOptions: {
+          bytedance: {
+            watermark: options.watermark,
+            ...(options.generateAudio != null ? { generateAudio: options.generateAudio } : {}),
+            ...(options.lastFrameImage ? { lastFrameImage: options.lastFrameImage } : {}),
+            ...(options.referenceImages?.length ? { referenceImages: options.referenceImages } : {}),
+            ...(options.referenceVideos?.length ? { referenceVideos: options.referenceVideos } : {}),
+            ...(options.referenceAudio?.length ? { referenceAudio: options.referenceAudio } : {}),
+            ...(options.cameraFixed != null ? { cameraFixed: options.cameraFixed } : {}),
+          },
+        },
+      });
+
+      const taskId =
+        typeof providerMetadata === "object" &&
+        providerMetadata &&
+        "bytedance" in providerMetadata &&
+        typeof (providerMetadata as { bytedance?: { taskId?: string } }).bytedance?.taskId ===
+          "string"
+          ? (providerMetadata as { bytedance: { taskId: string } }).bytedance.taskId
+          : undefined;
+
+      let videoPath: string | undefined;
+      if (!options.skipDownload) {
+        videoPath = await this.persistVideo(
+          video,
+          options.outputDir ?? DEFAULT_OUTPUT_DIR,
+          defaultFileName(prepared.aspectRatio),
+        );
+      }
+
+      return {
+        aspectRatio: prepared.aspectRatio,
+        prompt: options.prompt,
+        framedPrompt: prepared.framedPrompt,
+        duration: prepared.duration,
+        model: this.model,
+        resolution: prepared.resolution,
+        pixelResolution: prepared.pixelResolution,
+        mode: prepared.mode,
+        videoPath,
+        taskId,
+        warnings: [
+          ...prepared.warnings,
+          ...(sdkWarnings ?? []).map((warning) =>
+            typeof warning === "string" ? warning : JSON.stringify(warning),
+          ),
+        ],
+        elapsedMs: Date.now() - started,
+      };
+    } catch (error) {
+      if (NoVideoGeneratedError.isInstance(error)) {
+        throw new Error(
+          `BytePlus generated no video: ${String(error.cause ?? error.message)}`,
+          { cause: error },
+        );
+      }
+      throw error;
+    }
   }
 
   private async persistVideo(
@@ -418,7 +445,7 @@ export class SeedanceClient {
       }
       const bytes = Buffer.from(await response.arrayBuffer());
       await writeFile(outputPath, bytes);
-      logger.info("Downloaded video from ModelArk URL", {
+      logger.info("Downloaded generated video", {
         outputPath,
         bytes: bytes.byteLength,
       });
@@ -429,9 +456,8 @@ export class SeedanceClient {
   }
 }
 
-/** Convenience re-export so tests can assert defaults without constructing a client. */
 export const clientDefaults = {
-  model: DEFAULT_SEEDANCE_MODEL,
+  model: DEFAULT_SEEVIO_MODEL,
   duration: DEFAULT_DURATION_SECONDS,
   resolution: DEFAULT_RESOLUTION,
   outputDir: DEFAULT_OUTPUT_DIR,

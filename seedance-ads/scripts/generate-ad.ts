@@ -46,14 +46,14 @@ RATIO
   --all                    Generate the full Performance Max set (9:16, 1:1, 16:9)
 
 OPTIONS
-  --duration <seconds>     Clip length (default: ${DEFAULT_DURATION_SECONDS}; Seedance 2.0: 4–15)
-  --image <path|url>       First-frame image for image-to-video
-  --last-frame <path|url>  CTA / last-frame image
-  --cta <path|url>         Alias for --last-frame
-  --reference-image <url>  Repeatable reference still
-  --reference-video <url>  Repeatable Seedance 2.0 reference clip
-  --audio                  Request synchronized audio
-  --resolution 480p|720p|1080p   Default: 720p (Seedance 2.0 max is 720p)
+  --duration <seconds>     Clip length (default: ${DEFAULT_DURATION_SECONDS}; Seedance 2.5: 4–30)
+  --image <url>            First-frame image URL for image-to-video
+  --last-frame <url>       CTA / last-frame image URL
+  --cta <url>              Alias for --last-frame
+  --reference-image <url>  Repeatable reference still URL
+  --reference-video <url>  Repeatable reference clip URL
+  --audio                  Request synchronized audio (Seevio default: on)
+  --resolution 480p|720p|1080p   Default: 720p (Seedance 2.5 max is 720p)
   --output <dir>           Download directory (default: ./output)
   --model <id>             Override SEEDANCE_MODEL / default ${DEFAULT_SEEDANCE_MODEL}
   --parallel               With --all, generate the three ratios concurrently
@@ -61,8 +61,9 @@ OPTIONS
   --help                   Show this message
 
 ENV
-  ARK_API_KEY              BytePlus ModelArk API key (required unless --dry-run)
-  SEEDANCE_MODEL           Optional model override
+  SEEDANCE_API_KEY         Seevio sk_live_ key (required unless --dry-run)
+  SEEDANCE_MODEL           Optional. Default seedance-2-5
+  SEEDANCE_PROVIDER        seevio (default) or bytedance
 `.trim();
 
 type FlagValue = string | boolean | string[];
@@ -103,7 +104,7 @@ const cliSchema = z.object({
   prompt: z.string().min(1),
   ratio: aspectRatioSchema.optional(),
   all: z.boolean().optional(),
-  duration: z.coerce.number().int().min(4).max(15).optional(),
+  duration: z.coerce.number().int().min(4).max(30).optional(),
   image: z.string().min(1).optional(),
   "last-frame": z.string().min(1).optional(),
   cta: z.string().min(1).optional(),
