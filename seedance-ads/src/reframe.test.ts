@@ -14,6 +14,7 @@ import {
   DEFAULT_SEEDANCE_MODEL,
   REFRAME_BODY_SECONDS,
   generateAdOptionsSchema,
+  seedanceDurationSeconds,
 } from "./types.ts";
 
 describe("reframe prompts", () => {
@@ -30,6 +31,12 @@ describe("reframe prompts", () => {
     }
   });
 
+  it("tells Seedance to skip the original Call Today card", () => {
+    const prompt = buildReframePrompt("jewelry", "1:1");
+    assert.ok(prompt.includes("Skip the original end-card"));
+    assert.equal(prompt.includes("uploaded CTA card"), false);
+  });
+
   it("rejects a jewelry prompt that smuggles the estate-sales claim", () => {
     assert.throws(
       () =>
@@ -43,12 +50,11 @@ describe("reframe prompts", () => {
 });
 
 describe("reframe generate options", () => {
-  it("builds a reference-to-video payload with 16s body and CTA [Image 1]", () => {
+  it("builds a reference-to-video payload without sending the CTA still to Seedance", () => {
     const raw = buildReframeGenerateOptions({
       service: "jewelry",
       aspectRatio: "16:9",
       sourceVideoUrl: "https://cdn.example.com/jewelry-01.mp4",
-      ctaImageUrl: "https://cdn.example.com/cta-9x16.png",
     });
     const options = generateAdOptionsSchema.parse(raw);
     const prepared = prepareGeneration(options, DEFAULT_SEEDANCE_MODEL);
@@ -57,12 +63,33 @@ describe("reframe generate options", () => {
     assert.equal(payload.input.generation_type, "reference-to-video");
     assert.equal(payload.input.duration, REFRAME_BODY_SECONDS);
     assert.equal(payload.input.aspect_ratio, "16:9");
+    assert.equal(payload.input.generate_audio, true);
     assert.deepEqual(payload.input.video_urls, ["https://cdn.example.com/jewelry-01.mp4"]);
-    assert.deepEqual(payload.input.image_urls, ["https://cdn.example.com/cta-9x16.png"]);
+    assert.equal(payload.input.image_urls, undefined);
     assert.ok(hasFramingRule(payload.input.prompt, "16:9"));
-    assert.ok(payload.input.prompt.includes(FRAMING_CTA_RULES["16:9"]));
+    assert.equal(payload.input.prompt.includes(FRAMING_CTA_RULES["16:9"]), false);
     assert.ok(payload.input.prompt.includes("[Video 1]"));
-    assert.ok(payload.input.prompt.includes("[Image 1]"));
+    assert.ok(payload.input.prompt.includes("Skip the original end-card"));
+    assert.equal(payload.input.prompt.includes("[Image 1]"), false);
     assert.equal(payload.input.prompt.toLowerCase().includes("no money upfront"), false);
+  });
+
+  it("uses a probed source duration when provided", () => {
+    const raw = buildReframeGenerateOptions({
+      service: "jewelry",
+      aspectRatio: "1:1",
+      sourceVideoUrl: "https://cdn.example.com/jewelry-01.mp4",
+      duration: 18,
+    });
+    assert.equal(raw.duration, 18);
+  });
+});
+
+describe("seedanceDurationSeconds", () => {
+  it("rounds the OLS masters to 18s and clamps the Seedance window", () => {
+    assert.equal(seedanceDurationSeconds(18.06), 18);
+    assert.equal(seedanceDurationSeconds(0), REFRAME_BODY_SECONDS);
+    assert.equal(seedanceDurationSeconds(2), 4);
+    assert.equal(seedanceDurationSeconds(40), 30);
   });
 });
