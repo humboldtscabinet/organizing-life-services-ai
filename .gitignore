@@ -97,5 +97,8 @@ security/history-scrub/reports/
 # ---------- Allow versioned n8n workflows despite *.json rule ----------
 !workflows/n8n/*.json
 
+# ---------- Allow seedance-ads example manifests despite *.json rule ----------
+!seedance-ads/examples/*.json
+
 # ---------- Allow versioned SEO audit JSON despite *.json rule ----------
 !data/audit_output/*.json

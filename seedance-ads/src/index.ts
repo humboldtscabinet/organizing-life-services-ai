@@ -12,9 +12,13 @@ export {
   DEFAULT_RESOLUTION,
   DEFAULT_SEEDANCE_MODEL,
   PIXEL_RESOLUTION,
+  REFRAME_BODY_SECONDS,
+  REFRAME_TOTAL_SECONDS,
   VIDEO_RESOLUTIONS,
   aspectRatioSchema,
+  canvasSize,
   generateAdOptionsSchema,
+  parsePixelSize,
   videoResolutionSchema,
 } from "./types.ts";
 export type {
@@ -30,16 +34,36 @@ export type {
 } from "./types.ts";
 
 export {
+  FRAMING_CTA_RULES,
   FRAMING_RULES,
   buildPrompt,
   getFramingRule,
   hasFramingRule,
   listFramingRules,
 } from "./framing.ts";
+export {
+  OLS_BRAND,
+  OLS_REFERENCE_IMAGES,
+  TEXT_TO_VIDEO_ACCURACY_WARNING,
+  appendReferenceGuidance,
+  buildOlsPrompt,
+  resolveNamedBrief,
+} from "./brand.ts";
+export type { BrandReference, NamedBrief } from "./brand.ts";
 
 export { SeedanceClient, prepareGeneration } from "./client.ts";
 export { buildSeevioPayload, SEEVIO_BASE_URL } from "./seevio.ts";
 export { generateFullAdSet, generateSingleAd, getDefaultClient } from "./generate.ts";
+export { parseReframeManifest, filterManifestByService, reframeManifestSchema } from "./manifest.ts";
+export {
+  OLS_SERVICES,
+  SERVICE_VOICEOVER,
+  buildReframePrompt,
+  buildReframeGenerateOptions,
+} from "./prompts/reframe.ts";
+export type { OlsService } from "./prompts/reframe.ts";
+export { writeAllCtaCanvases, writeCtaCanvas } from "./cta.ts";
+export { appendCtaHold, downloadToFile, ffmpegAvailable, requireFfmpeg } from "./compose.ts";
 
 export type {
   AssetManager,

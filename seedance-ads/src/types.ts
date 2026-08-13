@@ -40,10 +40,28 @@ export const PIXEL_RESOLUTION: Record<
   },
 };
 
+export function parsePixelSize(size: `${number}x${number}`): { width: number; height: number } {
+  const [width, height] = size.split("x").map((part) => Number(part));
+  if (!width || !height) {
+    throw new Error(`Invalid pixel size: ${size}`);
+  }
+  return { width, height };
+}
+
+export function canvasSize(
+  aspectRatio: AspectRatio,
+  resolution: VideoResolution = "720p",
+): { width: number; height: number } {
+  return parsePixelSize(PIXEL_RESOLUTION[resolution][aspectRatio]);
+}
+
 export const DEFAULT_SEEDANCE_MODEL = "seedance-2-5";
 export const DEFAULT_DURATION_SECONDS = 8;
 export const DEFAULT_RESOLUTION: VideoResolution = "720p";
 export const CTA_HOLD_SECONDS = 3;
+/** Seedance body length for a reframe job. ffmpeg then appends CTA_HOLD_SECONDS. */
+export const REFRAME_BODY_SECONDS = 16;
+export const REFRAME_TOTAL_SECONDS = REFRAME_BODY_SECONDS + CTA_HOLD_SECONDS;
 
 export type SeedanceProvider = "seevio" | "bytedance";
 
@@ -61,11 +79,11 @@ export const generateAdOptionsSchema = z.object({
   /** Last-frame / CTA card image (URL or local path). */
   lastFrameImage: z.string().min(1).optional(),
   /** Multi-reference stills (URLs). Mention them as [Image 1], [Image 2], … */
-  referenceImages: z.array(z.string().min(1)).max(4).optional(),
-  /** Seedance 2.0 reference clips (up to 3, max 15s each). */
-  referenceVideos: z.array(z.string().min(1)).max(3).optional(),
-  /** Seedance 2.0 reference audio (up to 3, max 15s each). */
-  referenceAudio: z.array(z.string().min(1)).max(3).optional(),
+  referenceImages: z.array(z.string().min(1)).max(12).optional(),
+  /** Seedance 2.5 reference clips (up to 10; combined duration ≤ 30s). */
+  referenceVideos: z.array(z.string().min(1)).max(10).optional(),
+  /** Seedance 2.5 reference audio (up to 10; combined duration ≤ 30s). */
+  referenceAudio: z.array(z.string().min(1)).max(10).optional(),
   generateAudio: z.boolean().optional(),
   watermark: z.boolean().default(false),
   cameraFixed: z.boolean().optional(),
@@ -90,7 +108,7 @@ export interface GenerateAdResult {
   model: string;
   resolution: VideoResolution;
   pixelResolution: `${number}x${number}`;
-  mode: "text-to-video" | "image-to-video";
+  mode: "text-to-video" | "image-to-video" | "reference-to-video";
   /** Remote MP4 URL when the SDK exposes one (ModelArk URLs expire). */
   videoUrl?: string;
   /** Local path if the file was downloaded. */
@@ -129,7 +147,7 @@ export interface PreparedGeneration {
   duration: number;
   resolution: VideoResolution;
   pixelResolution: `${number}x${number}`;
-  mode: "text-to-video" | "image-to-video";
+  mode: "text-to-video" | "image-to-video" | "reference-to-video";
   warnings: string[];
   sdkAspectRatio: AspectRatio | "adaptive";
 }

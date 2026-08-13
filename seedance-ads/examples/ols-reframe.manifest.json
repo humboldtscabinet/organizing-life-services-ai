@@ -1,0 +1,76 @@
+{
+  "ctaImageUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544",
+  "outputDir": "output/reframe",
+  "videos": [
+    {
+      "id": "estate-sales-01",
+      "service": "estate-sales",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/e0cf5c5d0211465db1a0f033b70dceb6.mp4"
+    },
+    {
+      "id": "estate-sales-02",
+      "service": "estate-sales",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/8a30229a7851446b8d0e60b1c9c70700.mp4"
+    },
+    {
+      "id": "liquidation-01",
+      "service": "liquidation",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/20fbd5b9ad794dacb5c5a6f49694a846.mp4"
+    },
+    {
+      "id": "liquidation-02",
+      "service": "liquidation",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/93fd0a873f034cd8be823bb265a1939e.mp4"
+    },
+    {
+      "id": "downsizing-01",
+      "service": "downsizing",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/325442dec01d43fca97465814fea8f44.mp4"
+    },
+    {
+      "id": "downsizing-02",
+      "service": "downsizing",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/3d41634c629941d1b4a51dd7db0cee90.mp4"
+    },
+    {
+      "id": "cleanouts-01",
+      "service": "cleanouts",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/d23b665d0ad64ae98e395620b7f14bdf.mp4"
+    },
+    {
+      "id": "cleanouts-02",
+      "service": "cleanouts",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/1e2d93a1c8294f5aae114a8e5d21bc41.mp4"
+    },
+    {
+      "id": "listing-prep-01",
+      "service": "listing-prep",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/c41553088b4b4209aaab802391a60416.mp4"
+    },
+    {
+      "id": "listing-prep-02",
+      "service": "listing-prep",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/87aa1a37e6af4bae89d5755e44e0aab3.mp4"
+    },
+    {
+      "id": "appraisals-01",
+      "service": "appraisals",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/0dbdc396fb9248b591f9dd774e453ab9.mp4"
+    },
+    {
+      "id": "appraisals-02",
+      "service": "appraisals",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/50e42d93bc9d4682ab5f0000c5732350.mp4"
+    },
+    {
+      "id": "jewelry-01",
+      "service": "jewelry",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/e826e1cb9d9343c08f67aa42648a7209.mp4"
+    },
+    {
+      "id": "jewelry-02",
+      "service": "jewelry",
+      "sourceVideoUrl": "https://cdn.shopify.com/videos/c/o/v/1f11cd594f8940d4b6c44f4eed09324f.mp4"
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 # seedance-ads
 
-TypeScript foundation for generating **Google Ads / Performance Max** video creatives with ByteDance **Seedance**.
+TypeScript pipeline for **Google Ads / Performance Max** video creatives with ByteDance **Seedance** via **[Seevio](https://seevio.ai)**.
 
-Default provider is **[Seevio](https://seevio.ai)** (formerly seedance2.ai), which is where OLS already has a `sk_live_` API key. BytePlus ModelArk remains available via `SEEDANCE_PROVIDER=bytedance`.
+**Production path:** remake existing 19s 9:16 OLS ads into native **1:1** and **16:9**, then hard-append the branded CTA card with ffmpeg. Seedance cannot losslessly re-aspect a file — 1:1 / 16:9 outputs are new generations that follow `[Video 1]`. The CTA ending is pixel-identical.
 
-Every generation automatically appends the correct framing instruction for `9:16`, `1:1`, or `16:9`. You only write the creative brief.
+Seedance 2.5 maxes out at **720p**. Combined reference-video duration must be **≤ 30s** (one 19s source per job is fine).
 
 ## Setup
 
@@ -20,81 +20,71 @@ SEEDANCE_MODEL=seedance-2-5
 SEEDANCE_PROVIDER=seevio
 ```
 
-Create or rotate keys at [seevio.ai/dashboard/user/api-keys](https://seevio.ai/dashboard/user/api-keys). Docs: [seevio.ai/api-docs](https://seevio.ai/api-docs).
+Create or rotate keys at [seevio.ai/dashboard/user/api-keys](https://seevio.ai/dashboard/user/api-keys). **Do not paste the key in chat.** For Cloud Agents, add `SEEDANCE_API_KEY` as a Runtime Secret, then restart the agent.
 
-**Do not paste the key in chat.** For Cloud Agents, add `SEEDANCE_API_KEY` as a **Runtime Secret** at [cursor.com/dashboard/cloud-agents](https://cursor.com/dashboard/cloud-agents), then restart the agent.
+ffmpeg must be on PATH for CTA canvases and the 3-second end-card concat.
 
-Default model: `seedance-2-5`. Other Seevio IDs: `seedance-2-0`, `seedance-2-0-fast`, `seedance-2-0-mini`.
+## Reframe an existing 9:16 ad (recommended)
 
-## Framing rules (applied automatically)
-
-Do **not** paste these into `--prompt`. `buildPrompt()` appends them.
-
-**9:16 (Vertical)**  
-Frame vertically for 9:16 mobile. Keep the subject and any action centered in the middle third. Prefer tighter shots. Leave room above and below for the end card. End on the uploaded CTA card filling the full 9:16 frame for the final 3 seconds.
-
-**1:1 (Square)**  
-Frame for a 1:1 square. Center the composition. Use medium shots with balanced headroom. End on the uploaded CTA card filling the full 1:1 frame for the final 3 seconds.
-
-**16:9 (Horizontal)**  
-Frame cinematically for 16:9 widescreen. Prefer wider establishing shots. Place the subject slightly off-center with clean negative space. End on the uploaded CTA card filling the full 16:9 frame for the final 3 seconds.
-
-Confirm locally without spending credits:
+1. The 14 source MP4s and the 9:16 CTA still are already in [`examples/ols-reframe.manifest.json`](examples/ols-reframe.manifest.json).
+2. Dry-run, then live-run one service batch.
 
 ```bash
-npx tsx scripts/generate-ad.ts --prompt "Warm kitchen, organizer folding linens." --all --dry-run
+npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --dry-run
+npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --service estate-sales
+npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4 \
+  --cta https://cdn.shopify.com/.../cta-9x16.png \
+  --service jewelry --ratios 1:1,16:9
 ```
 
-## Usage
+| Output | How it is built |
+| --- | --- |
+| 1:1, 16:9 | Seedance `reference-to-video` for **16s** using the 9:16 MP4 + CTA still, then ffmpeg appends a **3s** CTA hold (19s total). |
+| 9:16 (`--with-vertical`) | Original file unchanged; ffmpeg only appends the 3s CTA. No Seedance. |
 
-### Single ratio
+Keepers land in `output/reframe/{service}/{id}-{ratio}.mp4` (gitignored).
 
-```bash
-npx tsx scripts/generate-ad.ts \
-  --prompt "Estate-sale specialist walking a bright Tampa home, calm and trustworthy." \
-  --ratio 9:16 \
-  --duration 8
-```
+`--dry-run` prints the framed prompt, `video_urls`, `image_urls`, and duration with no API call.
 
-### Full Performance Max set
+## Framing
+
+Do **not** paste framing into `--prompt`. `buildPrompt()` appends the ratio rule. A CTA hold line is added only when a CTA image is provided; otherwise the model is told not to invent an end card.
+
+## One-line text-to-video (smoke test only)
 
 ```bash
 npx tsx scripts/generate-ad.ts \
   --prompt "Estate-sale specialist walking a bright Tampa home, calm and trustworthy." \
-  --all \
-  --duration 8
+  --ratio 9:16 --duration 8 --dry-run
 ```
 
-### Image-to-video
+This invents people, homes, and branding. Do not use it for production OLS ads.
 
-Seevio requires **public HTTP(S) URLs** (not local files). Image-to-video inherits the source image ratio; framing for the requested ratio is still appended.
-
-```bash
-npx tsx scripts/generate-ad.ts \
-  --prompt "Gentle camera push-in, natural motion, premium service feel." \
-  --ratio 9:16 \
-  --image https://example.com/first-frame-9x16.png \
-  --last-frame https://example.com/cta-9x16.png
-```
+`--brief ols` still exists for stills-only reference-to-video from first-party sale photos. It is not the workflow for these 14 masters.
 
 ## Project structure
 
 ```
 seedance-ads/
-├── src/
-│   ├── seevio.ts             Seevio HTTP client (default)
-│   ├── client.ts             SeedanceClient + prepareGeneration()
-│   ├── framing.ts            Canonical Google Ads framing rules
-│   └── ...
-└── scripts/generate-ad.ts
+├── examples/ols-reframe.manifest.json
+├── scripts/reframe-ad.ts     Production remake + CTA concat
+├── scripts/generate-ad.ts    Generic generate / smoke test
+└── src/
+    ├── prompts/reframe.ts    Recreate-this-ad prompts + service VO
+    ├── manifest.ts           Batch JSON schema
+    ├── cta.ts                9:16 / 1:1 / 16:9 CTA canvases
+    ├── compose.ts            ffmpeg 3s end-card concat
+    ├── seevio.ts             Seevio HTTP client
+    └── framing.ts            Google Ads framing rules
 ```
 
 ## Scripts
 
 | Command | Purpose |
 | --- | --- |
-| `npm test` | Framing + Seevio payload tests (no API key) |
+| `npm test` | Framing, payload, manifest, prompt tests (no API key) |
 | `npm run typecheck` | `tsc --noEmit` |
-| `npm run generate -- --prompt "..." --ratio 9:16` | Live generation |
+| `npm run reframe -- --manifest examples/ols-reframe.manifest.json --dry-run` | Print remake payloads |
+| `npm run generate -- --prompt "..." --ratio 9:16 --dry-run` | Smoke-test generate CLI |
 
 Videos download to `./output/`. Seevio result URLs expire; keep the local files.
