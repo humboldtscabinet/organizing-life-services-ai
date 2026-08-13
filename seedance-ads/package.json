@@ -1,0 +1,39 @@
+{
+  "name": "seedance-ads",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Generate Google Ads video creatives with ByteDance Seedance via BytePlus ModelArk and the official @ai-sdk/bytedance provider.",
+  "type": "module",
+  "main": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "tsx scripts/generate-ad.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test src/**/*.test.ts"
+  },
+  "keywords": [
+    "seedance",
+    "bytedance",
+    "byteplus",
+    "google-ads",
+    "video",
+    "performance-max"
+  ],
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@ai-sdk/bytedance": "^2.0.29",
+    "ai": "^7.0.64",
+    "dotenv": "^17.4.2",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "tsx": "^4.23.12",
+    "typescript": "^7.0.2"
+  }
+}
