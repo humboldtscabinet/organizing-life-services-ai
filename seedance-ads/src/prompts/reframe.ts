@@ -43,7 +43,9 @@ export const SERVICE_LABEL: Record<OlsService, string> = {
   jewelry: "estate jewelry buying",
 };
 
-const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No on-screen text, logos, captions, or watermarks. [Image 1] is the branded CTA card — reserve the last 3 seconds so the story resolves into that card filling the full frame.`;
+const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No on-screen text, logos, captions, or watermarks.
+
+Skip the original end-card entirely. Do not recreate any logo screen, phone number, website, "Call Today" card, or call-to-action graphic from [Video 1]. End on live-action only. The branded CTA is added later in ffmpeg — do not generate one.`;
 
 export function buildReframePrompt(service: OlsService, _aspectRatio: AspectRatio): string {
   const voiceover = SERVICE_VOICEOVER[service];
@@ -68,7 +70,7 @@ export function buildReframeGenerateOptions(opts: {
   service: OlsService;
   aspectRatio: AspectRatio;
   sourceVideoUrl: string;
-  ctaImageUrl: string;
+  duration?: number;
   outputDir?: string;
 }): GenerateAdOptions {
   const prompt = buildReframePrompt(opts.service, opts.aspectRatio);
@@ -76,8 +78,10 @@ export function buildReframeGenerateOptions(opts: {
   return {
     prompt,
     aspectRatio: opts.aspectRatio,
-    duration: REFRAME_BODY_SECONDS,
-    lastFrameImage: opts.ctaImageUrl,
+    duration: opts.duration ?? REFRAME_BODY_SECONDS,
+    // Do not send the CTA still to Seedance. Passing it as lastFrameImage
+    // makes the model render a card in the body, then ffmpeg would add
+    // another. The Shopify file is composited on after generation.
     referenceVideos: [opts.sourceVideoUrl],
     generateAudio: true,
     outputDir: opts.outputDir,

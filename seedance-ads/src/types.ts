@@ -59,9 +59,21 @@ export const DEFAULT_SEEDANCE_MODEL = "seedance-2-5";
 export const DEFAULT_DURATION_SECONDS = 8;
 export const DEFAULT_RESOLUTION: VideoResolution = "720p";
 export const CTA_HOLD_SECONDS = 3;
-/** Seedance body length for a reframe job. ffmpeg then appends CTA_HOLD_SECONDS. */
-export const REFRAME_BODY_SECONDS = 16;
-export const REFRAME_TOTAL_SECONDS = REFRAME_BODY_SECONDS + CTA_HOLD_SECONDS;
+/**
+ * Default Seedance remake length (matches the ~18s OLS masters).
+ * ffmpeg replaces the last CTA_HOLD_SECONDS with the Shopify card — it does
+ * not append extra time, so output length stays at this duration.
+ */
+export const REFRAME_BODY_SECONDS = 18;
+export const REFRAME_TOTAL_SECONDS = REFRAME_BODY_SECONDS;
+
+/** Clamp a probed source duration to Seedance 2.5's 4–30s integer window. */
+export function seedanceDurationSeconds(sourceDurationSeconds: number): number {
+  if (!Number.isFinite(sourceDurationSeconds) || sourceDurationSeconds <= 0) {
+    return REFRAME_BODY_SECONDS;
+  }
+  return Math.min(30, Math.max(4, Math.round(sourceDurationSeconds)));
+}
 
 export type SeedanceProvider = "seevio" | "bytedance";
 
