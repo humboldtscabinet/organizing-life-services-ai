@@ -46,6 +46,8 @@ Keepers land in `google-ads/{service}/{id}-{ratio}.mp4` at the repo root (one fo
 
 **Live batches (2026-08-14):** all 28 keepers are in `google-ads/{service}/` (7 services × 2 sources × 1:1 and 16:9). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md).
 
+**Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
+
 `--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
 
 ## Framing
