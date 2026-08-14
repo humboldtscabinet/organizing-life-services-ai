@@ -18,7 +18,7 @@ Do **not** send the CTA still to Seedance. Do **not** regenerate 9:16 through Se
 | listing-prep | blocked | blocked | blocked | blocked | Same 402. |
 | appraisals | blocked | blocked | blocked | blocked | Same 402. |
 
-Each Seedance job reserves **444 credits**. Remaining after estate-sales: **20 jobs × 444 = 8,880 credits**.
+Each Seedance job reserves **444 credits**. After estate-sales the Seevio key had **426 available** (18 short of the next job). Remaining: **20 jobs × 444 = 8,880 credits** (top up by at least **8,454**).
 
 Top up at [seevio.ai](https://seevio.ai), then:
 
