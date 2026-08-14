@@ -65,7 +65,7 @@ OPTIONS
   --service <id>           Filter manifest, or tag a single --video
   --ratios 1:1,16:9        Target ratios (default: 1:1,16:9)
   --with-vertical          Also write 9:16 with the original end-card replaced (ffmpeg only)
-  --output <dir>           Override manifest outputDir
+  --output <dir>           Override manifest outputDir (keepers: {dir}/{service}/*.mp4)
   --skip-existing          Skip a ratio when the keeper MP4 already exists
   --dry-run                Print Seevio payloads; no API call, no ffmpeg
   --help                   Show this message
@@ -131,6 +131,26 @@ function ratioFileToken(ratio: AspectRatio): string {
   return ratio.replace(":", "x");
 }
 
+function serviceKeeperDir(outputDir: string, service: string): string {
+  return resolve(outputDir, service);
+}
+
+function keeperPath(
+  outputDir: string,
+  service: string,
+  videoId: string,
+  aspectRatio: AspectRatio,
+): string {
+  return resolve(
+    serviceKeeperDir(outputDir, service),
+    `${videoId}-${ratioFileToken(aspectRatio)}.mp4`,
+  );
+}
+
+function workDirFor(outputDir: string, service: string, videoId: string): string {
+  return resolve(outputDir, "_work", service, videoId);
+}
+
 async function loadManifest(flags: z.infer<typeof cliSchema>): Promise<ReframeManifest> {
   if (flags.manifest) {
     const path = resolve(flags.manifest);
@@ -151,7 +171,7 @@ async function loadManifest(flags: z.infer<typeof cliSchema>): Promise<ReframeMa
 
   return parseReframeManifest({
     ctaImageUrl: flags.cta,
-    outputDir: flags.output ?? "output/reframe",
+    outputDir: flags.output ?? "output",
     videos: [
       {
         id: "single",
@@ -208,9 +228,16 @@ async function remakeRatio(opts: {
   client: SeedanceClient;
   skipExisting: boolean;
 }): Promise<string> {
-  const workDir = resolve(opts.outputDir, opts.video.service, opts.video.id);
+  const workDir = workDirFor(opts.outputDir, opts.video.service, opts.video.id);
+  const serviceDir = serviceKeeperDir(opts.outputDir, opts.video.service);
   await mkdir(workDir, { recursive: true });
-  const finalPath = resolve(workDir, `${opts.video.id}-${ratioFileToken(opts.aspectRatio)}.mp4`);
+  await mkdir(serviceDir, { recursive: true });
+  const finalPath = keeperPath(
+    opts.outputDir,
+    opts.video.service,
+    opts.video.id,
+    opts.aspectRatio,
+  );
 
   if (opts.skipExisting) {
     try {
@@ -283,6 +310,9 @@ async function main(): Promise<void> {
   await requireFfmpeg();
   const staging = resolve(manifest.outputDir, "_cta");
   await mkdir(staging, { recursive: true });
+  for (const service of OLS_SERVICES) {
+    await mkdir(serviceKeeperDir(manifest.outputDir, service), { recursive: true });
+  }
   const ctaSourcePath = resolve(staging, "cta-source.png");
   await downloadToFile(manifest.ctaImageUrl, ctaSourcePath);
   const canvases = await writeAllCtaCanvases(ctaSourcePath, staging);
@@ -291,7 +321,7 @@ async function main(): Promise<void> {
   let failed = 0;
 
   for (const video of manifest.videos) {
-    const workDir = resolve(manifest.outputDir, video.service, video.id);
+    const workDir = workDirFor(manifest.outputDir, video.service, video.id);
     await mkdir(workDir, { recursive: true });
     const sourcePath = resolve(workDir, "source-9x16.mp4");
     await downloadToFile(video.sourceVideoUrl, sourcePath);

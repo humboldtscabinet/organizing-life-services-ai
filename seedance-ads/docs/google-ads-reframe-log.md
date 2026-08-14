@@ -6,6 +6,14 @@ Agent run: [Google ads generated videos](https://cursor.com/agents/bc-a3bf2d04-d
 
 Do **not** send the CTA still to Seedance. Do **not** regenerate 9:16 through Seedance unless asked (`--with-vertical` is ffmpeg-only). MP4s are gitignored.
 
+Keepers are one folder per service:
+
+```
+seedance-ads/output/{service}/{id}-{ratio}.mp4
+```
+
+Same layout under `/opt/cursor/artifacts/google-ads/{service}/`. Empty folders are already created for liquidation, downsizing, cleanouts, listing-prep, and appraisals.
+
 ## Status (2026-08-14)
 
 | Service | 01 1:1 | 01 16:9 | 02 1:1 | 02 16:9 | Notes |
@@ -43,9 +51,10 @@ Last frame of each file is the Shopify “Ready to Get Started?” card (contain
 
 Download copies (this UI’s chat links do not work — use the file explorer, right-click → Download):
 
-- `seedance-ads/output/estate-sales-downloads/`
-- `/opt/cursor/artifacts/seedance-reframe-estate-sales/`
-- `/opt/cursor/artifacts/ols-estate-sales-ads.zip`
+- `seedance-ads/output/estate-sales/`
+- `/opt/cursor/artifacts/google-ads/estate-sales/`
+
+Each OLS service has its own folder under `seedance-ads/output/{service}/` and `/opt/cursor/artifacts/google-ads/{service}/`.
 
 Play locally if in-chat video looks silent (players often start muted).
 

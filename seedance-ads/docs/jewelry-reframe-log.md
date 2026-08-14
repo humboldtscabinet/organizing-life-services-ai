@@ -15,7 +15,7 @@ Four keepers (operator approved 2026-08-14):
 | `jewelry-02-1x1.mp4` | 1:1 | 960×960 | Opening freeze trimmed 0.25s (~17.84s) |
 | `jewelry-02-16x9.mp4` | 16:9 | 1280×720 | ~18.08s |
 
-MP4s are **gitignored** (`seedance-ads/.gitignore`). Local copies live under `seedance-ads/output/` after a live run. Seevio result URLs expire; do not treat the API URL as the archive.
+MP4s are **gitignored** (`seedance-ads/.gitignore`). Local copies live under `seedance-ads/output/jewelry/` after a live run. Seevio result URLs expire; do not treat the API URL as the archive.
 
 ## Why
 
