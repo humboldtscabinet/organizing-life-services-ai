@@ -44,7 +44,7 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 
 Keepers land in `google-ads/{service}/{id}-{ratio}.mp4` at the repo root (one folder per OLS service). Seedance body files stay in `google-ads/_work/` and are gitignored.
 
-**Live batches (2026-08-14):** jewelry and estate-sales keepers are written. Liquidation through appraisals need more Seevio credits (444 per job). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md). Jewelry process notes: [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
+**Live batches (2026-08-14):** all 28 keepers are in `google-ads/{service}/` (7 services × 2 sources × 1:1 and 16:9). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md).
 
 `--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
 

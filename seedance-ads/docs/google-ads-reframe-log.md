@@ -18,23 +18,13 @@ google-ads/{service}/{id}-{ratio}.mp4
 | --- | --- | --- | --- | --- | --- |
 | jewelry | done | done | done | done | Operator approved. See [`jewelry-reframe-log.md`](jewelry-reframe-log.md). |
 | estate-sales | done | done | done | done | Keepers written 2026-08-14. |
-| liquidation | blocked | blocked | blocked | blocked | Seevio HTTP 402 `insufficient_credits` after estate-sales. |
-| downsizing | blocked | blocked | blocked | blocked | Same 402. |
-| cleanouts | blocked | blocked | blocked | blocked | Same 402. |
-| listing-prep | blocked | blocked | blocked | blocked | Same 402. |
-| appraisals | blocked | blocked | blocked | blocked | Same 402. |
+| liquidation | done | done | done | done | After Seevio top-up. |
+| downsizing | done | done | done | done | |
+| cleanouts | done | done | done | done | |
+| listing-prep | done | done | done | done | 01 1:1 needed one Seedance retry (video-edit routing). |
+| appraisals | done | done | done | done | 02 16:9 needed one Seedance retry (video-edit routing). |
 
-Each Seedance job reserves **444 credits**. After estate-sales the Seevio key had **426 available** (18 short of the next job). Remaining: **20 jobs × 444 = 8,880 credits** (top up by at least **8,454**).
-
-Top up at [seevio.ai](https://seevio.ai), then:
-
-```bash
-cd seedance-ads
-npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json \
-  --service liquidation --skip-existing
-```
-
-`--skip-existing` leaves finished keepers in place. The CLI stops the rest of the batch on `insufficient_credits`.
+All **28** Google Ads remakes (7 services × 2 sources × 1:1 and 16:9) are in `google-ads/{service}/`.
 
 ## Estate-sales keepers (2026-08-14)
 
@@ -49,7 +39,7 @@ Last frame of each file is the Shopify “Ready to Get Started?” card (contain
 
 Download copies (right-click → Download in the file explorer):
 
-- [`google-ads/estate-sales/`](../../google-ads/estate-sales/)
+- [`google-ads/`](../../google-ads/) — one folder per service
 
 Play locally if in-chat video looks silent (players often start muted).
 
