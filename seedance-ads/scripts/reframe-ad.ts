@@ -9,7 +9,7 @@
  */
 
 import { config as loadEnv } from "dotenv";
-import { mkdir, readFile } from "node:fs/promises";
+import { access, mkdir, readFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
@@ -66,6 +66,7 @@ OPTIONS
   --ratios 1:1,16:9        Target ratios (default: 1:1,16:9)
   --with-vertical          Also write 9:16 with the original end-card replaced (ffmpeg only)
   --output <dir>           Override manifest outputDir
+  --skip-existing          Skip a ratio when the keeper MP4 already exists
   --dry-run                Print Seevio payloads; no API call, no ffmpeg
   --help                   Show this message
 
@@ -83,7 +84,7 @@ function parseArgv(argv: string[]): Record<string, FlagValue> {
       throw new Error(`Unexpected argument: ${token}`);
     }
     const key = token.slice(2);
-    if (key === "help" || key === "dry-run" || key === "with-vertical") {
+    if (key === "help" || key === "dry-run" || key === "with-vertical" || key === "skip-existing") {
       flags[key] = true;
       continue;
     }
@@ -105,6 +106,7 @@ const cliSchema = z.object({
   ratios: z.string().min(1).optional(),
   output: z.string().min(1).optional(),
   "with-vertical": z.boolean().optional(),
+  "skip-existing": z.boolean().optional(),
   "dry-run": z.boolean().optional(),
   help: z.boolean().optional(),
 });
@@ -204,10 +206,25 @@ async function remakeRatio(opts: {
   ctaCanvasPath: string;
   outputDir: string;
   client: SeedanceClient;
+  skipExisting: boolean;
 }): Promise<string> {
   const workDir = resolve(opts.outputDir, opts.video.service, opts.video.id);
   await mkdir(workDir, { recursive: true });
   const finalPath = resolve(workDir, `${opts.video.id}-${ratioFileToken(opts.aspectRatio)}.mp4`);
+
+  if (opts.skipExisting) {
+    try {
+      await access(finalPath);
+      logger.info("Skipping existing keeper", {
+        id: opts.video.id,
+        aspectRatio: opts.aspectRatio,
+        path: finalPath,
+      });
+      return finalPath;
+    } catch {
+      // generate
+    }
+  }
 
   if (opts.aspectRatio === "9:16") {
     await replaceEndingWithCta({
@@ -253,6 +270,7 @@ async function main(): Promise<void> {
 
   const flags = cliSchema.parse(parseArgv(rawArgv));
   const withVertical = Boolean(flags["with-vertical"]);
+  const skipExisting = Boolean(flags["skip-existing"]);
   const ratios = parseRatios(flags.ratios, withVertical);
   const manifest = await loadManifest(flags);
   const model = process.env.SEEDANCE_MODEL ?? DEFAULT_SEEDANCE_MODEL;
@@ -289,6 +307,7 @@ async function main(): Promise<void> {
           ctaCanvasPath: canvases[aspectRatio],
           outputDir: manifest.outputDir,
           client,
+          skipExisting,
         });
         logger.info("Reframe ready", {
           id: video.id,
@@ -300,6 +319,10 @@ async function main(): Promise<void> {
         failed += 1;
         const message = error instanceof Error ? error.message : String(error);
         logger.error(`Failed ${video.id} ${aspectRatio}: ${message}`);
+        if (message.includes("insufficient_credits")) {
+          logger.error("Stopping remaining remakes until Seevio credits are topped up.");
+          process.exit(2);
+        }
       }
     }
   }

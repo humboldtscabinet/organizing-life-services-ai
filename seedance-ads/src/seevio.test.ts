@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { prepareGeneration } from "./client.ts";
 import { FRAMING_RULES, hasFramingRule } from "./framing.ts";
-import { buildSeevioPayload } from "./seevio.ts";
+import { buildSeevioPayload, formatSeevioApiError } from "./seevio.ts";
 import {
   DEFAULT_SEEDANCE_MODEL,
   generateAdOptionsSchema,
@@ -94,6 +94,21 @@ describe("buildSeevioPayload", () => {
     assert.equal(payload.input.generation_type, "reference-to-video");
     assert.equal(payload.input.image_urls?.length, 2);
     assert.equal(prepared.mode, "reference-to-video");
+  });
+
+  it("includes required and available credits on HTTP 402", () => {
+    const message = formatSeevioApiError(402, {
+      error: {
+        code: "insufficient_credits",
+        message: "Insufficient credits to accept this task.",
+        required: 444,
+        available: 12,
+      },
+    });
+    assert.equal(
+      message,
+      "Seevio HTTP 402 insufficient_credits: Insufficient credits to accept this task. (required=444, available=12)",
+    );
   });
 
   it("rejects local image paths because Seevio needs public URLs", () => {

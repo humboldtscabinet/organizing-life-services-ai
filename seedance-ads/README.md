@@ -44,7 +44,7 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 
 Keepers land in `output/reframe/{service}/{id}-{ratio}.mp4` (gitignored).
 
-**Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
+**Live batches (2026-08-14):** jewelry and estate-sales keepers are written. Liquidation through appraisals need more Seevio credits (444 per job). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md). Jewelry process notes: [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 
 `--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
 
@@ -69,7 +69,8 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 ```
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
-├── docs/jewelry-reframe-log.md   First live jewelry batch (2026-08-14)
+├── docs/google-ads-reframe-log.md  Keeper status for all 14 sources
+├── docs/jewelry-reframe-log.md     First live jewelry batch (2026-08-14)
 ├── scripts/reframe-ad.ts         Production remake + Shopify CTA replace
 ├── scripts/generate-ad.ts        Generic generate / smoke test
 └── src/

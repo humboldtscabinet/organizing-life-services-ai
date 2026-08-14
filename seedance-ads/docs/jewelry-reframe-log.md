@@ -48,8 +48,4 @@ Related PRs: [#50](https://github.com/humboldtscabinet/organizing-life-services-
 
 ## Result / next
 
-Jewelry 01/02 × 1:1 and 16:9 are approved keepers. Remaining services in the manifest (2 clips each): estate-sales, liquidation, downsizing, cleanouts, listing-prep, appraisals.
-
-```bash
-npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --service estate-sales
-```
+Jewelry 01/02 × 1:1 and 16:9 are approved keepers. Estate-sales 01/02 × 1:1 and 16:9 were remade the same day; remaining services are blocked on Seevio credits. Full table: [`google-ads-reframe-log.md`](google-ads-reframe-log.md).
