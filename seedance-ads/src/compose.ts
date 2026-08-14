@@ -146,6 +146,32 @@ function videoPadFilter(width: number, height: number): string {
   return `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=0xF7F4EE,setsar=1,fps=24,format=yuv420p`;
 }
 
+/** H.264 Main, no B-frames, 192k AAC — plays in browsers and chat players. */
+function webPlaybackEncodeArgs(): string[] {
+  return [
+    "-c:v",
+    "libx264",
+    "-profile:v",
+    "main",
+    "-pix_fmt",
+    "yuv420p",
+    "-bf",
+    "0",
+    "-c:a",
+    "aac",
+    "-b:a",
+    "192k",
+    "-ar",
+    "44100",
+    "-ac",
+    "2",
+    "-metadata:s:a:0",
+    "language=eng",
+    "-movflags",
+    "+faststart",
+  ];
+}
+
 /**
  * Concat a generated (or original) body clip with a 3-second CTA still.
  * Prefer {@link replaceEndingWithCta} for OLS remakes so the original
@@ -192,15 +218,8 @@ export async function appendCtaHold(opts: {
     "[outv]",
     "-map",
     "[outa]",
-    "-c:v",
-    "libx264",
-    "-pix_fmt",
-    "yuv420p",
-    "-c:a",
-    "aac",
+    ...webPlaybackEncodeArgs(),
     "-shortest",
-    "-movflags",
-    "+faststart",
     opts.outputPath,
   ]);
 
@@ -274,16 +293,9 @@ export async function replaceEndingWithCta(opts: {
     "[outv]",
     "-map",
     "[outa]",
-    "-c:v",
-    "libx264",
-    "-pix_fmt",
-    "yuv420p",
-    "-c:a",
-    "aac",
+    ...webPlaybackEncodeArgs(),
     "-t",
     total,
-    "-movflags",
-    "+faststart",
     opts.outputPath,
   );
 
