@@ -44,6 +44,8 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 
 Keepers land in `output/reframe/{service}/{id}-{ratio}.mp4` (gitignored).
 
+**Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
+
 `--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
 
 ## Framing
@@ -67,15 +69,16 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 ```
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
-├── scripts/reframe-ad.ts     Production remake + Shopify CTA replace
-├── scripts/generate-ad.ts    Generic generate / smoke test
+├── docs/jewelry-reframe-log.md   First live jewelry batch (2026-08-14)
+├── scripts/reframe-ad.ts         Production remake + Shopify CTA replace
+├── scripts/generate-ad.ts        Generic generate / smoke test
 └── src/
-    ├── prompts/reframe.ts    Recreate-this-ad prompts + service VO
-    ├── manifest.ts           Batch JSON schema
-    ├── cta.ts                9:16 / 1:1 / 16:9 CTA canvases
-    ├── compose.ts            ffmpeg: replace last 3s with Shopify CTA + mux original VO
-    ├── seevio.ts             Seevio HTTP client
-    └── framing.ts            Google Ads framing rules
+    ├── prompts/reframe.ts        Recreate-this-ad prompts + service VO
+    ├── manifest.ts               Batch JSON schema
+    ├── cta.ts                    9:16 / 1:1 / 16:9 CTA canvases
+    ├── compose.ts                ffmpeg: replace last 3s + mux original VO
+    ├── seevio.ts                 Seevio HTTP client
+    └── framing.ts                Google Ads framing rules
 ```
 
 ## Scripts
