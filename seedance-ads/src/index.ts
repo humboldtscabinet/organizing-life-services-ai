@@ -19,6 +19,7 @@ export {
   canvasSize,
   generateAdOptionsSchema,
   parsePixelSize,
+  seedanceDurationSeconds,
   videoResolutionSchema,
 } from "./types.ts";
 export type {
@@ -63,7 +64,13 @@ export {
 } from "./prompts/reframe.ts";
 export type { OlsService } from "./prompts/reframe.ts";
 export { writeAllCtaCanvases, writeCtaCanvas } from "./cta.ts";
-export { appendCtaHold, downloadToFile, ffmpegAvailable, requireFfmpeg } from "./compose.ts";
+export {
+  appendCtaHold,
+  downloadToFile,
+  ffmpegAvailable,
+  replaceEndingWithCta,
+  requireFfmpeg,
+} from "./compose.ts";
 
 export type {
   AssetManager,

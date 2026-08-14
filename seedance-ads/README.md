@@ -2,7 +2,7 @@
 
 TypeScript pipeline for **Google Ads / Performance Max** video creatives with ByteDance **Seedance** via **[Seevio](https://seevio.ai)**.
 
-**Production path:** remake existing 19s 9:16 OLS ads into native **1:1** and **16:9**, then hard-append the branded CTA card with ffmpeg. Seedance cannot losslessly re-aspect a file — 1:1 / 16:9 outputs are new generations that follow `[Video 1]`. The CTA ending is pixel-identical.
+**Production path:** remake existing 19s 9:16 OLS ads into native **1:1** and **16:9**. Seedance cannot losslessly re-aspect a file — 1:1 / 16:9 outputs are new generations that follow `[Video 1]`. ffmpeg then **replaces the last 3 seconds** with the Shopify CTA still (so the original “Call Today” card is not left in the file) and **muxes the original voiceover** onto the remake.
 
 Seedance 2.5 maxes out at **720p**. Combined reference-video duration must be **≤ 30s** (one 19s source per job is fine).
 
@@ -22,7 +22,7 @@ SEEDANCE_PROVIDER=seevio
 
 Create or rotate keys at [seevio.ai/dashboard/user/api-keys](https://seevio.ai/dashboard/user/api-keys). **Do not paste the key in chat.** For Cloud Agents, add `SEEDANCE_API_KEY` as a Runtime Secret, then restart the agent.
 
-ffmpeg must be on PATH for CTA canvases and the 3-second end-card concat.
+ffmpeg must be on PATH for CTA canvases and replacing the original end-card.
 
 ## Reframe an existing 9:16 ad (recommended)
 
@@ -39,12 +39,12 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 
 | Output | How it is built |
 | --- | --- |
-| 1:1, 16:9 | Seedance `reference-to-video` for **16s** using the 9:16 MP4 + CTA still, then ffmpeg appends a **3s** CTA hold (19s total). |
-| 9:16 (`--with-vertical`) | Original file unchanged; ffmpeg only appends the 3s CTA. No Seedance. |
+| 1:1, 16:9 | Seedance `reference-to-video` for **~18s** from the 9:16 MP4 (no CTA still in the prompt). ffmpeg **replaces the last 3s** with the Shopify card and muxes the original voiceover. |
+| 9:16 (`--with-vertical`) | Original file; ffmpeg only replaces the last 3s with the Shopify card and keeps the original audio. No Seedance. |
 
 Keepers land in `output/reframe/{service}/{id}-{ratio}.mp4` (gitignored).
 
-`--dry-run` prints the framed prompt, `video_urls`, `image_urls`, and duration with no API call.
+`--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
 
 ## Framing
 
@@ -67,13 +67,13 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 ```
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
-├── scripts/reframe-ad.ts     Production remake + CTA concat
+├── scripts/reframe-ad.ts     Production remake + Shopify CTA replace
 ├── scripts/generate-ad.ts    Generic generate / smoke test
 └── src/
     ├── prompts/reframe.ts    Recreate-this-ad prompts + service VO
     ├── manifest.ts           Batch JSON schema
     ├── cta.ts                9:16 / 1:1 / 16:9 CTA canvases
-    ├── compose.ts            ffmpeg 3s end-card concat
+    ├── compose.ts            ffmpeg: replace last 3s with Shopify CTA + mux original VO
     ├── seevio.ts             Seevio HTTP client
     └── framing.ts            Google Ads framing rules
 ```

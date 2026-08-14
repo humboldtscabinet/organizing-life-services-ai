@@ -142,10 +142,14 @@ export async function downloadToFile(url: string, destPath: string): Promise<str
   return destPath;
 }
 
+function videoPadFilter(width: number, height: number): string {
+  return `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=0xF7F4EE,setsar=1,fps=24,format=yuv420p`;
+}
+
 /**
  * Concat a generated (or original) body clip with a 3-second CTA still.
- * Scales both to the 720p canvas for `aspectRatio` so concat never fails
- * on mismatched sizes.
+ * Prefer {@link replaceEndingWithCta} for OLS remakes so the original
+ * end-card is not left in the file.
  */
 export async function appendCtaHold(opts: {
   bodyVideoPath: string;
@@ -159,7 +163,7 @@ export async function appendCtaHold(opts: {
   const { width, height } = canvasSize(opts.aspectRatio);
   await mkdir(path.dirname(opts.outputPath), { recursive: true });
 
-  const vf = `scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=0xF7F4EE,setsar=1,fps=24,format=yuv420p`;
+  const vf = videoPadFilter(width, height);
   const hasAudio = await probeHasAudio(opts.bodyVideoPath);
   const bodyDuration = hasAudio ? 0 : await probeDurationSeconds(opts.bodyVideoPath);
   const bodyAudio = hasAudio
@@ -204,6 +208,94 @@ export async function appendCtaHold(opts: {
     outputPath: opts.outputPath,
     aspectRatio: opts.aspectRatio,
     holdSeconds,
+  });
+  return opts.outputPath;
+}
+
+/**
+ * Replace the last `holdSeconds` of a remake (or the original 9:16 master)
+ * with the Shopify CTA still. Duration stays the same — this does not
+ * append a second card after the original end-card.
+ *
+ * Audio is taken from `sourceAudioPath` (the original ad) so the voiceover
+ * script is preserved even when Seedance returns a silent or invented track.
+ * The original last-N-seconds of VO play over the new card.
+ */
+export async function replaceEndingWithCta(opts: {
+  bodyVideoPath: string;
+  ctaImagePath: string;
+  aspectRatio: AspectRatio;
+  outputPath: string;
+  sourceAudioPath?: string;
+  holdSeconds?: number;
+}): Promise<string> {
+  await requireFfmpeg();
+  const holdSeconds = opts.holdSeconds ?? CTA_HOLD_SECONDS;
+  const { width, height } = canvasSize(opts.aspectRatio);
+  await mkdir(path.dirname(opts.outputPath), { recursive: true });
+
+  const bodyDuration = await probeDurationSeconds(opts.bodyVideoPath);
+  const storySeconds = Math.max(bodyDuration - holdSeconds, 0.25);
+  const totalSeconds = storySeconds + holdSeconds;
+  const story = storySeconds.toFixed(3);
+  const total = totalSeconds.toFixed(3);
+  const vf = videoPadFilter(width, height);
+
+  const audioPath = opts.sourceAudioPath ?? opts.bodyVideoPath;
+  const hasAudio = await probeHasAudio(audioPath);
+  const audioFilter = hasAudio
+    ? `[2:a]atrim=0:${total},asetpts=PTS-STARTPTS,aformat=sample_rates=44100:channel_layouts=stereo,aresample=async=1,apad=whole_dur=${total}[outa]`
+    : `anullsrc=r=44100:cl=stereo:d=${total}[outa]`;
+
+  const args = [
+    "-y",
+    "-i",
+    opts.bodyVideoPath,
+    "-loop",
+    "1",
+    "-t",
+    String(holdSeconds),
+    "-i",
+    opts.ctaImagePath,
+  ];
+  if (hasAudio) {
+    args.push("-i", audioPath);
+  }
+
+  args.push(
+    "-filter_complex",
+    [
+      `[0:v]trim=0:${story},setpts=PTS-STARTPTS,${vf}[v0]`,
+      `[1:v]${vf}[v1]`,
+      `[v0][v1]concat=n=2:v=1:a=0[outv]`,
+      audioFilter,
+    ].join(";"),
+    "-map",
+    "[outv]",
+    "-map",
+    "[outa]",
+    "-c:v",
+    "libx264",
+    "-pix_fmt",
+    "yuv420p",
+    "-c:a",
+    "aac",
+    "-t",
+    total,
+    "-movflags",
+    "+faststart",
+    opts.outputPath,
+  );
+
+  await runFfmpeg(args);
+
+  logger.info("Replaced ending with CTA", {
+    outputPath: opts.outputPath,
+    aspectRatio: opts.aspectRatio,
+    holdSeconds,
+    storySeconds,
+    totalSeconds,
+    audioFrom: hasAudio ? audioPath : "silence",
   });
   return opts.outputPath;
 }

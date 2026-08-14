@@ -1,7 +1,8 @@
 #!/usr/bin/env npx tsx
 /**
  * CLI: remake existing 9:16 OLS ads into 1:1 / 16:9 via Seedance,
- * then hard-append the branded CTA card with ffmpeg.
+ * then replace the original end-card with the Shopify CTA and mux
+ * the original voiceover.
  *
  *   npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --dry-run
  *   npx tsx scripts/reframe-ad.ts --video <url> --cta <url> --service estate-sales --ratios 1:1,16:9
@@ -13,9 +14,14 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
 import { SeedanceClient, prepareGeneration } from "../src/client.ts";
-import { appendCtaHold, downloadToFile, requireFfmpeg } from "../src/compose.ts";
+import {
+  downloadToFile,
+  probeDurationSeconds,
+  replaceEndingWithCta,
+  requireFfmpeg,
+} from "../src/compose.ts";
 import { writeAllCtaCanvases } from "../src/cta.ts";
-import { FRAMING_CTA_RULES, hasFramingRule } from "../src/framing.ts";
+import { hasFramingRule } from "../src/framing.ts";
 import { logger } from "../src/logger.ts";
 import {
   filterManifestByService,
@@ -34,6 +40,7 @@ import {
   REFRAME_BODY_SECONDS,
   aspectRatioSchema,
   generateAdOptionsSchema,
+  seedanceDurationSeconds,
   type AspectRatio,
 } from "../src/types.ts";
 
@@ -42,7 +49,7 @@ loadEnv({ path: resolve(here, "../.env"), quiet: true });
 loadEnv({ quiet: true });
 
 const HELP = `
-seedance-ads — remake 9:16 source ads into 1:1 / 16:9 and append the CTA card
+seedance-ads — remake 9:16 source ads into 1:1 / 16:9 and replace the original CTA card
 
 USAGE
   npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --dry-run
@@ -57,12 +64,12 @@ OPTIONS
   --cta <url>              Public 9:16 CTA still (required with --video)
   --service <id>           Filter manifest, or tag a single --video
   --ratios 1:1,16:9        Target ratios (default: 1:1,16:9)
-  --with-vertical          Also write CTA-appended 9:16 from the original (ffmpeg only)
+  --with-vertical          Also write 9:16 with the original end-card replaced (ffmpeg only)
   --output <dir>           Override manifest outputDir
   --dry-run                Print Seevio payloads; no API call, no ffmpeg
   --help                   Show this message
 
-Seedance remakes are ${REFRAME_BODY_SECONDS}s; ffmpeg then appends a ${CTA_HOLD_SECONDS}s CTA hold.
+Seedance remakes match the source length (~${REFRAME_BODY_SECONDS}s). ffmpeg replaces the last ${CTA_HOLD_SECONDS}s with the Shopify CTA and muxes the original voiceover.
 Seevio requires public HTTPS URLs. ffmpeg must be on PATH for live compose.
 `.trim();
 
@@ -153,21 +160,18 @@ async function loadManifest(flags: z.infer<typeof cliSchema>): Promise<ReframeMa
   });
 }
 
-function printDryRun(
-  videos: ReframeVideo[],
-  ctaImageUrl: string,
-  ratios: AspectRatio[],
-  model: string,
-): void {
+function printDryRun(videos: ReframeVideo[], ratios: AspectRatio[], model: string): void {
   console.log(`\nDry run — model: ${model}`);
   console.log(
-    `Seedance body ${REFRAME_BODY_SECONDS}s + CTA hold ${CTA_HOLD_SECONDS}s. No API call.\n`,
+    `Seedance body ~${REFRAME_BODY_SECONDS}s; ffmpeg replaces the last ${CTA_HOLD_SECONDS}s with the Shopify CTA and muxes the original VO. No API call.\n`,
   );
 
   for (const video of videos) {
     for (const aspectRatio of ratios) {
       if (aspectRatio === "9:16") {
-        console.log(`── ${video.id}  9:16  (ffmpeg only — original + CTA, no Seedance)`);
+        console.log(
+          `── ${video.id}  9:16  (ffmpeg only — original audio, last ${CTA_HOLD_SECONDS}s replaced with CTA)`,
+        );
         continue;
       }
       const options = generateAdOptionsSchema.parse(
@@ -175,7 +179,6 @@ function printDryRun(
           service: video.service,
           aspectRatio,
           sourceVideoUrl: video.sourceVideoUrl,
-          ctaImageUrl,
         }),
       );
       const prepared = prepareGeneration(options, model);
@@ -184,9 +187,9 @@ function printDryRun(
       console.log(`generation_type=${payload.input.generation_type}`);
       console.log(`duration=${payload.input.duration}s  ratio=${payload.input.aspect_ratio}`);
       console.log(`video_urls=${JSON.stringify(payload.input.video_urls)}`);
-      console.log(`image_urls=${JSON.stringify(payload.input.image_urls)}`);
+      console.log(`image_urls=${JSON.stringify(payload.input.image_urls ?? [])}`);
       console.log(`framing=${hasFramingRule(payload.input.prompt, aspectRatio)}`);
-      console.log(`ctaHold=${payload.input.prompt.includes(FRAMING_CTA_RULES[aspectRatio])}`);
+      console.log(`seedanceRendersCta=${payload.input.prompt.includes("uploaded CTA card")}`);
       console.log(payload.input.prompt);
       console.log("");
     }
@@ -196,7 +199,8 @@ function printDryRun(
 async function remakeRatio(opts: {
   video: ReframeVideo;
   aspectRatio: AspectRatio;
-  ctaImageUrl: string;
+  sourcePath: string;
+  sourceDuration: number;
   ctaCanvasPath: string;
   outputDir: string;
   client: SeedanceClient;
@@ -206,10 +210,9 @@ async function remakeRatio(opts: {
   const finalPath = resolve(workDir, `${opts.video.id}-${ratioFileToken(opts.aspectRatio)}.mp4`);
 
   if (opts.aspectRatio === "9:16") {
-    const sourcePath = resolve(workDir, "source-9x16.mp4");
-    await downloadToFile(opts.video.sourceVideoUrl, sourcePath);
-    await appendCtaHold({
-      bodyVideoPath: sourcePath,
+    await replaceEndingWithCta({
+      bodyVideoPath: opts.sourcePath,
+      sourceAudioPath: opts.sourcePath,
       ctaImagePath: opts.ctaCanvasPath,
       aspectRatio: "9:16",
       outputPath: finalPath,
@@ -223,15 +226,16 @@ async function remakeRatio(opts: {
       service: opts.video.service,
       aspectRatio: opts.aspectRatio,
       sourceVideoUrl: opts.video.sourceVideoUrl,
-      ctaImageUrl: opts.ctaImageUrl,
+      duration: seedanceDurationSeconds(opts.sourceDuration),
       outputDir: bodyDir,
     }),
   );
   if (!result.videoPath) {
     throw new Error(`Seedance returned no local file for ${opts.video.id} ${opts.aspectRatio}`);
   }
-  await appendCtaHold({
+  await replaceEndingWithCta({
     bodyVideoPath: result.videoPath,
+    sourceAudioPath: opts.sourcePath,
     ctaImagePath: opts.ctaCanvasPath,
     aspectRatio: opts.aspectRatio,
     outputPath: finalPath,
@@ -254,7 +258,7 @@ async function main(): Promise<void> {
   const model = process.env.SEEDANCE_MODEL ?? DEFAULT_SEEDANCE_MODEL;
 
   if (flags["dry-run"]) {
-    printDryRun(manifest.videos, manifest.ctaImageUrl, ratios, model);
+    printDryRun(manifest.videos, ratios, model);
     return;
   }
 
@@ -269,12 +273,19 @@ async function main(): Promise<void> {
   let failed = 0;
 
   for (const video of manifest.videos) {
+    const workDir = resolve(manifest.outputDir, video.service, video.id);
+    await mkdir(workDir, { recursive: true });
+    const sourcePath = resolve(workDir, "source-9x16.mp4");
+    await downloadToFile(video.sourceVideoUrl, sourcePath);
+    const sourceDuration = await probeDurationSeconds(sourcePath);
+
     for (const aspectRatio of ratios) {
       try {
         const outputPath = await remakeRatio({
           video,
           aspectRatio,
-          ctaImageUrl: manifest.ctaImageUrl,
+          sourcePath,
+          sourceDuration,
           ctaCanvasPath: canvases[aspectRatio],
           outputDir: manifest.outputDir,
           client,
