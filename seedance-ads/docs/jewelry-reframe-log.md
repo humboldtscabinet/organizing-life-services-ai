@@ -15,7 +15,7 @@ Four keepers (operator approved 2026-08-14):
 | `jewelry-02-1x1.mp4` | 1:1 | 960×960 | Opening freeze trimmed 0.25s (~17.84s) |
 | `jewelry-02-16x9.mp4` | 16:9 | 1280×720 | ~18.08s |
 
-MP4s are **gitignored** (`seedance-ads/.gitignore`). Local copies live under `seedance-ads/output/` after a live run. Seevio result URLs expire; do not treat the API URL as the archive.
+MP4s for download live in [`google-ads/jewelry/`](../../google-ads/jewelry/). Seevio result URLs expire; do not treat the API URL as the archive.
 
 ## Why
 
@@ -48,8 +48,4 @@ Related PRs: [#50](https://github.com/humboldtscabinet/organizing-life-services-
 
 ## Result / next
 
-Jewelry 01/02 × 1:1 and 16:9 are approved keepers. Remaining services in the manifest (2 clips each): estate-sales, liquidation, downsizing, cleanouts, listing-prep, appraisals.
-
-```bash
-npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --service estate-sales
-```
+Jewelry 01/02 × 1:1 and 16:9 are approved keepers. Estate-sales 01/02 × 1:1 and 16:9 were remade the same day; remaining services are blocked on Seevio credits. Full table: [`google-ads-reframe-log.md`](google-ads-reframe-log.md).

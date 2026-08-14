@@ -19,7 +19,7 @@ export const reframeVideoSchema = z.object({
 
 export const reframeManifestSchema = z.object({
   ctaImageUrl: httpUrl,
-  outputDir: z.string().min(1).default("output/reframe"),
+  outputDir: z.string().min(1).default("../google-ads"),
   videos: z.array(reframeVideoSchema).min(1),
 });
 

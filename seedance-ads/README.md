@@ -42,7 +42,9 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 | 1:1, 16:9 | Seedance `reference-to-video` for **~18s** from the 9:16 MP4 (no CTA still in the prompt). ffmpeg **replaces the last 3s** with the Shopify card and muxes the original voiceover. |
 | 9:16 (`--with-vertical`) | Original file; ffmpeg only replaces the last 3s with the Shopify card and keeps the original audio. No Seedance. |
 
-Keepers land in `output/reframe/{service}/{id}-{ratio}.mp4` (gitignored).
+Keepers land in `google-ads/{service}/{id}-{ratio}.mp4` at the repo root (one folder per OLS service). Seedance body files stay in `google-ads/_work/` and are gitignored.
+
+**Live batches (2026-08-14):** all 28 keepers are in `google-ads/{service}/` (7 services × 2 sources × 1:1 and 16:9). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md).
 
 **Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 
@@ -69,7 +71,8 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 ```
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
-├── docs/jewelry-reframe-log.md   First live jewelry batch (2026-08-14)
+├── docs/google-ads-reframe-log.md  Keeper status for all 14 sources
+├── docs/jewelry-reframe-log.md     First live jewelry batch (2026-08-14)
 ├── scripts/reframe-ad.ts         Production remake + Shopify CTA replace
 ├── scripts/generate-ad.ts        Generic generate / smoke test
 └── src/
