@@ -15,7 +15,7 @@ describe("reframe manifest", () => {
     ) as unknown;
     const manifest = parseReframeManifest(raw);
     assert.equal(manifest.videos.length, 14);
-    assert.equal(manifest.outputDir, "output");
+    assert.equal(manifest.outputDir, "../google-ads");
     assert.ok(/^https:\/\//.test(manifest.ctaImageUrl));
     const services = new Set(manifest.videos.map((video) => video.service));
     assert.deepEqual([...services].sort(), [...OLS_SERVICES].sort());

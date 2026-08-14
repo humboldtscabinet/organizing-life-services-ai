@@ -1,6 +1,6 @@
 {
   "ctaImageUrl": "https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544",
-  "outputDir": "output",
+  "outputDir": "../google-ads",
   "videos": [
     {
       "id": "estate-sales-01",

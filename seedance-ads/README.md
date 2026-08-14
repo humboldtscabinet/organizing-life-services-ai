@@ -42,7 +42,7 @@ npx tsx scripts/reframe-ad.ts --video https://cdn.shopify.com/.../jewelry-01.mp4
 | 1:1, 16:9 | Seedance `reference-to-video` for **~18s** from the 9:16 MP4 (no CTA still in the prompt). ffmpeg **replaces the last 3s** with the Shopify card and muxes the original voiceover. |
 | 9:16 (`--with-vertical`) | Original file; ffmpeg only replaces the last 3s with the Shopify card and keeps the original audio. No Seedance. |
 
-Keepers land in `output/{service}/{id}-{ratio}.mp4` (gitignored). One folder per OLS service: `jewelry/`, `estate-sales/`, `liquidation/`, `downsizing/`, `cleanouts/`, `listing-prep/`, `appraisals/`. Seedance body files and sources stay in `output/_work/`.
+Keepers land in `google-ads/{service}/{id}-{ratio}.mp4` at the repo root (one folder per OLS service). Seedance body files stay in `google-ads/_work/` and are gitignored.
 
 **Live batches (2026-08-14):** jewelry and estate-sales keepers are written. Liquidation through appraisals need more Seevio credits (444 per job). Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md). Jewelry process notes: [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 

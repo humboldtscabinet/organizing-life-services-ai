@@ -171,7 +171,7 @@ async function loadManifest(flags: z.infer<typeof cliSchema>): Promise<ReframeMa
 
   return parseReframeManifest({
     ctaImageUrl: flags.cta,
-    outputDir: flags.output ?? "output",
+    outputDir: flags.output ?? "../google-ads",
     videos: [
       {
         id: "single",

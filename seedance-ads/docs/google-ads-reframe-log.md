@@ -4,15 +4,13 @@ Production remakes of the 14 existing ~18s 9:16 masters into native **1:1** and 
 
 Agent run: [Google ads generated videos](https://cursor.com/agents/bc-a3bf2d04-d43a-43f7-a763-eaad52619bdf)
 
-Do **not** send the CTA still to Seedance. Do **not** regenerate 9:16 through Seedance unless asked (`--with-vertical` is ffmpeg-only). MP4s are gitignored.
+Do **not** send the CTA still to Seedance. Do **not** regenerate 9:16 through Seedance unless asked (`--with-vertical` is ffmpeg-only).
 
-Keepers are one folder per service:
+Keepers are tracked in the repo so they show in the file explorer, one folder per service:
 
 ```
-seedance-ads/output/{service}/{id}-{ratio}.mp4
+google-ads/{service}/{id}-{ratio}.mp4
 ```
-
-Same layout under `/opt/cursor/artifacts/google-ads/{service}/`. Empty folders are already created for liquidation, downsizing, cleanouts, listing-prep, and appraisals.
 
 ## Status (2026-08-14)
 
@@ -33,7 +31,7 @@ Top up at [seevio.ai](https://seevio.ai), then:
 ```bash
 cd seedance-ads
 npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json \
-  --service liquidation --skip-existing --output /opt/cursor/artifacts/seedance-reframe-all
+  --service liquidation --skip-existing
 ```
 
 `--skip-existing` leaves finished keepers in place. The CLI stops the rest of the batch on `insufficient_credits`.
@@ -49,12 +47,9 @@ npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json \
 
 Last frame of each file is the Shopify “Ready to Get Started?” card (contain, cream pad `#F7F4EE`), not the old “Call Today” card. Opening shots are estate-sale interiors / specialist, matching the 9:16 masters.
 
-Download copies (this UI’s chat links do not work — use the file explorer, right-click → Download):
+Download copies (right-click → Download in the file explorer):
 
-- `seedance-ads/output/estate-sales/`
-- `/opt/cursor/artifacts/google-ads/estate-sales/`
-
-Each OLS service has its own folder under `seedance-ads/output/{service}/` and `/opt/cursor/artifacts/google-ads/{service}/`.
+- [`google-ads/estate-sales/`](../../google-ads/estate-sales/)
 
 Play locally if in-chat video looks silent (players often start muted).
 

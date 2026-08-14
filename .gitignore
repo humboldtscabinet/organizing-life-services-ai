@@ -100,5 +100,9 @@ security/history-scrub/reports/
 # ---------- Allow seedance-ads example manifests despite *.json rule ----------
 !seedance-ads/examples/*.json
 
+# ---------- Google Ads remake work files (keepers in google-ads/{service}/ are tracked) ----------
+google-ads/_work/
+google-ads/_cta/
+
 # ---------- Allow versioned SEO audit JSON despite *.json rule ----------
 !data/audit_output/*.json
