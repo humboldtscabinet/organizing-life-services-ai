@@ -149,6 +149,7 @@ PY
 
 ## Related
 
+- [google-api-access.md](../google-api-access.md) — live vs blocked access and the completion plan
 - [ga4-key-event-cleanup.md](ga4-key-event-cleanup.md) — UI cleanup + Admin API note
 - [gtm-write-and-publish.md](gtm-write-and-publish.md) — GTM SA Publish permission
 - [improve-google-analytics.md](improve-google-analytics.md) — measurement guide

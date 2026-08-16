@@ -44,7 +44,7 @@ credentials/        Service-account JSON (gitignored)
 
 3. **Get credentials:**
    - Place `google-service-account.json` in `credentials/` (ask the owner)
-   - The service-account email is `ols-operations@ols-marketing-agent.iam.gserviceaccount.com` — it already has GA4 + GSC + Sheets access (see [`/memories/repo/google_apis_status.md`](../memories/repo/google_apis_status.md))
+   - The service-account email is `ols-operations@ols-marketing-agent.iam.gserviceaccount.com` — it already has GA4 + GSC + Sheets access (see [docs/google-api-access.md](google-api-access.md))
 
 4. **Start the stack:**
    ```bash
@@ -62,7 +62,7 @@ credentials/        Service-account JSON (gitignored)
    pip install -r requirements.txt
    ```
 
-## Key gotchas (from `/memories/repo/google_apis_status.md`)
+## Key gotchas (from [google-api-access.md](google-api-access.md))
 
 - `docker-compose restart api` does **not** reload `.env` — use `docker-compose up -d --force-recreate api` instead.
 - If you change env vars before Postgres first-init, wipe the volume: `docker volume rm organizing-life-services-ai_postgres_data`.
@@ -79,7 +79,7 @@ credentials/        Service-account JSON (gitignored)
 | Run an SEO audit / push meta / deploy schema | [docs/runbooks/](runbooks/) |
 | Run the Phase 1 automation cycle | [docs/runbooks/phase1-automation.md](runbooks/phase1-automation.md) |
 | Understand agent/model policy | [docs/agents.md](agents.md) |
-| Understand which Google APIs are live | [`/memories/repo/google_apis_status.md`](../memories/repo/google_apis_status.md) |
+| Understand which Google APIs are live | [google-api-access.md](google-api-access.md) |
 | Add a new API integration | [docs/google_ads_api_design_doc.md](google_ads_api_design_doc.md) is the template |
 | Add agents / skills | [docs/agents.md](agents.md) |
 | Understand private AI conversation backups | [conversations/README.md](../conversations/README.md) |

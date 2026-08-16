@@ -9,6 +9,7 @@ Step-by-step operational procedures for common tasks. Each runbook is self-conta
 - [improve-google-analytics.md](improve-google-analytics.md) — step-by-step guide to improve OLS GA4 measurement (key events, phone clicks, weekly hygiene)
 - [gtm-write-and-publish.md](gtm-write-and-publish.md) — gated GTM workspace writes, version create, and live publish
 - [gcp-apis-to-enable.md](gcp-apis-to-enable.md) — which Google Cloud APIs to enable (and not enable) for OLS
+- [google-api-access.md](../google-api-access.md) — per-product read/write status and completion plan
 - [push-meta-rewrites.md](push-meta-rewrites.md) — push title/meta changes to Shopify
 - [service-guardrails-homepage-ctr.md](service-guardrails-homepage-ctr.md) — noindex fee products + homepage organizers CTR apply
 - [deploy-schema-snippet.md](deploy-schema-snippet.md) — update the Shopify JSON-LD schema snippet
