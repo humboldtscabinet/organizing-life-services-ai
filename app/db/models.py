@@ -188,6 +188,8 @@ class DashboardTask(Base):
     __table_args__ = (
         Index("ix_dashboard_tasks_status", "status"),
         Index("ix_dashboard_tasks_type_status", "task_type", "status"),
+        Index("ix_dashboard_tasks_fingerprint", "fingerprint"),
+        Index("ix_dashboard_tasks_action_kind", "action_kind"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -198,7 +200,9 @@ class DashboardTask(Base):
     description = Column(Text)
     finding = Column(Text)                            # The data that triggered this task
     action_endpoint = Column(String(500))             # API endpoint to call when approved
-    action_payload = Column(JSONB)                    # JSON payload for the API call
+    action_kind = Column(String(100))                 # Allowlisted apply verb; None = advisory
+    action_payload = Column(JSONB)                    # Frozen JSON for the apply dispatcher
+    fingerprint = Column(String(300))                 # Stable detect key; blocks duplicate open tasks
     status = Column(String(50), default="pending")    # pending, approved, executing, completed, failed, dismissed, delayed
     result = Column(JSONB)                            # Result from execution
     delayed_until = Column(DateTime, nullable=True)   # When to show the task again if delayed

@@ -20,3 +20,5 @@ CREATE INDEX IF NOT EXISTS ix_google_ads_data_campaign_date ON google_ads_data (
 -- Dashboard Tasks indexes
 CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_status ON dashboard_tasks (status);
 CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_type_status ON dashboard_tasks (task_type, status);
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_fingerprint ON dashboard_tasks (fingerprint);
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_action_kind ON dashboard_tasks (action_kind);

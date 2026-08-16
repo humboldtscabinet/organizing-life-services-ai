@@ -867,6 +867,7 @@ def create_content_task(
             f"{lead_tier} ({lead_score}/100)"
         ),
         action_endpoint="/api/content/generate-and-publish",
+        action_kind="content.generate_and_publish",
         action_payload={
             "topic": query.title(),
             "target_keyword": query,
@@ -881,6 +882,7 @@ def create_content_task(
                 "Do not invent testimonials, awards, guarantees, prices, or staff details.",
             ],
         },
+        fingerprint=f"content.generate_and_publish:{query}",
         status="pending",
     )
 

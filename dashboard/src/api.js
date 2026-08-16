@@ -128,6 +128,18 @@ export const approveTask = async (id) => {
   })
 }
 
+export const applyTask = async (id, { humanConfirmed, judgeVerdict } = {}) => {
+  const params = new URLSearchParams({
+    human_confirmed: humanConfirmed ? 'true' : 'false',
+  })
+  if (judgeVerdict) {
+    params.append('judge_verdict', judgeVerdict)
+  }
+  return fetchAPI(`/dashboard/tasks/${id}/apply?${params.toString()}`, {
+    method: 'POST',
+  })
+}
+
 export const dismissTask = async (id) => {
   return fetchAPI(`/dashboard/tasks/${id}/dismiss`, {
     method: 'POST',

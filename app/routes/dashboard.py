@@ -46,6 +46,7 @@ from app.services.sheets_service import (
     push_google_ads_to_sheets,
     push_gsc_to_sheets,
 )
+from app.services.task_apply_service import apply_task, serialize_dashboard_task
 
 router = APIRouter(prefix="/api/dashboard", tags=["Dashboard"])
 
@@ -128,23 +129,7 @@ def list_tasks(
     return {
         "status": "success",
         "count": len(tasks),
-        "tasks": [
-            {
-                "id": t.id,
-                "task_type": t.task_type,
-                "category": t.category,
-                "priority": t.priority,
-                "title": t.title,
-                "description": t.description,
-                "finding": t.finding,
-                "action_payload": t.action_payload,
-                "status": t.status,
-                "created_at": t.created_at.isoformat(),
-                "approved_at": t.approved_at.isoformat() if t.approved_at else None,
-                "completed_at": t.completed_at.isoformat() if t.completed_at else None,
-            }
-            for t in tasks
-        ],
+        "tasks": [serialize_dashboard_task(t) for t in tasks],
     }
 
 
@@ -159,22 +144,7 @@ def get_task_detail(task_id: int, db: Session = Depends(get_db)):
 
     return {
         "status": "success",
-        "task": {
-            "id": task.id,
-            "task_type": task.task_type,
-            "category": task.category,
-            "priority": task.priority,
-            "title": task.title,
-            "description": task.description,
-            "finding": task.finding,
-            "action_endpoint": task.action_endpoint,
-            "action_payload": task.action_payload,
-            "status": task.status,
-            "result": task.result,
-            "created_at": task.created_at.isoformat(),
-            "approved_at": task.approved_at.isoformat() if task.approved_at else None,
-            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
-        },
+        "task": serialize_dashboard_task(task),
     }
 
 
@@ -193,6 +163,30 @@ def trigger_approve_task(task_id: int, db: Session = Depends(get_db)):
     - message: confirmation message
     """
     return service_result_or_raise(approve_task(db, task_id))
+
+
+@router.post("/tasks/{task_id}/apply")
+def trigger_apply_task(
+    task_id: int,
+    human_confirmed: bool = False,
+    judge_verdict: str | None = None,
+    db: Session = Depends(get_db),
+):
+    """Apply an allowlisted DashboardTask using its frozen payload.
+
+    n8n and other automations must never call this endpoint. Cron may create
+    tasks; only a human-confirmed dashboard click may mutate Google or Shopify.
+    Deterministic kinds (GTM) need human_confirmed only. Content publish still
+    requires judge_verdict=PASS.
+    """
+    return service_result_or_raise(
+        apply_task(
+            db,
+            task_id,
+            human_confirmed=human_confirmed,
+            judge_verdict=judge_verdict,
+        )
+    )
 
 
 @router.post("/tasks/{task_id}/dismiss")

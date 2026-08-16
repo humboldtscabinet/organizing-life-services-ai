@@ -147,7 +147,9 @@ CREATE TABLE IF NOT EXISTS dashboard_tasks (
     description     TEXT,
     finding         TEXT,
     action_endpoint VARCHAR(500),
+    action_kind     VARCHAR(100),
     action_payload  JSONB,
+    fingerprint     VARCHAR(300),
     status          VARCHAR(50) DEFAULT 'pending',
     result          JSONB,
     created_at      TIMESTAMPTZ DEFAULT NOW(),
@@ -199,6 +201,8 @@ CREATE INDEX IF NOT EXISTS ix_llm_audit_risk_status
 
 CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_status ON dashboard_tasks (status);
 CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_type_status ON dashboard_tasks (task_type, status);
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_fingerprint ON dashboard_tasks (fingerprint);
+CREATE INDEX IF NOT EXISTS ix_dashboard_tasks_action_kind ON dashboard_tasks (action_kind);
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_status
     ON ops_alerts (status);
 CREATE INDEX IF NOT EXISTS ix_ops_alerts_severity_status

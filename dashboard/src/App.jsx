@@ -22,6 +22,7 @@ import {
   runPhase1Cycle,
   setDevApiKey,
   approveTask,
+  applyTask,
   delayTask,
 } from './api'
 
@@ -90,8 +91,10 @@ export default function App() {
   const [runningPhase1Cycle, setRunningPhase1Cycle] = useState(false)
   const [contentPreview, setContentPreview] = useState(null)
   const [publishTarget, setPublishTarget] = useState(null)
+  const [applyTarget, setApplyTarget] = useState(null)
   const [previewLoadingTaskId, setPreviewLoadingTaskId] = useState(null)
   const [publishLoading, setPublishLoading] = useState(false)
+  const [applyLoading, setApplyLoading] = useState(false)
   const [sessionApiKey, setSessionApiKey] = useState(() => getDevApiKey())
   const [apiKeyInput, setApiKeyInput] = useState('')
   const hasRequiredApiKey = !DEV_AUTH_REQUIRED || Boolean(sessionApiKey)
@@ -154,6 +157,10 @@ export default function App() {
     }
   }
 
+  const handleOpenApplyModal = (task) => {
+    setApplyTarget(task)
+  }
+
   const handleApproveTask = async (id) => {
     try {
       await approveTask(id)
@@ -162,6 +169,31 @@ export default function App() {
     } catch (error) {
       console.error('Error approving task:', error)
       setToast({ message: getErrorMessage(error, 'Failed to approve task'), type: 'error' })
+    }
+  }
+
+  const handleApplyTask = async ({ humanConfirmed }) => {
+    if (!applyTarget) {
+      return
+    }
+
+    try {
+      setApplyLoading(true)
+      const result = await applyTask(applyTarget.id, { humanConfirmed })
+      setApplyTarget(null)
+      const childId = result?.result?.publish_task_id
+      setToast({
+        message: childId
+          ? `Applied. Publish task #${childId} is waiting for a separate Apply.`
+          : 'Task applied',
+        type: 'success',
+      })
+      await fetchData()
+    } catch (error) {
+      console.error('Error applying task:', error)
+      setToast({ message: getErrorMessage(error, 'Failed to apply task'), type: 'error' })
+    } finally {
+      setApplyLoading(false)
     }
   }
 
@@ -612,6 +644,7 @@ export default function App() {
                 key={task.id}
                 task={task}
                 onApprove={handleApproveTask}
+                onApply={handleOpenApplyModal}
                 onDismiss={handleDismissTask}
                 onDelay={handleDelayTask}
                 onPreviewContent={handlePreviewContent}
@@ -671,6 +704,15 @@ export default function App() {
           loading={publishLoading}
           onClose={() => setPublishTarget(null)}
           onPublish={handlePublishContent}
+        />
+      )}
+
+      {applyTarget && (
+        <ApplyTaskModal
+          task={applyTarget}
+          loading={applyLoading}
+          onClose={() => setApplyTarget(null)}
+          onApply={handleApplyTask}
         />
       )}
 
@@ -810,6 +852,7 @@ function AlertCard({ alert, onAcknowledge, onDismiss }) {
 function TaskCard({
   task,
   onApprove,
+  onApply,
   onDismiss,
   onDelay,
   onPreviewContent,
@@ -819,6 +862,9 @@ function TaskCard({
   const leadScore = task.action_payload?.lead_score
   const leadTier = task.action_payload?.lead_tier
   const leadReasons = task.action_payload?.lead_relevance_reasons || []
+  const isContent = task.task_type === 'content'
+  const showApply = Boolean(task.applyable) && !isContent
+  const preview = task.action_payload?.preview
 
   return (
     <div style={{ backgroundColor: COLORS.bg, borderLeft: `4px solid ${PRIORITY_COLORS[task.priority] || '#666'}` }} className="rounded-lg p-4 flex justify-between items-start gap-4">
@@ -836,6 +882,11 @@ function TaskCard({
           >
             {task.task_type.toUpperCase()}
           </span>
+          {task.action_kind && (
+            <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-slate-700">
+              {task.action_kind}
+            </span>
+          )}
           {task.status !== 'pending' && (
             <span className="px-2 py-1 rounded text-xs font-semibold text-white bg-gray-600 capitalize">
               {task.status}
@@ -864,6 +915,14 @@ function TaskCard({
             <span className="font-semibold">Finding:</span> {task.finding}
           </p>
         )}
+        {preview && (
+          <p className="text-xs mb-3" style={{ color: COLORS.textDim }}>
+            <span className="font-semibold">Frozen apply:</span>{' '}
+            {Object.entries(preview)
+              .map(([key, value]) => `${key}=${value}`)
+              .join(' · ')}
+          </p>
+        )}
         <div className="flex gap-4 text-xs" style={{ color: COLORS.textDim }}>
           {task.created_at && (
             <span>Created: {new Date(task.created_at).toLocaleDateString()}</span>
@@ -878,13 +937,23 @@ function TaskCard({
       </div>
       {task.status === 'pending' && (
         <div className="flex gap-2">
-          <button
-            onClick={() => onApprove(task.id)}
-            className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
-            style={{ backgroundColor: '#10b981' }}
-          >
-            Approve
-          </button>
+          {showApply ? (
+            <button
+              onClick={() => onApply(task)}
+              className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+              style={{ backgroundColor: '#f97316' }}
+            >
+              Apply
+            </button>
+          ) : (
+            <button
+              onClick={() => onApprove(task.id)}
+              className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+              style={{ backgroundColor: '#10b981' }}
+            >
+              Approve
+            </button>
+          )}
           <button
             onClick={() => onDelay(task.id)}
             className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80 flex items-center gap-1"
@@ -902,7 +971,18 @@ function TaskCard({
           </button>
         </div>
       )}
-      {task.task_type === 'content' && task.status === 'approved' && (
+      {showApply && task.status === 'approved' && (
+        <div className="flex gap-2">
+          <button
+            onClick={() => onApply(task)}
+            className="px-4 py-2 rounded-lg text-white font-semibold transition hover:opacity-80"
+            style={{ backgroundColor: '#f97316' }}
+          >
+            Apply
+          </button>
+        </div>
+      )}
+      {isContent && task.status === 'approved' && (
         <div className="flex gap-2">
           <button
             onClick={() => onPreviewContent(task)}
@@ -1014,6 +1094,65 @@ function ContentPublishModal({ task, loading, onClose, onPublish }) {
             style={{ backgroundColor: '#f97316' }}
           >
             {loading ? 'Publishing...' : 'Publish to Shopify'}
+          </button>
+          <button onClick={onClose} className="px-4 py-2 rounded-lg" style={{ backgroundColor: '#666', color: '#fff' }}>
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ApplyTaskModal({ task, loading, onClose, onApply }) {
+  const [humanConfirmed, setHumanConfirmed] = useState(false)
+  const preview = task.action_payload?.preview || {}
+  const previewRows = Object.entries(preview)
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+      <div
+        className="max-w-lg w-full rounded-lg p-6"
+        style={{ backgroundColor: COLORS.cardBg, color: COLORS.text }}
+      >
+        <h3 className="text-xl font-bold mb-2">Apply frozen task</h3>
+        <p className="text-sm mb-2" style={{ color: COLORS.textDim }}>
+          {task.title}
+        </p>
+        <p className="text-xs mb-4" style={{ color: COLORS.textDim }}>
+          Kind: {task.action_kind}. This uses the payload stored on the task.
+          n8n must never call Apply. GTM publish is a separate task after ensure.
+        </p>
+        {previewRows.length > 0 && (
+          <div className="mb-4 text-sm" style={{ color: COLORS.textDim }}>
+            {previewRows.map(([key, value]) => (
+              <p key={key}>
+                <span className="font-semibold">{key}:</span> {String(value)}
+              </p>
+            ))}
+          </div>
+        )}
+        {task.finding && (
+          <p className="text-sm mb-4" style={{ color: COLORS.textDim }}>
+            {task.finding}
+          </p>
+        )}
+        <label className="flex items-center gap-2 mb-6 text-sm">
+          <input
+            type="checkbox"
+            checked={humanConfirmed}
+            onChange={(event) => setHumanConfirmed(event.target.checked)}
+          />
+          I reviewed this frozen change and confirm Apply.
+        </label>
+        <div className="flex gap-3">
+          <button
+            onClick={() => onApply({ humanConfirmed })}
+            disabled={!humanConfirmed || loading}
+            className="px-4 py-2 rounded-lg text-white font-semibold disabled:opacity-50"
+            style={{ backgroundColor: '#f97316' }}
+          >
+            {loading ? 'Applying...' : 'Apply'}
           </button>
           <button onClick={onClose} className="px-4 py-2 rounded-lg" style={{ backgroundColor: '#666', color: '#fff' }}>
             Cancel

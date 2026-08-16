@@ -10,6 +10,8 @@ Generates actionable tasks based on threshold analysis of:
 Manual-approval mode: generates tasks, waits for human approval before execution.
 """
 
+import logging
+import os
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -24,6 +26,8 @@ from app.db.models import (
     SEOReport,
 )
 from app.services.lead_relevance import score_lead_relevance
+
+logger = logging.getLogger(__name__)
 
 # Geographic service area terms for Organizing Life Services
 # Based in Greater Tampa Bay Area, Florida
@@ -142,22 +146,17 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
     cross_tasks = _generate_cross_channel_tasks(db, cutoff)
     new_tasks.extend(cross_tasks)
 
+    # --- 5. Allowlisted GTM apply tasks (ensure only; publish is a child) ---
+    try:
+        gtm_tasks = _generate_gtm_apply_tasks(days_back=days_back)
+        new_tasks.extend(gtm_tasks)
+    except Exception:
+        logger.exception("GTM apply-task detector failed; continuing")
+
     # Deduplicate and save
     saved_count = 0
     for task_data in new_tasks:
-        # Check if similar task already exists in any active state
-        # (prevents re-creating dismissed, approved, or completed tasks)
-        existing = (
-            db.query(DashboardTask)
-            .filter(
-                and_(
-                    DashboardTask.category == task_data["category"],
-                    DashboardTask.title == task_data["title"],
-                    DashboardTask.status.in_(["pending", "delayed", "dismissed", "approved", "completed"]),
-                )
-            )
-            .first()
-        )
+        existing = _existing_blocking_task(db, task_data)
 
         if not existing:
             task = DashboardTask(**task_data)
@@ -177,6 +176,117 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
         "tasks_created": saved_count,
         "tasks_by_type": tasks_by_type,
     }
+
+
+def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardTask]:
+    """Skip creating a duplicate open/dismissed task.
+
+    Fingerprinted executable tasks may be recreated after completion if the
+    detector fires again (e.g. phone clicks drop to zero). Advisory SEO tasks
+    still treat completed as blocking so we do not reopen the same note.
+    """
+    fingerprint = task_data.get("fingerprint")
+    if fingerprint:
+        return (
+            db.query(DashboardTask)
+            .filter(
+                DashboardTask.fingerprint == fingerprint,
+                DashboardTask.status.in_(
+                    ["pending", "delayed", "dismissed", "approved", "executing"]
+                ),
+            )
+            .first()
+        )
+    return (
+        db.query(DashboardTask)
+        .filter(
+            and_(
+                DashboardTask.category == task_data["category"],
+                DashboardTask.title == task_data["title"],
+                DashboardTask.status.in_(
+                    ["pending", "delayed", "dismissed", "approved", "completed"]
+                ),
+            )
+        )
+        .first()
+    )
+
+
+def _generate_gtm_apply_tasks(*, days_back: int = 7) -> list[dict]:
+    """Create an ensure-phone-clicks task when GTM drift exists and events are 0.
+
+    If ``phone_call_clicks`` already fired this week, no-op even if the
+    workspace looks slightly different. Publish is never created here — only
+    as a child after a successful ensure Apply.
+    """
+    from app.services.gtm_service import (
+        PHONE_EVENT_NAME,
+        PHONE_TAG_NAME,
+        PHONE_TRIGGER_NAME,
+        direct_api_available,
+        phone_click_ensure_needed,
+    )
+
+    if not direct_api_available():
+        return []
+
+    from app.services.ga4_service import count_named_events
+
+    try:
+        event_count = count_named_events(PHONE_EVENT_NAME, days_back=days_back)
+    except Exception:
+        logger.exception("GA4 phone_call_clicks count failed; using GTM dry-run only")
+        event_count = None
+
+    if event_count is not None and event_count > 0:
+        return []
+
+    try:
+        probe = phone_click_ensure_needed()
+    except Exception:
+        logger.exception("GTM phone-click dry-run failed")
+        return []
+
+    if not probe.get("needed"):
+        return []
+
+    plan = probe.get("plan") or {}
+    container_id = os.getenv("GTM_CONTAINER_ID", "").strip() or "unknown"
+    fingerprint = f"gtm.ensure_phone_clicks:{container_id}"
+    trigger_action = (plan.get("trigger") or {}).get("action")
+    tag_action = (plan.get("tag") or {}).get("action")
+    preview = {
+        "trigger": f"{trigger_action} {PHONE_TRIGGER_NAME}",
+        "tag": f"{tag_action} {PHONE_TAG_NAME}",
+        "event_count_7d": event_count,
+        "create_version": True,
+    }
+    return [
+        {
+            "task_type": "seo",
+            "category": "gtm_phone_clicks",
+            "priority": "HIGH",
+            "title": "Restore GTM phone_call_clicks tracking",
+            "description": (
+                "Tel-click trigger or GA4 phone_call_clicks tag is missing, "
+                "paused, or unwired. Apply writes the workspace and creates a "
+                "version. Live publish is a separate task."
+            ),
+            "finding": (
+                f"trigger={trigger_action}; tag={tag_action}; "
+                f"phone_call_clicks last {days_back}d={event_count}"
+            ),
+            "action_kind": "gtm.ensure_phone_clicks",
+            "action_endpoint": None,
+            "action_payload": {
+                "create_version": True,
+                "container_id": container_id,
+                "preview": preview,
+            },
+            "fingerprint": fingerprint,
+            "status": "pending",
+        }
+    ]
 
 
 def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:

@@ -35,7 +35,13 @@ curl -H "X-API-Key: $OLS_API_KEY" http://127.0.0.1:8000/api/seo/gtm/discover
 | Ensure phone-click tag (workspace + create version) | `human_confirmed=true` + `judge_verdict=PASS` |
 | Publish version live | Same gates (separate endpoint) |
 
-Unattended weekly jobs must **not** call publish.
+Unattended weekly jobs must **not** call publish. n8n may create dashboard
+tasks; it must **never** call `POST /api/dashboard/tasks/{id}/apply`.
+
+Dashboard Apply (preferred operator path): generate tasks, then Apply on the
+card. Ensure writes the workspace and creates a version; live publish is a
+**separate** follow-up task with a frozen `version_path`. If
+`phone_call_clicks` already fired this week, the detector no-ops.
 
 ## Idempotent names
 
