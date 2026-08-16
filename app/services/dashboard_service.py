@@ -182,8 +182,11 @@ def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardT
     """Skip creating a duplicate open/dismissed task.
 
     Fingerprinted executable tasks may be recreated after completion if the
-    detector fires again (e.g. phone clicks drop to zero). Advisory SEO tasks
-    still treat completed as blocking so we do not reopen the same note.
+    detector fires again (e.g. phone clicks drop to zero). ``executing`` is not
+    treated as blocking: a task can be wedged in ``executing`` if the process
+    dies mid-apply, so the detector must be free to open a fresh applyable
+    replacement rather than leaving the feature stuck. Advisory SEO tasks still
+    treat completed as blocking so we do not reopen the same note.
     """
     fingerprint = task_data.get("fingerprint")
     if fingerprint:
@@ -192,7 +195,7 @@ def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardT
             .filter(
                 DashboardTask.fingerprint == fingerprint,
                 DashboardTask.status.in_(
-                    ["pending", "delayed", "dismissed", "approved", "executing"]
+                    ["pending", "delayed", "dismissed", "approved"]
                 ),
             )
             .first()

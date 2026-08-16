@@ -914,7 +914,9 @@ def publish_to_shopify(db: Session, task_id: int) -> Dict:
     if not task:
         return {"status": "error", "detail": f"Task #{task_id} not found"}
 
-    if task.status != "approved":
+    # The allowlisted Apply loop hands off a task already marked executing to
+    # keep its in-flight guard intact; the direct route still passes approved.
+    if task.status not in ("approved", "executing"):
         return {
             "status": "error",
             "detail": f"Task status is '{task.status}', must be 'approved'",

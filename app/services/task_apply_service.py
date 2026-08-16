@@ -313,15 +313,16 @@ def _apply_content_generate_and_publish(
 ) -> dict[str, Any]:
     from app.services.content_engine import publish_to_shopify
 
-    # publish_to_shopify still requires status == approved.
-    task.status = "approved"
-    task.approved_at = task.approved_at or datetime.utcnow()
-    db.commit()
-
+    # apply_task already committed status == executing; keep that in-flight guard
+    # in place (publish_to_shopify accepts executing) so a concurrent Apply or
+    # content publish cannot start a second Shopify write.
     result = publish_to_shopify(db, task.id)
     if result.get("status") == "error":
         raise RuntimeError(result.get("detail") or "Content publish failed")
-    return result
+    # publish_to_shopify persisted the richer task.result (Shopify ids/url,
+    # llm_audit_id, judge ids/verdict). Return it so the shared success path does
+    # not overwrite that record with the thin publish return value.
+    return task.result or result
 
 
 def _create_publish_child(
