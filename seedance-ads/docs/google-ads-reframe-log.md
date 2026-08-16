@@ -18,13 +18,13 @@ google-ads/{service}/{id}-{ratio}.mp4
 | --- | --- | --- | --- | --- | --- |
 | jewelry | done | done | done | done | Operator approved. See [`jewelry-reframe-log.md`](jewelry-reframe-log.md). |
 | estate-sales | done | done | done | done | Keepers written 2026-08-14. |
-| liquidation | done | done | done | done | After Seevio top-up. |
+| liquidation | done | **removed** | **removed** | **removed** | `01-16x9`, `02-16x9`, and `02-1x1` deleted 2026-08-16 (gibberish box labels). |
 | downsizing | done | done | done | done | |
 | cleanouts | done | **removed** | done | done | `cleanouts-01-16x9.mp4` deleted 2026-08-16 (glitch). |
 | listing-prep | done | done | done | done | 01 1:1 needed one Seedance retry (video-edit routing). |
 | appraisals | done | done | done | done | 02 16:9 needed one Seedance retry (video-edit routing). |
 
-**27** keepers remain in `google-ads/{service}/` (7 services × 2 sources × 1:1 and 16:9, minus `cleanouts-01-16x9.mp4`, which was deleted for a glitch). Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
+**24** keepers remain in `google-ads/{service}/`. Removed for quality: `cleanouts-01-16x9.mp4` (glitch) and `liquidation-01-16x9.mp4`, `liquidation-02-16x9.mp4`, `liquidation-02-1x1.mp4` (gibberish box labels). Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
 
 ## Estate-sales keepers (2026-08-14)
 

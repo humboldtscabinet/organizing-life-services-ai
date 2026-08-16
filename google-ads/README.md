@@ -7,7 +7,7 @@ Finished **1:1** and **16:9** ads, one folder per service. Right-click a file �
 | [cta/](cta/) | Native 9:16 / 1:1 / 16:9 end cards |
 | [jewelry/](jewelry/) | 4 keepers |
 | [estate-sales/](estate-sales/) | 4 keepers |
-| [liquidation/](liquidation/) | 4 keepers |
+| [liquidation/](liquidation/) | 1 keeper (`01-16x9`, `02-16x9`, `02-1x1` removed — gibberish box labels) |
 | [downsizing/](downsizing/) | 4 keepers |
 | [cleanouts/](cleanouts/) | 3 keepers (`cleanouts-01-16x9` removed — glitch) |
 | [listing-prep/](listing-prep/) | 4 keepers |
