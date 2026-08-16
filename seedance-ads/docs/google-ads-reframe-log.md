@@ -24,7 +24,7 @@ google-ads/{service}/{id}-{ratio}.mp4
 | listing-prep | done | done | done | done | 01 1:1 needed one Seedance retry (video-edit routing). |
 | appraisals | done | done | done | done | 02 16:9 needed one Seedance retry (video-edit routing). |
 
-All **28** Google Ads remakes (7 services × 2 sources × 1:1 and 16:9) are in `google-ads/{service}/`.
+All **28** Google Ads remakes (7 services × 2 sources × 1:1 and 16:9) are in `google-ads/{service}/`. Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
 
 ## Estate-sales keepers (2026-08-14)
 

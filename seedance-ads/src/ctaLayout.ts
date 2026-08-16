@@ -170,21 +170,30 @@ export async function screenshotHtml(opts: {
 }): Promise<void> {
   const htmlUrl = pathToFileURL(resolve(opts.htmlPath)).href;
   const screenshotPath = resolve(opts.outputPath);
-  await execFileAsync(
-    opts.chromePath,
-    [
-      "--headless=new",
-      "--no-sandbox",
-      "--disable-gpu",
-      "--disable-dev-shm-usage",
-      "--hide-scrollbars",
-      "--run-all-compositor-stages-before-draw",
-      "--force-device-scale-factor=1",
-      `--window-size=${opts.width},${opts.height}`,
-      `--screenshot=${screenshotPath}`,
-      "--virtual-time-budget=4000",
-      htmlUrl,
-    ],
-    { timeout: 30_000 },
-  );
+  try {
+    await execFileAsync(
+      opts.chromePath,
+      [
+        "--headless=new",
+        "--no-sandbox",
+        "--disable-gpu",
+        "--disable-dev-shm-usage",
+        "--hide-scrollbars",
+        "--run-all-compositor-stages-before-draw",
+        "--force-device-scale-factor=1",
+        "--timeout=8000",
+        `--window-size=${opts.width},${opts.height}`,
+        `--screenshot=${screenshotPath}`,
+        "--virtual-time-budget=2000",
+        htmlUrl,
+      ],
+      { timeout: 15_000 },
+    );
+  } catch (error) {
+    try {
+      await access(screenshotPath);
+    } catch {
+      throw error;
+    }
+  }
 }
