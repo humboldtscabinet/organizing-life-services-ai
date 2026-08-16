@@ -35,7 +35,7 @@ All **28** Google Ads remakes (7 services × 2 sources × 1:1 and 16:9) are in `
 | `estate-sales-02-1x1.mp4` | 960×960 | ~18.08s | same |
 | `estate-sales-02-16x9.mp4` | 1280×720 | ~18.08s | same |
 
-Last frame of each file is the Shopify “Ready to Get Started?” card (contain, cream pad `#F7F4EE`), not the old “Call Today” card. Opening shots are estate-sale interiors / specialist, matching the 9:16 masters.
+Last frame of each file is the “Ready to Get Started?” card (native 1:1 or 16:9 canvas), not the old “Call Today” card. Opening shots are estate-sale interiors / specialist, matching the 9:16 masters.
 
 Download copies (right-click → Download in the file explorer):
 
@@ -51,6 +51,24 @@ npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --se
 ```
 
 - Model: `seedance-2-5`, `reference-to-video`, 720p, 18s, source MP4 in `video_urls` only.
-- ffmpeg **replaces** last 3s with [`OLS_CTA_Card_Google_Ads.png`](https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544).
+- ffmpeg **replaces** last 3s with a native-ratio CTA canvas from [`OLS_CTA_Card_Google_Ads.png`](https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544).
 - Original VO is muxed; it already ends before the end-card, so the CTA hold is silent like the masters.
 - Encode: H.264 Main, no B-frames, 192k AAC, `+faststart`.
+
+## Native CTA canvases (2026-08-16)
+
+Do **not** send the card through Seedance — generated text comes back misspelled or warped. Canvases live in [`google-ads/cta/`](../../google-ads/cta/):
+
+| File | Pixels | How it is built |
+| --- | --- | --- |
+| `cta-9x16.png` | 720×1280 | Uniform scale of the Shopify master (original pixels, cream pad if needed) |
+| `cta-1x1.png` | 960×960 | Logo lockup cropped from the master + locked copy, screenshot in Chrome |
+| `cta-16x9.png` | 1280×720 | Same locked copy, wide layout |
+
+Locked wording (verbatim): `Ready to Get Started?` / `Estate Sales - Liquidation - Downsizing` / `Cleanouts - Appraisals - Jewelry Buying` / `Get Your Free Consultation` / `organizinglifeservices.com` / `PROFESSIONAL - RELIABLE - TRUSTED`. The ORGANIZING / LIFE SERVICES / “Licensed, Trusted & Insured Since 2010” lockup is never re-typeset.
+
+```bash
+cd seedance-ads
+npx tsx scripts/render-cta.ts
+npx tsx scripts/restamp-cta.ts   # ffmpeg-only swap of the last 3s on existing keepers
+```

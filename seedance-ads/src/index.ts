@@ -63,7 +63,16 @@ export {
   buildReframeGenerateOptions,
 } from "./prompts/reframe.ts";
 export type { OlsService } from "./prompts/reframe.ts";
-export { writeAllCtaCanvases, writeCtaCanvas } from "./cta.ts";
+export {
+  writeAllCtaCanvases,
+  writeCtaCanvas,
+  cropCtaLockup,
+  CTA_BACKGROUND,
+  CTA_COPY,
+  CTA_COPY_STRINGS,
+  CTA_PAD_COLOR,
+} from "./cta.ts";
+export type { CtaLayout } from "./cta.ts";
 export {
   appendCtaHold,
   downloadToFile,
