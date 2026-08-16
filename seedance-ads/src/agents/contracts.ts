@@ -1,9 +1,11 @@
 /**
- * Contracts for the multi-agent layer this project will grow into.
+ * Contracts for the multi-agent layer.
  *
- * Nothing here is wired yet. New agents should implement these interfaces
- * and compose with SeedanceClient / generateSingleAd / generateFullAdSet
- * instead of calling @ai-sdk/bytedance directly (that would skip framing).
+ * SceneTextQaAgent is wired in scripts/reframe-ad.ts after Seedance
+ * returns a body clip and before ffmpeg replaces the last 3s with the
+ * Shopify CTA. A fail does not retry generation — Seevio credits are
+ * already spent. PromptEngineer, VariantFactory, and AssetManager are
+ * not wired yet.
  */
 
 import type {

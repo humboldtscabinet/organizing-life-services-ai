@@ -24,7 +24,7 @@ SEEDANCE_PROVIDER=seevio
 
 Create or rotate keys at [seevio.ai/dashboard/user/api-keys](https://seevio.ai/dashboard/user/api-keys). **Do not paste the key in chat.** For Cloud Agents, add `SEEDANCE_API_KEY` as a Runtime Secret, then restart the agent.
 
-ffmpeg must be on PATH for CTA canvases and replacing the original end-card.
+ffmpeg must be on PATH for CTA canvases and replacing the original end-card. Live remakes also need **tesseract** (`apt install tesseract-ocr`) so body frames can be OCR’d for gibberish box labels. Pass `--skip-scene-text-qa` only if you accept shipping invented lettering. QA runs after Seedance, so it does **not** refund Seevio credits.
 
 ## Reframe an existing 9:16 ad (recommended)
 
@@ -57,7 +57,7 @@ npx tsx scripts/restamp-cta.ts
 
 **Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 
-`--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance. Remake prompts forbid invented words on boxes, labels, and other props.
+`--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance. Remake prompts allow real English labels (`Kitchen`, `Books`, `Fragile`) and forbid gibberish, misspellings, and Seedance-drawn CTA copy. After each Seedance job, `SceneTextQaAgent` OCRs body frames at ~2s / 8s / 14s (before the last 3s CTA). A fail leaves the body in `google-ads/_work/` and does not write a keeper or retry.
 
 ## Framing
 
@@ -95,14 +95,15 @@ seedance-ads/
     ├── ctaLayout.ts              Native 1:1 / 16:9 HTML + Chrome screenshot
     ├── compose.ts                ffmpeg: replace last 3s + mux original VO
     ├── seevio.ts                 Seevio HTTP client
-    └── framing.ts                Google Ads framing rules
+    ├── framing.ts                Google Ads framing rules
+    └── qa/                       Scene-text OCR gate (gibberish labels)
 ```
 
 ## Scripts
 
 | Command | Purpose |
 | --- | --- |
-| `npm test` | Framing, payload, manifest, prompt tests (no API key) |
+| `npm test` | Framing, payload, prompt, and scene-text QA tests (no API key) |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run reframe -- --manifest examples/ols-reframe.manifest.json --dry-run` | Print remake payloads |
 | `npm run render-cta` | Write native 9:16 / 1:1 / 16:9 CTA PNGs |

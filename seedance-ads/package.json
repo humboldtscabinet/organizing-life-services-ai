@@ -17,7 +17,7 @@
     "render-cta": "tsx scripts/render-cta.ts",
     "restamp-cta": "tsx scripts/restamp-cta.ts",
     "typecheck": "tsc --noEmit",
-    "test": "tsx --test src/**/*.test.ts src/prompts/**/*.test.ts"
+    "test": "tsx --test \"src/**/*.test.ts\""
   },
   "keywords": [
     "seedance",

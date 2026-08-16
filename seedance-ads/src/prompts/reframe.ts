@@ -17,11 +17,12 @@ const NO_MONEY_UPFRONT = "No money upfront - we do the work, you get paid.";
 
 /**
  * Seedance treats "no on-screen text" as captions/watermarks and still
- * paints fake words onto boxes, stickers, and spines. Keep this wording
- * stable so tests can assert exact inclusion.
+ * paints fake lettering onto boxes. Real English labels are allowed;
+ * gibberish is not. Keep this wording stable so tests can assert exact
+ * inclusion.
  */
 export const NO_INVENTED_TEXT_RULE =
-  'Never invent readable text in the scene. Cardboard boxes, plastic bins, tape, shipping labels, stickers, price tags, book spines, newspapers, whiteboards, phone screens, clothing tags, and framed art must stay blank or show only empty printed lines — no real words, no misspellings, no gibberish letters, no fake barcodes or logos. Unlabeled brown boxes are correct. Invented names on box faces are not. If [Video 1] shows a blank box, keep it blank.';
+  "Do not add captions, logos, watermarks, phone numbers, websites, or call-to-action graphics. Environmental text is allowed only when it is real English, correctly spelled, in focus, and relevant to the room — Kitchen, Books, Fragile, or empty printed label lines. Never paint gibberish, misspellings, fake brands, letter-scribbles, or invented product names on boxes, bins, tape, stickers, spines, newspapers, screens, tags, or framed art. If you cannot render a real word cleanly, leave that surface blank. Do not typeset the Organizing Life Services lockup or CTA; that card is added later in ffmpeg.";
 
 const BOX_HEAVY_SERVICES = new Set<OlsService>([
   "liquidation",
@@ -31,8 +32,8 @@ const BOX_HEAVY_SERVICES = new Set<OlsService>([
   "estate-sales",
 ]);
 
-const BOX_HEAVY_TEXT_RULE =
-  "This service shows many boxes and bins. Every box, lid, tape strip, and sticker must be unmarked — no handwriting, no printed product names, no fake barcodes with text.";
+export const BOX_HEAVY_TEXT_RULE =
+  "This service shows many boxes and bins. Printed labels may stay if they are real English words in focus (Kitchen, Books, Fragile). Blank boxes and empty label lines are always correct. Gibberish, misspellings, and fake lettering on any box, lid, tape strip, or sticker are not.";
 
 /** SuperScale voiceover lines. Only estate-sales may use the no-money-upfront claim. */
 export const SERVICE_VOICEOVER: Record<OlsService, string> = {
@@ -62,7 +63,7 @@ export const SERVICE_LABEL: Record<OlsService, string> = {
   jewelry: "estate jewelry buying",
 };
 
-const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No on-screen text, logos, captions, or watermarks.
+const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No captions, logos, watermarks, phone numbers, or CTA graphics.
 
 ${NO_INVENTED_TEXT_RULE}
 

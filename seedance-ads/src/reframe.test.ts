@@ -5,6 +5,7 @@ import { FRAMING_CTA_RULES, hasFramingRule } from "./framing.ts";
 import {
   OLS_SERVICES,
   SERVICE_VOICEOVER,
+  BOX_HEAVY_TEXT_RULE,
   NO_INVENTED_TEXT_RULE,
   assertNoMoneyUpfrontGuard,
   assertNoInventedTextRule,
@@ -39,21 +40,24 @@ describe("reframe prompts", () => {
     assert.equal(prompt.includes("uploaded CTA card"), false);
   });
 
-  it("forbids invented words on boxes, labels, and other props", () => {
+  it("allows real English labels and forbids gibberish on props", () => {
     for (const service of OLS_SERVICES) {
       const prompt = buildReframePrompt(service, "1:1");
       assert.ok(
         prompt.includes(NO_INVENTED_TEXT_RULE),
         `${service} is missing the no-invented-text rule`,
       );
-      assert.ok(prompt.includes("gibberish letters"));
-      assert.ok(prompt.includes("Unlabeled brown boxes are correct"));
+      assert.ok(prompt.includes("real English"));
+      assert.ok(prompt.includes("Never paint gibberish"));
+      assert.ok(prompt.includes("leave that surface blank"));
+      assert.ok(prompt.includes("No captions, logos, watermarks"));
+      assert.equal(prompt.includes("No on-screen text, logos, captions, or watermarks"), false);
     }
 
     const boxed = buildReframePrompt("liquidation", "16:9");
-    assert.ok(boxed.includes("Every box, lid, tape strip, and sticker must be unmarked"));
+    assert.ok(boxed.includes(BOX_HEAVY_TEXT_RULE));
     const jewelry = buildReframePrompt("jewelry", "16:9");
-    assert.equal(jewelry.includes("Every box, lid, tape strip, and sticker must be unmarked"), false);
+    assert.equal(jewelry.includes(BOX_HEAVY_TEXT_RULE), false);
   });
 
   it("rejects a remake prompt that dropped the no-invented-text rule", () => {
