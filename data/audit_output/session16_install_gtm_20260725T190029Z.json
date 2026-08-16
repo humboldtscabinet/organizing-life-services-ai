@@ -1,0 +1,404 @@
+{
+  "script": "session16_install_gtm",
+  "dry_run": false,
+  "generated_at": "2026-07-25T18:59:11.942621+00:00",
+  "gtm_public_id": "GTM-KQ76X4NR",
+  "theme": {
+    "theme_id": 153690210458,
+    "asset": "layout/theme.liquid",
+    "marker": "OLS-GTM-INSTALL-V1",
+    "public_id": "GTM-KQ76X4NR",
+    "head": "insert",
+    "body": "insert",
+    "status": "updated",
+    "changed": true
+  },
+  "gtm_workspace": {
+    "dry_run": false,
+    "ga4_config": {
+      "status": "paused",
+      "tag_id": "3"
+    },
+    "tel_trigger": {
+      "status": "updated_waitForTags_true",
+      "trigger_id": "11"
+    },
+    "version": {
+      "version_id": "9",
+      "version_path": "accounts/6201388805/containers/168770630/versions/9",
+      "name": "OLS install GTM + pause GA4 config; waitForTags tel",
+      "notes": null,
+      "compiler_error": false,
+      "new_workspace_path": "accounts/6201388805/containers/168770630/workspaces/10",
+      "sync_status": null,
+      "raw": {
+        "containerVersion": {
+          "path": "accounts/6201388805/containers/168770630/versions/9",
+          "accountId": "6201388805",
+          "containerId": "168770630",
+          "containerVersionId": "9",
+          "name": "OLS install GTM + pause GA4 config; waitForTags tel",
+          "description": "Pause GTM GA4 Config to avoid double page_view with Shopify Google channel; waitForTags=true on OLS tel trigger.",
+          "container": {
+            "path": "accounts/6201388805/containers/168770630",
+            "accountId": "6201388805",
+            "containerId": "168770630",
+            "name": "www.organizinglifeservices.com",
+            "publicId": "GTM-KQ76X4NR",
+            "usageContext": [
+              "web"
+            ],
+            "fingerprint": "1697574483693",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/6201388805/containers/168770630/workspaces?apiLink=container",
+            "features": {
+              "supportUserPermissions": true,
+              "supportEnvironments": true,
+              "supportWorkspaces": true,
+              "supportGtagConfigs": false,
+              "supportBuiltInVariables": true,
+              "supportClients": false,
+              "supportFolders": true,
+              "supportTags": true,
+              "supportTemplates": true,
+              "supportTriggers": true,
+              "supportVariables": true,
+              "supportVersions": true,
+              "supportZones": true,
+              "supportTransformations": false
+            },
+            "tagIds": [
+              "GTM-KQ76X4NR"
+            ]
+          },
+          "tag": [
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "3",
+              "name": "GA4-Config-G-4HSTXZKG9E",
+              "type": "googtag",
+              "parameter": [
+                {
+                  "type": "template",
+                  "key": "tagId",
+                  "value": "G-4HSTXZKG9E"
+                }
+              ],
+              "fingerprint": "1785005992330",
+              "firingTriggerId": [
+                "2147479553"
+              ],
+              "paused": true,
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "5",
+              "name": "Google Ads Calls from Website Conversion",
+              "type": "awcc",
+              "parameter": [
+                {
+                  "type": "template",
+                  "key": "phoneConversionNumber",
+                  "value": "+17275426028"
+                },
+                {
+                  "type": "template",
+                  "key": "conversionId",
+                  "value": "980867760"
+                },
+                {
+                  "type": "template",
+                  "key": "conversionLabel",
+                  "value": "D9KzCL20h_sYELC129MD"
+                }
+              ],
+              "fingerprint": "1776821201740",
+              "firingTriggerId": [
+                "2147479553"
+              ],
+              "tagFiringOption": "oncePerEvent",
+              "monitoringMetadata": {
+                "type": "map"
+              },
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "6",
+              "name": "Conversion Linker",
+              "type": "gclidw",
+              "parameter": [
+                {
+                  "type": "boolean",
+                  "key": "enableCrossDomain",
+                  "value": "false"
+                },
+                {
+                  "type": "boolean",
+                  "key": "enableUrlPassthrough",
+                  "value": "false"
+                },
+                {
+                  "type": "boolean",
+                  "key": "enableCookieOverrides",
+                  "value": "false"
+                }
+              ],
+              "fingerprint": "1701270837300",
+              "firingTriggerId": [
+                "2147479553"
+              ],
+              "tagFiringOption": "oncePerEvent",
+              "monitoringMetadata": {
+                "type": "map"
+              },
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "9",
+              "name": "Event - Phone Call",
+              "type": "gaawe",
+              "parameter": [
+                {
+                  "type": "boolean",
+                  "key": "sendEcommerceData",
+                  "value": "false"
+                },
+                {
+                  "type": "template",
+                  "key": "eventName",
+                  "value": "phone_call_clicks"
+                },
+                {
+                  "type": "template",
+                  "key": "measurementIdOverride",
+                  "value": "G-4HSTXZKG9E"
+                }
+              ],
+              "fingerprint": "1785002815810",
+              "firingTriggerId": [
+                "8"
+              ],
+              "tagFiringOption": "oncePerEvent",
+              "paused": true,
+              "monitoringMetadata": {
+                "type": "map"
+              },
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "10",
+              "name": "Google Tag AW-980867760",
+              "type": "googtag",
+              "parameter": [
+                {
+                  "type": "template",
+                  "key": "tagId",
+                  "value": "AW-980867760"
+                }
+              ],
+              "fingerprint": "1776821497502",
+              "firingTriggerId": [
+                "2147479573"
+              ],
+              "tagFiringOption": "oncePerEvent",
+              "monitoringMetadata": {
+                "type": "map"
+              },
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "tagId": "12",
+              "name": "OLS - phone_call_clicks",
+              "type": "gaawe",
+              "parameter": [
+                {
+                  "type": "boolean",
+                  "key": "sendEcommerceData",
+                  "value": "false"
+                },
+                {
+                  "type": "template",
+                  "key": "eventName",
+                  "value": "phone_call_clicks"
+                },
+                {
+                  "type": "template",
+                  "key": "measurementIdOverride",
+                  "value": "G-4HSTXZKG9E"
+                }
+              ],
+              "fingerprint": "1785002513727",
+              "firingTriggerId": [
+                "11"
+              ],
+              "consentSettings": {
+                "consentStatus": "notSet"
+              }
+            }
+          ],
+          "trigger": [
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "triggerId": "8",
+              "name": "Trigger - Phone Call",
+              "type": "linkClick",
+              "filter": [
+                {
+                  "type": "contains",
+                  "parameter": [
+                    {
+                      "type": "template",
+                      "key": "arg0",
+                      "value": "{{Click URL}}"
+                    },
+                    {
+                      "type": "template",
+                      "key": "arg1",
+                      "value": "tel:"
+                    }
+                  ]
+                }
+              ],
+              "waitForTags": {
+                "type": "boolean",
+                "value": "false"
+              },
+              "checkValidation": {
+                "type": "boolean",
+                "value": "false"
+              },
+              "waitForTagsTimeout": {
+                "type": "template",
+                "value": "2000"
+              },
+              "uniqueTriggerId": {
+                "type": "template"
+              },
+              "fingerprint": "1701271572767"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "triggerId": "11",
+              "name": "OLS - tel link click",
+              "type": "linkClick",
+              "filter": [
+                {
+                  "type": "contains",
+                  "parameter": [
+                    {
+                      "type": "template",
+                      "key": "arg0",
+                      "value": "{{Click URL}}"
+                    },
+                    {
+                      "type": "template",
+                      "key": "arg1",
+                      "value": "tel:"
+                    }
+                  ]
+                }
+              ],
+              "waitForTags": {
+                "type": "boolean",
+                "value": "true"
+              },
+              "checkValidation": {
+                "type": "boolean",
+                "value": "false"
+              },
+              "waitForTagsTimeout": {
+                "type": "integer",
+                "value": "2000"
+              },
+              "uniqueTriggerId": {
+                "type": "template"
+              },
+              "fingerprint": "1785006013845"
+            }
+          ],
+          "variable": [
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "variableId": "7",
+              "name": "URL",
+              "type": "u",
+              "parameter": [
+                {
+                  "type": "template",
+                  "key": "component",
+                  "value": "URL"
+                }
+              ],
+              "fingerprint": "1701271291724",
+              "formatValue": {}
+            }
+          ],
+          "builtInVariable": [
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "pageUrl",
+              "name": "Page URL"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "pageHostname",
+              "name": "Page Hostname"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "pagePath",
+              "name": "Page Path"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "referrer",
+              "name": "Referrer"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "event",
+              "name": "Event"
+            },
+            {
+              "accountId": "6201388805",
+              "containerId": "168770630",
+              "type": "clickUrl",
+              "name": "Click URL"
+            }
+          ],
+          "fingerprint": "1785006031243",
+          "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6201388805/containers/168770630/versions/9?apiLink=version"
+        },
+        "newWorkspacePath": "accounts/6201388805/containers/168770630/workspaces/10"
+      }
+    }
+  }
+}
