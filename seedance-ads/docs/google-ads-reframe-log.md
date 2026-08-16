@@ -26,7 +26,7 @@ google-ads/{service}/{id}-{ratio}.mp4
 
 **23** keepers remain in `google-ads/{service}/`. Removed for quality: `cleanouts-01-16x9.mp4` (glitch); `liquidation-01-16x9.mp4`, `liquidation-02-16x9.mp4`, `liquidation-02-1x1.mp4` (gibberish box labels); `listing-prep-01-16x9.mp4` (quality issue). Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
 
-Post-upload audit (2026-08-16): [`google-ads-upload-audit-2026-08-16.md`](google-ads-upload-audit-2026-08-16.md). Live Ads API was not queried. Newly flagged for the same box-label issue: `downsizing-01-16x9.mp4`, `cleanouts-02-16x9.mp4`.
+Post-upload audit (2026-08-16): [`google-ads-upload-audit-2026-08-16.md`](google-ads-upload-audit-2026-08-16.md). Live Ads API was not queried. Sampled box-label artifacts on `downsizing-01-16x9.mp4` and `cleanouts-02-16x9.mp4` were noted; **operator kept both files**.
 
 ## Estate-sales keepers (2026-08-14)
 
