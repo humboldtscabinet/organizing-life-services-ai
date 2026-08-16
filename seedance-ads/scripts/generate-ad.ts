@@ -12,6 +12,7 @@ import { config as loadEnv } from "dotenv";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { z } from "zod";
+import { resolveNamedBrief, type NamedBrief } from "../src/brand.ts";
 import { SeedanceClient, prepareGeneration } from "../src/client.ts";
 import { FRAMING_RULES, hasFramingRule } from "../src/framing.ts";
 import { logger } from "../src/logger.ts";
@@ -34,11 +35,13 @@ const HELP = `
 seedance-ads — Google Ads video generation via ByteDance Seedance
 
 USAGE
+  npx tsx scripts/generate-ad.ts --brief ols --ratio 9:16
+  npx tsx scripts/generate-ad.ts --brief ols --all
   npx tsx scripts/generate-ad.ts --prompt "<brief>" --ratio 9:16
-  npx tsx scripts/generate-ad.ts --prompt "<brief>" --all
-  npm run generate -- --prompt "<brief>" --ratio 1:1
+  npm run generate -- --brief ols --ratio 9:16
 
-REQUIRED
+REQUIRED (one of)
+  --brief ols              Use the OLS brand brief + real sale photos
   --prompt <text>          Creative brief. Framing is appended automatically.
 
 RATIO
@@ -48,9 +51,9 @@ RATIO
 OPTIONS
   --duration <seconds>     Clip length (default: ${DEFAULT_DURATION_SECONDS}; Seedance 2.5: 4–30)
   --image <url>            First-frame image URL for image-to-video
-  --last-frame <url>       CTA / last-frame image URL
+  --last-frame <url>       CTA / last-frame image URL (required for a CTA hold)
   --cta <url>              Alias for --last-frame
-  --reference-image <url>  Repeatable reference still URL
+  --reference-image <url>  Repeatable reference still URL (overrides --brief stills)
   --reference-video <url>  Repeatable reference clip URL
   --audio                  Request synchronized audio (Seevio default: on)
   --resolution 480p|720p|1080p   Default: 720p (Seedance 2.5 max is 720p)
@@ -101,7 +104,8 @@ function parseArgv(argv: string[]): Record<string, FlagValue> {
 }
 
 const cliSchema = z.object({
-  prompt: z.string().min(1),
+  prompt: z.string().min(1).optional(),
+  brief: z.enum(["ols"]).optional(),
   ratio: aspectRatioSchema.optional(),
   all: z.boolean().optional(),
   duration: z.coerce.number().int().min(4).max(30).optional(),
@@ -119,7 +123,7 @@ const cliSchema = z.object({
   help: z.boolean().optional(),
 });
 
-function flagsToOptions(flags: z.infer<typeof cliSchema>): GenerateAdOptions {
+function flagsToOptions(flags: z.infer<typeof cliSchema> & { prompt: string }): GenerateAdOptions {
   return generateAdOptionsSchema.parse({
     prompt: flags.prompt,
     aspectRatio: flags.ratio ?? "9:16",
@@ -160,14 +164,21 @@ async function main(): Promise<void> {
   }
 
   const parsedFlags = cliSchema.parse(parseArgv(rawArgv));
+  if (parsedFlags.brief) {
+    const brand = resolveNamedBrief(parsedFlags.brief as NamedBrief);
+    parsedFlags.prompt ??= brand.prompt;
+    if (!parsedFlags["reference-image"]?.length) {
+      parsedFlags["reference-image"] = brand.referenceImages;
+    }
+  }
   if (!parsedFlags.prompt) {
-    throw new Error("--prompt is required");
+    throw new Error("--prompt is required unless --brief ols");
   }
   if (parsedFlags.ratio && parsedFlags.all) {
     throw new Error("Use either --ratio or --all, not both");
   }
 
-  const options = flagsToOptions(parsedFlags);
+  const options = flagsToOptions({ ...parsedFlags, prompt: parsedFlags.prompt });
   const model = parsedFlags.model ?? process.env.SEEDANCE_MODEL ?? DEFAULT_SEEDANCE_MODEL;
   const ratios: readonly AspectRatio[] = parsedFlags.all ? ASPECT_RATIOS : [options.aspectRatio ?? "9:16"];
 

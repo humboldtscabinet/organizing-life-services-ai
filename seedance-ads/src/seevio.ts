@@ -67,12 +67,25 @@ function requirePublicUrl(value: string, label: string): string {
   return value;
 }
 
-function apiErrorMessage(status: number, body: unknown): string {
+export function formatSeevioApiError(status: number, body: unknown): string {
   if (body && typeof body === "object" && "error" in body) {
-    const error = (body as { error?: { code?: string; message?: string } }).error;
+    const error = (
+      body as {
+        error?: {
+          code?: string;
+          message?: string;
+          required?: number;
+          available?: number;
+        };
+      }
+    ).error;
     const code = error?.code ? `${error.code}: ` : "";
     const message = error?.message ?? JSON.stringify(body);
-    return `Seevio HTTP ${status} ${code}${message}`;
+    const extras: string[] = [];
+    if (typeof error?.required === "number") extras.push(`required=${error.required}`);
+    if (typeof error?.available === "number") extras.push(`available=${error.available}`);
+    const suffix = extras.length ? ` (${extras.join(", ")})` : "";
+    return `Seevio HTTP ${status} ${code}${message}${suffix}`;
   }
   return `Seevio HTTP ${status}: ${typeof body === "string" ? body : JSON.stringify(body)}`;
 }
@@ -108,6 +121,14 @@ export function buildSeevioPayload(
   if (options.referenceImages?.length) {
     for (const [index, url] of options.referenceImages.entries()) {
       imageUrls.push(requirePublicUrl(url, `referenceImages[${index}]`));
+    }
+  }
+  // reference-to-video cannot use first+last-frame mode. Put the CTA first
+  // so prompts can call it [Image 1].
+  if (generationType === "reference-to-video" && options.lastFrameImage) {
+    const cta = requirePublicUrl(options.lastFrameImage, "lastFrameImage");
+    if (!imageUrls.includes(cta)) {
+      imageUrls.unshift(cta);
     }
   }
 
@@ -162,7 +183,7 @@ export class SeevioApi {
 
     const body = (await response.json().catch(() => ({}))) as SeevioCreateTaskResponse;
     if (!response.ok) {
-      throw new Error(apiErrorMessage(response.status, body));
+      throw new Error(formatSeevioApiError(response.status, body));
     }
     if (!body.taskId) {
       throw new Error(`Seevio accepted the request but returned no taskId: ${JSON.stringify(body)}`);
@@ -179,7 +200,7 @@ export class SeevioApi {
     });
     const body = (await response.json().catch(() => ({}))) as SeevioTaskResponse;
     if (!response.ok) {
-      throw new Error(apiErrorMessage(response.status, body));
+      throw new Error(formatSeevioApiError(response.status, body));
     }
     return body;
   }

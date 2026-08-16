@@ -6,6 +6,7 @@ import {
   NoVideoGeneratedError,
 } from "ai";
 import { config as loadEnv } from "dotenv";
+import { appendReferenceGuidance, TEXT_TO_VIDEO_ACCURACY_WARNING } from "./brand.ts";
 import { buildPrompt, hasFramingRule } from "./framing.ts";
 import { logger } from "./logger.ts";
 import {
@@ -110,7 +111,18 @@ export function prepareGeneration(
   model: string,
 ): PreparedGeneration {
   const aspectRatio = options.aspectRatio;
-  const framedPrompt = buildPrompt(options.prompt, aspectRatio);
+  const hasReferences = Boolean(
+    options.referenceImages?.length ||
+      options.referenceVideos?.length ||
+      options.referenceAudio?.length,
+  );
+  const guidedPrompt = appendReferenceGuidance(
+    options.prompt,
+    options.referenceImages?.length ?? 0,
+  );
+  const framedPrompt = buildPrompt(guidedPrompt, aspectRatio, {
+    hasCtaCard: Boolean(options.lastFrameImage),
+  });
 
   if (!hasFramingRule(framedPrompt, aspectRatio)) {
     throw new Error(
@@ -124,11 +136,18 @@ export function prepareGeneration(
   );
   const { duration, warning: durationWarning } = clampDuration(model, options.duration);
   const pixelResolution = PIXEL_RESOLUTION[resolution][aspectRatio];
-  const mode = options.image ? "image-to-video" : "text-to-video";
+  const mode = options.image
+    ? "image-to-video"
+    : hasReferences
+      ? "reference-to-video"
+      : "text-to-video";
   const warnings: string[] = [];
 
   if (resolutionWarning) warnings.push(resolutionWarning);
   if (durationWarning) warnings.push(durationWarning);
+  if (mode === "text-to-video") {
+    warnings.push(TEXT_TO_VIDEO_ACCURACY_WARNING);
+  }
 
   let sdkAspectRatio: AspectRatio | "adaptive" = aspectRatio;
   if (mode === "image-to-video") {
