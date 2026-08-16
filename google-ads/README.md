@@ -9,7 +9,7 @@ Finished **1:1** and **16:9** ads, one folder per service. Right-click a file â†
 | [estate-sales/](estate-sales/) | 4 keepers |
 | [liquidation/](liquidation/) | 4 keepers |
 | [downsizing/](downsizing/) | 4 keepers |
-| [cleanouts/](cleanouts/) | 4 keepers |
+| [cleanouts/](cleanouts/) | 3 keepers (`cleanouts-01-16x9` removed â€” glitch) |
 | [listing-prep/](listing-prep/) | 4 keepers |
 | [appraisals/](appraisals/) | 4 keepers |
 
