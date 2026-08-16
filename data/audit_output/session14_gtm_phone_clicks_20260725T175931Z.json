@@ -1,0 +1,89 @@
+{
+  "script": "session14_gtm_phone_clicks",
+  "started_at": "2026-07-25T17:59:28.237320+00:00",
+  "apply": false,
+  "publish": false,
+  "ensure": {
+    "status": "dry_run",
+    "dry_run": true,
+    "workspace_path": "accounts/6201388805/containers/168770630/workspaces/7",
+    "container_path": "accounts/6201388805/containers/168770630",
+    "trigger": {
+      "action": "would_create",
+      "name": "OLS - tel link click",
+      "body": {
+        "name": "OLS - tel link click",
+        "type": "linkClick",
+        "filter": [
+          {
+            "type": "contains",
+            "parameter": [
+              {
+                "type": "template",
+                "key": "arg0",
+                "value": "{{Click URL}}"
+              },
+              {
+                "type": "template",
+                "key": "arg1",
+                "value": "tel:"
+              }
+            ]
+          }
+        ],
+        "waitForTags": {
+          "type": "boolean",
+          "value": "false"
+        },
+        "checkValidation": {
+          "type": "boolean",
+          "value": "false"
+        },
+        "waitForTagsTimeout": {
+          "type": "integer",
+          "value": "2000"
+        }
+      }
+    },
+    "tag": {
+      "action": "would_create",
+      "name": "OLS - phone_call_clicks",
+      "body": {
+        "name": "OLS - phone_call_clicks",
+        "type": "gaawe",
+        "parameter": [
+          {
+            "type": "boolean",
+            "key": "sendEcommerceData",
+            "value": "false"
+          },
+          {
+            "type": "template",
+            "key": "eventName",
+            "value": "phone_call_clicks"
+          },
+          {
+            "type": "template",
+            "key": "measurementIdOverride",
+            "value": "G-4HSTXZKG9E"
+          }
+        ],
+        "firingTriggerId": [
+          "PENDING_CREATE"
+        ],
+        "paused": false
+      }
+    },
+    "version": null,
+    "would_create": [
+      "trigger:OLS - tel link click",
+      "tag:OLS - phone_call_clicks"
+    ],
+    "unchanged": [],
+    "updated": [],
+    "created": [],
+    "publish_required": true,
+    "note": "Workspace/version only \u2014 call publish_version separately after human_confirmed + judge_verdict=PASS."
+  },
+  "finished_at": "2026-07-25T17:59:31.492107+00:00"
+}

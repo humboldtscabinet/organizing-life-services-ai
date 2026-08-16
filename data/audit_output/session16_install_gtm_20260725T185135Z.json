@@ -1,0 +1,27 @@
+{
+  "script": "session16_install_gtm",
+  "dry_run": true,
+  "generated_at": "2026-07-25T18:50:48.758969+00:00",
+  "gtm_public_id": "GTM-KQ76X4NR",
+  "theme": {
+    "theme_id": 153690210458,
+    "asset": "layout/theme.liquid",
+    "marker": "OLS-GTM-INSTALL-V1",
+    "public_id": "GTM-KQ76X4NR",
+    "head": "insert",
+    "body": "insert",
+    "status": "would_update",
+    "changed": true
+  },
+  "gtm_workspace": {
+    "dry_run": true,
+    "ga4_config": {
+      "status": "would_pause",
+      "tag_id": "3"
+    },
+    "tel_trigger": {
+      "status": "would_set_waitForTags_true",
+      "trigger_id": "11"
+    }
+  }
+}
