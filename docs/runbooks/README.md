@@ -10,6 +10,7 @@ Step-by-step operational procedures for common tasks. Each runbook is self-conta
 - [gtm-write-and-publish.md](gtm-write-and-publish.md) — gated GTM workspace writes, version create, and live publish
 - [gcp-apis-to-enable.md](gcp-apis-to-enable.md) — which Google Cloud APIs to enable (and not enable) for OLS
 - [google-api-access.md](../google-api-access.md) — per-product read/write status and completion plan
+- [complete-google-api-access.md](complete-google-api-access.md) — ordered you+agent playbook (probe, Ads OAuth, GA4/GTM, GBP)
 - [push-meta-rewrites.md](push-meta-rewrites.md) — push title/meta changes to Shopify
 - [service-guardrails-homepage-ctr.md](service-guardrails-homepage-ctr.md) — noindex fee products + homepage organizers CTR apply
 - [deploy-schema-snippet.md](deploy-schema-snippet.md) — update the Shopify JSON-LD schema snippet

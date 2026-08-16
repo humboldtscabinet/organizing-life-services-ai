@@ -110,7 +110,17 @@ Rule of thumb: if an API does not improve **phone/form leads**, **measurement tr
 
 ## Verify Admin API (Mac mini)
 
-There is no host `.venv` on the mini — use the API container:
+There is no host `.venv` on the mini — use the API container.
+
+**Full probe (Admin + GSC + GTM + Sheets + GBP):** see
+[complete-google-api-access.md](complete-google-api-access.md) Task 1, or:
+
+```bash
+cd /Users/aiagentecosystem/services/ols
+docker exec -i --env-file .env ols-api python3 - < scripts/probe_google_apis.py
+```
+
+Admin-only snippet:
 
 ```bash
 cd /Users/aiagentecosystem/services/ols
@@ -150,6 +160,7 @@ PY
 ## Related
 
 - [google-api-access.md](../google-api-access.md) — live vs blocked access and the completion plan
+- [complete-google-api-access.md](complete-google-api-access.md) — ordered you+agent playbook
 - [ga4-key-event-cleanup.md](ga4-key-event-cleanup.md) — UI cleanup + Admin API note
 - [gtm-write-and-publish.md](gtm-write-and-publish.md) — GTM SA Publish permission
 - [improve-google-analytics.md](improve-google-analytics.md) — measurement guide

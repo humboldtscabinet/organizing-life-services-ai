@@ -170,8 +170,8 @@ scope. Share the dashboard spreadsheet with the SA as Editor.
 
 ## Completion plan
 
-Do these in order. Each step is a permission or credential change, then a
-verify command. Do not enable unused Marketing Platform products.
+Do these in order. Copy-paste playbook (you vs agent, stop gates):
+[runbooks/complete-google-api-access.md](runbooks/complete-google-api-access.md).
 
 ### 1. Re-verify what the SA can call (Mac mini)
 
