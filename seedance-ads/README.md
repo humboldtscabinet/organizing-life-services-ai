@@ -81,6 +81,7 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
 ├── docs/google-ads-reframe-log.md  Keeper status for all 14 sources
+├── docs/google-ads-upload-audit-2026-08-16.md  Post-upload PMax / quality audit
 ├── docs/jewelry-reframe-log.md     First live jewelry batch (2026-08-14)
 ├── scripts/reframe-ad.ts         Production remake + Shopify CTA replace
 ├── scripts/render-cta.ts         Native 9:16 / 1:1 / 16:9 CTA stills
