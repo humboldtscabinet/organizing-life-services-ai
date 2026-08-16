@@ -59,11 +59,22 @@ export { parseReframeManifest, filterManifestByService, reframeManifestSchema } 
 export {
   OLS_SERVICES,
   SERVICE_VOICEOVER,
+  BOX_HEAVY_TEXT_RULE,
+  NO_INVENTED_TEXT_RULE,
   buildReframePrompt,
   buildReframeGenerateOptions,
 } from "./prompts/reframe.ts";
 export type { OlsService } from "./prompts/reframe.ts";
-export { writeAllCtaCanvases, writeCtaCanvas } from "./cta.ts";
+export {
+  writeAllCtaCanvases,
+  writeCtaCanvas,
+  cropCtaLockup,
+  CTA_BACKGROUND,
+  CTA_COPY,
+  CTA_COPY_STRINGS,
+  CTA_PAD_COLOR,
+} from "./cta.ts";
+export type { CtaLayout } from "./cta.ts";
 export {
   appendCtaHold,
   downloadToFile,
@@ -80,3 +91,19 @@ export type {
   StoredAsset,
   VariantFactory,
 } from "./agents/contracts.ts";
+export {
+  classifySceneText,
+  classifyToken,
+  tokenizeSceneText,
+} from "./qa/sceneText.ts";
+export type { ClassifiedToken, SceneTextReport, TokenVerdict } from "./qa/sceneText.ts";
+export {
+  SCENE_TEXT_SAMPLE_SECONDS,
+  SceneTextQaAgent,
+  SceneTextQaError,
+  TesseractMissingError,
+  bodySampleTimes,
+  requireTesseract,
+  reviewBodyVideo,
+  tesseractAvailable,
+} from "./qa/sceneTextQa.ts";

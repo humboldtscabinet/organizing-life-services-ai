@@ -33,6 +33,7 @@ import {
   OLS_SERVICES,
   buildReframeGenerateOptions,
 } from "../src/prompts/reframe.ts";
+import { SceneTextQaAgent, SceneTextQaError, requireTesseract } from "../src/qa/sceneTextQa.ts";
 import { buildSeevioPayload } from "../src/seevio.ts";
 import {
   CTA_HOLD_SECONDS,
@@ -67,11 +68,14 @@ OPTIONS
   --with-vertical          Also write 9:16 with the original end-card replaced (ffmpeg only)
   --output <dir>           Override manifest outputDir (keepers: {dir}/{service}/*.mp4)
   --skip-existing          Skip a ratio when the keeper MP4 already exists
+  --skip-scene-text-qa     Skip OCR of body frames (can ship gibberish box labels)
   --dry-run                Print Seevio payloads; no API call, no ffmpeg
   --help                   Show this message
 
 Seedance remakes match the source length (~${REFRAME_BODY_SECONDS}s). ffmpeg replaces the last ${CTA_HOLD_SECONDS}s with the Shopify CTA and muxes the original voiceover.
 Seevio requires public HTTPS URLs. ffmpeg must be on PATH for live compose.
+Live remakes also require tesseract (apt install tesseract-ocr) unless --skip-scene-text-qa.
+Scene-text QA samples body frames before the CTA, fails the keeper on gibberish, and does not retry (credits already spent).
 `.trim();
 
 type FlagValue = string | boolean;
@@ -84,7 +88,13 @@ function parseArgv(argv: string[]): Record<string, FlagValue> {
       throw new Error(`Unexpected argument: ${token}`);
     }
     const key = token.slice(2);
-    if (key === "help" || key === "dry-run" || key === "with-vertical" || key === "skip-existing") {
+    if (
+      key === "help" ||
+      key === "dry-run" ||
+      key === "with-vertical" ||
+      key === "skip-existing" ||
+      key === "skip-scene-text-qa"
+    ) {
       flags[key] = true;
       continue;
     }
@@ -107,6 +117,7 @@ const cliSchema = z.object({
   output: z.string().min(1).optional(),
   "with-vertical": z.boolean().optional(),
   "skip-existing": z.boolean().optional(),
+  "skip-scene-text-qa": z.boolean().optional(),
   "dry-run": z.boolean().optional(),
   help: z.boolean().optional(),
 });
@@ -227,6 +238,7 @@ async function remakeRatio(opts: {
   outputDir: string;
   client: SeedanceClient;
   skipExisting: boolean;
+  skipSceneTextQa: boolean;
 }): Promise<string> {
   const workDir = workDirFor(opts.outputDir, opts.video.service, opts.video.id);
   const serviceDir = serviceKeeperDir(opts.outputDir, opts.video.service);
@@ -277,6 +289,23 @@ async function remakeRatio(opts: {
   if (!result.videoPath) {
     throw new Error(`Seedance returned no local file for ${opts.video.id} ${opts.aspectRatio}`);
   }
+
+  if (!opts.skipSceneTextQa) {
+    const framesDir = resolve(workDir, "qa", ratioFileToken(opts.aspectRatio));
+    const agent = new SceneTextQaAgent({ framesDir });
+    const verdict = await agent.review(result);
+    if (!verdict.pass) {
+      throw new SceneTextQaError(
+        `Scene-text QA failed for ${opts.video.id} ${opts.aspectRatio}. Body left at ${result.videoPath} (credits already spent; not retrying). ${verdict.notes.join(" ")}`,
+        {
+          verdict,
+          bodyVideoPath: result.videoPath,
+          reportPath: resolve(framesDir, "scene-text-qa.json"),
+        },
+      );
+    }
+  }
+
   await replaceEndingWithCta({
     bodyVideoPath: result.videoPath,
     sourceAudioPath: opts.sourcePath,
@@ -298,6 +327,7 @@ async function main(): Promise<void> {
   const flags = cliSchema.parse(parseArgv(rawArgv));
   const withVertical = Boolean(flags["with-vertical"]);
   const skipExisting = Boolean(flags["skip-existing"]);
+  const skipSceneTextQa = Boolean(flags["skip-scene-text-qa"]);
   const ratios = parseRatios(flags.ratios, withVertical);
   const manifest = await loadManifest(flags);
   const model = process.env.SEEDANCE_MODEL ?? DEFAULT_SEEDANCE_MODEL;
@@ -308,6 +338,11 @@ async function main(): Promise<void> {
   }
 
   await requireFfmpeg();
+  if (skipSceneTextQa) {
+    logger.warn("Skipping scene-text QA; gibberish box labels can ship.");
+  } else {
+    await requireTesseract();
+  }
   const staging = resolve(manifest.outputDir, "_cta");
   await mkdir(staging, { recursive: true });
   for (const service of OLS_SERVICES) {
@@ -338,6 +373,7 @@ async function main(): Promise<void> {
           outputDir: manifest.outputDir,
           client,
           skipExisting,
+          skipSceneTextQa,
         });
         logger.info("Reframe ready", {
           id: video.id,
@@ -349,6 +385,12 @@ async function main(): Promise<void> {
         failed += 1;
         const message = error instanceof Error ? error.message : String(error);
         logger.error(`Failed ${video.id} ${aspectRatio}: ${message}`);
+        if (error instanceof SceneTextQaError) {
+          logger.error("Scene-text QA rejected this remake; not writing a keeper and not retrying.", {
+            body: error.bodyVideoPath,
+            report: error.reportPath,
+          });
+        }
         if (message.includes("insufficient_credits")) {
           logger.error("Stopping remaining remakes until Seevio credits are topped up.");
           process.exit(2);

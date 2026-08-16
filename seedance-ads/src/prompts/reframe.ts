@@ -15,6 +15,26 @@ export type OlsService = (typeof OLS_SERVICES)[number];
 
 const NO_MONEY_UPFRONT = "No money upfront - we do the work, you get paid.";
 
+/**
+ * Seedance treats "no on-screen text" as captions/watermarks and still
+ * paints fake lettering onto boxes. Real English labels are allowed;
+ * gibberish is not. Keep this wording stable so tests can assert exact
+ * inclusion.
+ */
+export const NO_INVENTED_TEXT_RULE =
+  "Do not add captions, logos, watermarks, phone numbers, websites, or call-to-action graphics. Environmental text is allowed only when it is real English, correctly spelled, in focus, and relevant to the room — Kitchen, Books, Fragile, or empty printed label lines. Never paint gibberish, misspellings, fake brands, letter-scribbles, or invented product names on boxes, bins, tape, stickers, spines, newspapers, screens, tags, or framed art. If you cannot render a real word cleanly, leave that surface blank. Do not typeset the Organizing Life Services lockup or CTA; that card is added later in ffmpeg.";
+
+const BOX_HEAVY_SERVICES = new Set<OlsService>([
+  "liquidation",
+  "downsizing",
+  "cleanouts",
+  "listing-prep",
+  "estate-sales",
+]);
+
+export const BOX_HEAVY_TEXT_RULE =
+  "This service shows many boxes and bins. Printed labels may stay if they are real English words in focus (Kitchen, Books, Fragile). Blank boxes and empty label lines are always correct. Gibberish, misspellings, and fake lettering on any box, lid, tape strip, or sticker are not.";
+
 /** SuperScale voiceover lines. Only estate-sales may use the no-money-upfront claim. */
 export const SERVICE_VOICEOVER: Record<OlsService, string> = {
   "estate-sales":
@@ -43,18 +63,30 @@ export const SERVICE_LABEL: Record<OlsService, string> = {
   jewelry: "estate jewelry buying",
 };
 
-const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No on-screen text, logos, captions, or watermarks.
+const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No captions, logos, watermarks, phone numbers, or CTA graphics.
+
+${NO_INVENTED_TEXT_RULE}
 
 Skip the original end-card entirely. Do not recreate any logo screen, phone number, website, "Call Today" card, or call-to-action graphic from [Video 1]. End on live-action only. The branded CTA is added later in ffmpeg — do not generate one.`;
 
 export function buildReframePrompt(service: OlsService, _aspectRatio: AspectRatio): string {
   const voiceover = SERVICE_VOICEOVER[service];
   const label = SERVICE_LABEL[service];
-  return [
+  const parts = [
     RECREATE_CORE,
     `This is an Organizing Life Services ${label} ad.`,
     `Voiceover (keep verbatim): "${voiceover}"`,
-  ].join("\n\n");
+  ];
+  if (BOX_HEAVY_SERVICES.has(service)) {
+    parts.push(BOX_HEAVY_TEXT_RULE);
+  }
+  return parts.join("\n\n");
+}
+
+export function assertNoInventedTextRule(prompt: string): void {
+  if (!prompt.includes(NO_INVENTED_TEXT_RULE)) {
+    throw new Error("Reframe prompt is missing the no-invented-text rule.");
+  }
 }
 
 export function assertNoMoneyUpfrontGuard(service: OlsService, prompt: string): void {
@@ -75,6 +107,7 @@ export function buildReframeGenerateOptions(opts: {
 }): GenerateAdOptions {
   const prompt = buildReframePrompt(opts.service, opts.aspectRatio);
   assertNoMoneyUpfrontGuard(opts.service, prompt);
+  assertNoInventedTextRule(prompt);
   return {
     prompt,
     aspectRatio: opts.aspectRatio,

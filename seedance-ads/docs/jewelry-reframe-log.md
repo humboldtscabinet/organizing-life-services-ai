@@ -21,7 +21,7 @@ MP4s for download live in [`google-ads/jewelry/`](../../google-ads/jewelry/). Se
 
 Cannot losslessly re-aspect 9:16 → 1:1 / 16:9. Seedance 2.5 regenerates the new ratio from `[Video 1]`. ffmpeg then:
 
-1. **Replaces** the last 3 seconds with [`OLS_CTA_Card_Google_Ads.png`](https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544) (contain, cream pad `#F7F4EE`, no stretch).
+1. **Replaces** the last 3 seconds with a native-ratio CTA canvas from [`OLS_CTA_Card_Google_Ads.png`](https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544) (logo lockup kept as original pixels; copy is the locked Shopify wording, never sent through Seedance).
 2. **Muxes the original source voiceover** onto the remake (the original VO already ends before the end-card, so the CTA hold is silent like the masters).
 
 ## How

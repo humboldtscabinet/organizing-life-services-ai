@@ -103,6 +103,8 @@ security/history-scrub/reports/
 # ---------- Google Ads remake work files (keepers in google-ads/{service}/ are tracked) ----------
 google-ads/_work/
 google-ads/_cta/
+google-ads/cta/_source/
+google-ads/cta/_native/
 
 # ---------- Allow versioned SEO audit JSON despite *.json rule ----------
 !data/audit_output/*.json

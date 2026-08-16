@@ -5,7 +5,10 @@ import { FRAMING_CTA_RULES, hasFramingRule } from "./framing.ts";
 import {
   OLS_SERVICES,
   SERVICE_VOICEOVER,
+  BOX_HEAVY_TEXT_RULE,
+  NO_INVENTED_TEXT_RULE,
   assertNoMoneyUpfrontGuard,
+  assertNoInventedTextRule,
   buildReframeGenerateOptions,
   buildReframePrompt,
 } from "./prompts/reframe.ts";
@@ -35,6 +38,33 @@ describe("reframe prompts", () => {
     const prompt = buildReframePrompt("jewelry", "1:1");
     assert.ok(prompt.includes("Skip the original end-card"));
     assert.equal(prompt.includes("uploaded CTA card"), false);
+  });
+
+  it("allows real English labels and forbids gibberish on props", () => {
+    for (const service of OLS_SERVICES) {
+      const prompt = buildReframePrompt(service, "1:1");
+      assert.ok(
+        prompt.includes(NO_INVENTED_TEXT_RULE),
+        `${service} is missing the no-invented-text rule`,
+      );
+      assert.ok(prompt.includes("real English"));
+      assert.ok(prompt.includes("Never paint gibberish"));
+      assert.ok(prompt.includes("leave that surface blank"));
+      assert.ok(prompt.includes("No captions, logos, watermarks"));
+      assert.equal(prompt.includes("No on-screen text, logos, captions, or watermarks"), false);
+    }
+
+    const boxed = buildReframePrompt("liquidation", "16:9");
+    assert.ok(boxed.includes(BOX_HEAVY_TEXT_RULE));
+    const jewelry = buildReframePrompt("jewelry", "16:9");
+    assert.equal(jewelry.includes(BOX_HEAVY_TEXT_RULE), false);
+  });
+
+  it("rejects a remake prompt that dropped the no-invented-text rule", () => {
+    assert.throws(
+      () => assertNoInventedTextRule("Recreate [Video 1]. No on-screen text."),
+      /no-invented-text/,
+    );
   });
 
   it("rejects a jewelry prompt that smuggles the estate-sales claim", () => {
@@ -70,6 +100,7 @@ describe("reframe generate options", () => {
     assert.equal(payload.input.prompt.includes(FRAMING_CTA_RULES["16:9"]), false);
     assert.ok(payload.input.prompt.includes("[Video 1]"));
     assert.ok(payload.input.prompt.includes("Skip the original end-card"));
+    assert.ok(payload.input.prompt.includes(NO_INVENTED_TEXT_RULE));
     assert.equal(payload.input.prompt.includes("[Image 1]"), false);
     assert.equal(payload.input.prompt.toLowerCase().includes("no money upfront"), false);
   });
