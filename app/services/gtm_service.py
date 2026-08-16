@@ -725,6 +725,21 @@ def ensure_phone_call_clicks_tracking(
     }
 
 
+def phone_click_ensure_needed() -> dict[str, Any]:
+    """Dry-run whether tel: → phone_call_clicks needs workspace writes.
+
+    Never creates a version. Version snapshots happen only on Apply.
+    """
+    plan = ensure_phone_call_clicks_tracking(
+        dry_run=True,
+        create_version_after=False,
+    )
+    trigger_action = (plan.get("trigger") or {}).get("action")
+    tag_action = (plan.get("tag") or {}).get("action")
+    needed = trigger_action != "unchanged" or tag_action != "unchanged"
+    return {"needed": needed, "plan": plan}
+
+
 # ===================== Audit =====================
 
 def audit_container() -> dict:

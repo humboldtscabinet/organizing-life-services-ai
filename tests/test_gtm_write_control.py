@@ -316,3 +316,19 @@ def test_gtm_publish_runs_after_pass(client, auth_headers, monkeypatch):
     body = response.json()
     assert body["status"] == "success"
     assert body["result"]["version_path"] == "accounts/1/containers/2/versions/3"
+
+
+def test_phone_click_ensure_needed_ignores_version_snapshot(gtm_env, monkeypatch):
+    from app.services import gtm_service as gs
+
+    trigger = _tel_trigger()
+    tag = _phone_tag()
+    monkeypatch.setattr(gs, "list_triggers", lambda **_: [trigger])
+    monkeypatch.setattr(gs, "list_tags", lambda **_: [tag])
+    monkeypatch.setattr(
+        gs, "_default_workspace", lambda: "accounts/111/containers/222/workspaces/1"
+    )
+
+    probe = gs.phone_click_ensure_needed()
+    assert probe["needed"] is False
+    assert probe["plan"]["version"] is None

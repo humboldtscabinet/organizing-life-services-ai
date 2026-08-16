@@ -89,6 +89,8 @@ def infer_error_status_code(detail: str, default: int = 500) -> int:
             "policy blocked",
             "disabled by policy",
             "service business",
+            "permanently refused",
+            "never apply",
         )
     ):
         return 403
@@ -102,6 +104,7 @@ def infer_error_status_code(detail: str, default: int = 500) -> int:
             "already exists",
             "already approved",
             "already dismissed",
+            "high-stakes",
         )
     ):
         return 409
@@ -115,6 +118,9 @@ def infer_error_status_code(detail: str, default: int = 500) -> int:
             "required",
             "no data provided",
             "no files found",
+            "advisory",
+            "not allowlisted",
+            "not implemented",
         )
     ):
         return 400

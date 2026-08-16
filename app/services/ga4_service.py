@@ -240,5 +240,53 @@ def pull_ga4_data(
         "start_date": start_date.isoformat(),
         "end_date": end_date.isoformat(),
         "rows_inserted": inserted,
-            "rows_updated": updated,
+        "rows_updated": updated,
     }
+
+
+def count_named_events(event_name: str, days_back: int = 7) -> int | None:
+    """Return GA4 eventCount for one event over the last N days, or None.
+
+    Read-only. Used by the GTM ensure detector to no-op when
+    ``phone_call_clicks`` is already firing.
+    """
+    if not event_name:
+        return None
+    property_id = os.getenv("GA4_PROPERTY_ID")
+    creds_path = os.getenv(
+        "GOOGLE_APPLICATION_CREDENTIALS",
+        "/app/credentials/google-service-account.json",
+    )
+    if not property_id or not os.path.exists(creds_path):
+        return None
+
+    from google.analytics.data_v1beta.types import Filter, FilterExpression
+
+    client = _get_ga4_client()
+    end_date = datetime.utcnow().date() - timedelta(days=1)
+    start_date = end_date - timedelta(days=days_back)
+    request = RunReportRequest(
+        property=f"properties/{property_id}",
+        dimensions=[Dimension(name="eventName")],
+        metrics=[Metric(name="eventCount")],
+        date_ranges=[
+            DateRange(
+                start_date=start_date.isoformat(),
+                end_date=end_date.isoformat(),
+            )
+        ],
+        dimension_filter=FilterExpression(
+            filter=Filter(
+                field_name="eventName",
+                string_filter=Filter.StringFilter(
+                    value=event_name,
+                    match_type=Filter.StringFilter.MatchType.EXACT,
+                ),
+            )
+        ),
+    )
+    response = client.run_report(request)
+    total = 0
+    for row in response.rows:
+        total += int(float(row.metric_values[0].value or 0))
+    return total
