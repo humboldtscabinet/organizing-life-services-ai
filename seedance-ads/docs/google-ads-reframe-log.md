@@ -21,10 +21,10 @@ google-ads/{service}/{id}-{ratio}.mp4
 | liquidation | done | **removed** | **removed** | **removed** | `01-16x9`, `02-16x9`, and `02-1x1` deleted 2026-08-16 (gibberish box labels). |
 | downsizing | done | done | done | done | |
 | cleanouts | done | **removed** | done | done | `cleanouts-01-16x9.mp4` deleted 2026-08-16 (glitch). |
-| listing-prep | done | done | done | done | 01 1:1 needed one Seedance retry (video-edit routing). |
+| listing-prep | done | **removed** | done | done | `listing-prep-01-16x9.mp4` deleted 2026-08-16 (quality issue). 01 1:1 had needed one Seedance retry. |
 | appraisals | done | done | done | done | 02 16:9 needed one Seedance retry (video-edit routing). |
 
-**24** keepers remain in `google-ads/{service}/`. Removed for quality: `cleanouts-01-16x9.mp4` (glitch) and `liquidation-01-16x9.mp4`, `liquidation-02-16x9.mp4`, `liquidation-02-1x1.mp4` (gibberish box labels). Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
+**23** keepers remain in `google-ads/{service}/`. Removed for quality: `cleanouts-01-16x9.mp4` (glitch); `liquidation-01-16x9.mp4`, `liquidation-02-16x9.mp4`, `liquidation-02-1x1.mp4` (gibberish box labels); `listing-prep-01-16x9.mp4` (quality issue). Last 3s restamped 2026-08-16 with native-ratio CTA canvases (ffmpeg only).
 
 ## Estate-sales keepers (2026-08-14)
 

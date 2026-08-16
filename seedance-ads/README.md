@@ -53,7 +53,7 @@ npx tsx scripts/render-cta.ts
 npx tsx scripts/restamp-cta.ts
 ```
 
-**Live batches (2026-08-14):** keepers are in `google-ads/{service}/`. Removed 2026-08-16: `cleanouts-01-16x9` (glitch) and three liquidation clips with gibberish box labels. Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md).
+**Live batches (2026-08-14):** keepers are in `google-ads/{service}/`. Removed 2026-08-16 for quality issues: `cleanouts-01-16x9`, three liquidation clips, and `listing-prep-01-16x9`. Status: [`docs/google-ads-reframe-log.md`](docs/google-ads-reframe-log.md).
 
 **Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 
