@@ -53,6 +53,7 @@ npx tsx scripts/reframe-ad.ts --manifest examples/ols-reframe.manifest.json --se
 ```
 
 - Model: `seedance-2-5`, `reference-to-video`, 720p, 18s, source MP4 in `video_urls` only.
+- Prompt forbids invented words on boxes, labels, book spines, and other props (Seedance still paints fake lettering if you only say “no on-screen text”).
 - ffmpeg **replaces** last 3s with a native-ratio CTA canvas from [`OLS_CTA_Card_Google_Ads.png`](https://cdn.shopify.com/s/files/1/0294/7966/5708/files/OLS_CTA_Card_Google_Ads.png?v=1786654544).
 - Original VO is muxed; it already ends before the end-card, so the CTA hold is silent like the masters.
 - Encode: H.264 Main, no B-frames, 192k AAC, `+faststart`.

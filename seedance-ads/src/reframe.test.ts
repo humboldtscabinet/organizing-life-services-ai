@@ -5,7 +5,9 @@ import { FRAMING_CTA_RULES, hasFramingRule } from "./framing.ts";
 import {
   OLS_SERVICES,
   SERVICE_VOICEOVER,
+  NO_INVENTED_TEXT_RULE,
   assertNoMoneyUpfrontGuard,
+  assertNoInventedTextRule,
   buildReframeGenerateOptions,
   buildReframePrompt,
 } from "./prompts/reframe.ts";
@@ -35,6 +37,30 @@ describe("reframe prompts", () => {
     const prompt = buildReframePrompt("jewelry", "1:1");
     assert.ok(prompt.includes("Skip the original end-card"));
     assert.equal(prompt.includes("uploaded CTA card"), false);
+  });
+
+  it("forbids invented words on boxes, labels, and other props", () => {
+    for (const service of OLS_SERVICES) {
+      const prompt = buildReframePrompt(service, "1:1");
+      assert.ok(
+        prompt.includes(NO_INVENTED_TEXT_RULE),
+        `${service} is missing the no-invented-text rule`,
+      );
+      assert.ok(prompt.includes("gibberish letters"));
+      assert.ok(prompt.includes("Unlabeled brown boxes are correct"));
+    }
+
+    const boxed = buildReframePrompt("liquidation", "16:9");
+    assert.ok(boxed.includes("Every box, lid, tape strip, and sticker must be unmarked"));
+    const jewelry = buildReframePrompt("jewelry", "16:9");
+    assert.equal(jewelry.includes("Every box, lid, tape strip, and sticker must be unmarked"), false);
+  });
+
+  it("rejects a remake prompt that dropped the no-invented-text rule", () => {
+    assert.throws(
+      () => assertNoInventedTextRule("Recreate [Video 1]. No on-screen text."),
+      /no-invented-text/,
+    );
   });
 
   it("rejects a jewelry prompt that smuggles the estate-sales claim", () => {
@@ -70,6 +96,7 @@ describe("reframe generate options", () => {
     assert.equal(payload.input.prompt.includes(FRAMING_CTA_RULES["16:9"]), false);
     assert.ok(payload.input.prompt.includes("[Video 1]"));
     assert.ok(payload.input.prompt.includes("Skip the original end-card"));
+    assert.ok(payload.input.prompt.includes(NO_INVENTED_TEXT_RULE));
     assert.equal(payload.input.prompt.includes("[Image 1]"), false);
     assert.equal(payload.input.prompt.toLowerCase().includes("no money upfront"), false);
   });

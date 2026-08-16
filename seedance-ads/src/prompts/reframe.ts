@@ -15,6 +15,25 @@ export type OlsService = (typeof OLS_SERVICES)[number];
 
 const NO_MONEY_UPFRONT = "No money upfront - we do the work, you get paid.";
 
+/**
+ * Seedance treats "no on-screen text" as captions/watermarks and still
+ * paints fake words onto boxes, stickers, and spines. Keep this wording
+ * stable so tests can assert exact inclusion.
+ */
+export const NO_INVENTED_TEXT_RULE =
+  'Never invent readable text in the scene. Cardboard boxes, plastic bins, tape, shipping labels, stickers, price tags, book spines, newspapers, whiteboards, phone screens, clothing tags, and framed art must stay blank or show only empty printed lines — no real words, no misspellings, no gibberish letters, no fake barcodes or logos. Unlabeled brown boxes are correct. Invented names on box faces are not. If [Video 1] shows a blank box, keep it blank.';
+
+const BOX_HEAVY_SERVICES = new Set<OlsService>([
+  "liquidation",
+  "downsizing",
+  "cleanouts",
+  "listing-prep",
+  "estate-sales",
+]);
+
+const BOX_HEAVY_TEXT_RULE =
+  "This service shows many boxes and bins. Every box, lid, tape strip, and sticker must be unmarked — no handwriting, no printed product names, no fake barcodes with text.";
+
 /** SuperScale voiceover lines. Only estate-sales may use the no-money-upfront claim. */
 export const SERVICE_VOICEOVER: Record<OlsService, string> = {
   "estate-sales":
@@ -45,16 +64,28 @@ export const SERVICE_LABEL: Record<OlsService, string> = {
 
 const RECREATE_CORE = `Recreate [Video 1] as a new Google Ads clip in this aspect ratio. Keep the same documentary story, cuts, pacing, Tampa Bay residential feel, and warm female voiceover. Do not invent people, rooms, or objects that are not in [Video 1]. No on-screen text, logos, captions, or watermarks.
 
+${NO_INVENTED_TEXT_RULE}
+
 Skip the original end-card entirely. Do not recreate any logo screen, phone number, website, "Call Today" card, or call-to-action graphic from [Video 1]. End on live-action only. The branded CTA is added later in ffmpeg — do not generate one.`;
 
 export function buildReframePrompt(service: OlsService, _aspectRatio: AspectRatio): string {
   const voiceover = SERVICE_VOICEOVER[service];
   const label = SERVICE_LABEL[service];
-  return [
+  const parts = [
     RECREATE_CORE,
     `This is an Organizing Life Services ${label} ad.`,
     `Voiceover (keep verbatim): "${voiceover}"`,
-  ].join("\n\n");
+  ];
+  if (BOX_HEAVY_SERVICES.has(service)) {
+    parts.push(BOX_HEAVY_TEXT_RULE);
+  }
+  return parts.join("\n\n");
+}
+
+export function assertNoInventedTextRule(prompt: string): void {
+  if (!prompt.includes(NO_INVENTED_TEXT_RULE)) {
+    throw new Error("Reframe prompt is missing the no-invented-text rule.");
+  }
 }
 
 export function assertNoMoneyUpfrontGuard(service: OlsService, prompt: string): void {
@@ -75,6 +106,7 @@ export function buildReframeGenerateOptions(opts: {
 }): GenerateAdOptions {
   const prompt = buildReframePrompt(opts.service, opts.aspectRatio);
   assertNoMoneyUpfrontGuard(opts.service, prompt);
+  assertNoInventedTextRule(prompt);
   return {
     prompt,
     aspectRatio: opts.aspectRatio,

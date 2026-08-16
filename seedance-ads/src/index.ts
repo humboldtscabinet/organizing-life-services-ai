@@ -59,6 +59,7 @@ export { parseReframeManifest, filterManifestByService, reframeManifestSchema } 
 export {
   OLS_SERVICES,
   SERVICE_VOICEOVER,
+  NO_INVENTED_TEXT_RULE,
   buildReframePrompt,
   buildReframeGenerateOptions,
 } from "./prompts/reframe.ts";

@@ -57,7 +57,7 @@ npx tsx scripts/restamp-cta.ts
 
 **Jewelry (first live batch, 2026-08-14):** four keepers approved. Process, credits, and fixes are in [`docs/jewelry-reframe-log.md`](docs/jewelry-reframe-log.md).
 
-`--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance.
+`--dry-run` prints the framed prompt, `video_urls`, and duration with no API call. The CTA still is not sent to Seedance. Remake prompts forbid invented words on boxes, labels, and other props.
 
 ## Framing
 
