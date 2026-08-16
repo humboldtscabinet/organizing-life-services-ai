@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import hashlib
 import logging
+import re
 from typing import Any
 from urllib.parse import urlparse
 
@@ -66,6 +67,11 @@ def clip_title(value: str) -> str:
 def clip_meta(value: str) -> str:
     text = " ".join((value or "").split())
     return text[:META_MAX]
+
+
+def strip_html(value: str) -> str:
+    """Drop HTML tags so meta descriptions never carry markup."""
+    return re.sub(r"<[^>]+>", " ", value or "")
 
 
 def draft_title(query: str, current_title: str = "") -> str:
@@ -193,7 +199,7 @@ def resolve_and_draft(
                 return None
             current_title = article.get("title") or ""
             new_title = draft_title(query, current_title)
-            new_meta = draft_meta(query, article.get("summary_html") or "")
+            new_meta = draft_meta(query, strip_html(article.get("summary_html") or ""))
             resource_id = int(article["id"])
             blog_id = int(article["blog_id"])
             payload = {

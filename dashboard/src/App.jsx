@@ -182,14 +182,14 @@ export default function App() {
     }
   }
 
-  const handleApplyTask = async ({ humanConfirmed }) => {
+  const handleApplyTask = async ({ humanConfirmed, judgeVerdict }) => {
     if (!applyTarget) {
       return
     }
 
     try {
       setApplyLoading(true)
-      const result = await applyTask(applyTarget.id, { humanConfirmed })
+      const result = await applyTask(applyTarget.id, { humanConfirmed, judgeVerdict })
       setApplyTarget(null)
       const childId = result?.result?.publish_task_id
       setToast({
@@ -1224,8 +1224,10 @@ function ContentPublishModal({ task, loading, onClose, onPublish }) {
 
 function ApplyTaskModal({ task, loading, onClose, onApply }) {
   const [humanConfirmed, setHumanConfirmed] = useState(false)
+  const [judgeVerdict, setJudgeVerdict] = useState('PASS')
   const preview = task.action_payload?.preview || {}
   const previewRows = Object.entries(preview)
+  const requiresJudge = !task.deterministic
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
@@ -1255,7 +1257,7 @@ function ApplyTaskModal({ task, loading, onClose, onApply }) {
             {task.finding}
           </p>
         )}
-        <label className="flex items-center gap-2 mb-6 text-sm">
+        <label className="flex items-center gap-2 mb-4 text-sm">
           <input
             type="checkbox"
             checked={humanConfirmed}
@@ -1263,10 +1265,31 @@ function ApplyTaskModal({ task, loading, onClose, onApply }) {
           />
           I reviewed this frozen change and confirm Apply.
         </label>
+        {requiresJudge && (
+          <>
+            <label className="block text-sm mb-2" style={{ color: COLORS.textDim }}>
+              Judge verdict
+            </label>
+            <select
+              value={judgeVerdict}
+              onChange={(event) => setJudgeVerdict(event.target.value)}
+              className="w-full px-3 py-2 rounded-lg mb-6"
+              style={{ backgroundColor: COLORS.bg, color: COLORS.text, border: '1px solid #333' }}
+            >
+              <option value="PASS">PASS</option>
+              <option value="FAIL">FAIL</option>
+            </select>
+          </>
+        )}
         <div className="flex gap-3">
           <button
-            onClick={() => onApply({ humanConfirmed })}
-            disabled={!humanConfirmed || loading}
+            onClick={() =>
+              onApply({
+                humanConfirmed,
+                judgeVerdict: requiresJudge ? judgeVerdict : undefined,
+              })
+            }
+            disabled={!humanConfirmed || (requiresJudge && judgeVerdict !== 'PASS') || loading}
             className="px-4 py-2 rounded-lg text-white font-semibold disabled:opacity-50"
             style={{ backgroundColor: '#f97316' }}
           >

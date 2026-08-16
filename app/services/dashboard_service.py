@@ -324,6 +324,14 @@ def _generate_ads_conversion_apply_tasks() -> list[dict]:
             continue
         if finding.get("status") == "PAUSED":
             continue
+        # Only pause vanity page-view actions. Real lead actions flagged solely
+        # for MANY_PER_CLICK counting need re-counting, not pausing.
+        name_lc = (finding.get("name") or "").lower()
+        is_page_view = finding.get("category") == "PAGE_VIEW" or any(
+            s in name_lc for s in ("page view", "page load", "pageview")
+        )
+        if not is_page_view:
+            continue
         fingerprint = f"ads.disable_bogus_conversions:{action_id}"
         issues = finding.get("issues") or []
         tasks.append(

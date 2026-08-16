@@ -201,7 +201,7 @@ def generate_gsc_watch_tasks(
             "fingerprint": fingerprint,
             "status": "pending",
         }
-        if not watch.homepage:
+        if not watch.homepage and not met:
             from app.services.dashboard_service import _maybe_attach_frozen_meta
 
             page_url = f"https://organizinglifeservices.com{watch.page_path}"
