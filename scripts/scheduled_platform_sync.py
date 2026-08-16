@@ -31,6 +31,7 @@ from app.services.ga4_service import pull_ga4_data  # noqa: E402
 from app.services.gbp_service import pull_gbp_data  # noqa: E402
 from app.services.google_ads_service import pull_google_ads_data  # noqa: E402
 from app.services.gsc_service import pull_gsc_data  # noqa: E402
+from app.services.ops_alert_service import check_data_freshness  # noqa: E402
 from app.services.phase1_automation_service import run_phase1_cycle  # noqa: E402
 from app.services.sheets_service import (  # noqa: E402
     push_ga4_to_sheets,
@@ -89,10 +90,13 @@ def run_sync(
         if generate_task_recommendations:
             result["tasks_generated"] = _capture(generate_tasks, db, days_back=days_back)
 
+        result["freshness"] = _capture(check_data_freshness, db)
+
         nested = [
             *result["pulls"].values(),
             *result.get("pushes", {}).values(),
             result.get("tasks_generated", {}),
+            result.get("freshness", {}),
         ]
         failed_steps = sum(
             1 for item in nested if item.get("status") in {"error", "unavailable"}

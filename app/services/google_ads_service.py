@@ -488,3 +488,36 @@ def get_account_overview() -> dict:
         "conversion_audit": audit,
     }
 
+
+def pause_conversion_action(conversion_action_id: int) -> dict:
+    """Pause one conversion action. Never changes budgets, bids, or keywords."""
+    from google.protobuf import field_mask_pb2
+
+    from app.services.google_oauth import google_ads_client
+
+    client = google_ads_client()
+    if client is None:
+        raise RuntimeError("Google Ads direct API is not configured.")
+
+    action_id = int(conversion_action_id)
+    customer_id = _customer_id()
+    service = client.get_service("ConversionActionService")
+    operation = client.get_type("ConversionActionOperation")
+    conversion_action = operation.update
+    conversion_action.resource_name = service.conversion_action_path(
+        customer_id, action_id
+    )
+    conversion_action.status = client.enums.ConversionActionStatusEnum.PAUSED
+    operation.update_mask.CopyFrom(field_mask_pb2.FieldMask(paths=["status"]))
+    response = service.mutate_conversion_actions(
+        customer_id=customer_id,
+        operations=[operation],
+    )
+    result = response.results[0] if response.results else None
+    return {
+        "status": "paused",
+        "conversion_action_id": action_id,
+        "resource_name": getattr(result, "resource_name", None),
+        "target_status": "PAUSED",
+    }
+

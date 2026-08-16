@@ -153,6 +153,20 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
     except Exception:
         logger.exception("GTM apply-task detector failed; continuing")
 
+    try:
+        from app.services.gsc_watches import generate_gsc_watch_tasks
+
+        watch_tasks = generate_gsc_watch_tasks(db, days_back=max(days_back, 28))
+        new_tasks.extend(watch_tasks)
+    except Exception:
+        logger.exception("GSC watch detector failed; continuing")
+
+    try:
+        ads_tasks = _generate_ads_conversion_apply_tasks()
+        new_tasks.extend(ads_tasks)
+    except Exception:
+        logger.exception("Ads conversion apply-task detector failed; continuing")
+
     # Deduplicate and save
     saved_count = 0
     for task_data in new_tasks:
@@ -289,6 +303,81 @@ def _generate_gtm_apply_tasks(*, days_back: int = 7) -> list[dict]:
     ]
 
 
+def _generate_ads_conversion_apply_tasks() -> list[dict]:
+    """Create pause tasks for bogus conversion actions when Ads OAuth is live."""
+    from app.services.google_ads_service import (
+        audit_conversion_actions,
+        direct_api_available,
+    )
+
+    if not direct_api_available():
+        return []
+    try:
+        audit = audit_conversion_actions()
+    except Exception:
+        logger.exception("Ads conversion audit failed")
+        return []
+    tasks = []
+    for finding in audit.get("findings") or []:
+        action_id = finding.get("id")
+        if not action_id:
+            continue
+        if finding.get("status") == "PAUSED":
+            continue
+        fingerprint = f"ads.disable_bogus_conversions:{action_id}"
+        issues = finding.get("issues") or []
+        tasks.append(
+            {
+                "task_type": "ads",
+                "category": "conversion_hygiene",
+                "priority": "HIGH",
+                "title": f"Pause bogus conversion action: {finding.get('name')}",
+                "description": (
+                    "Pause this conversion action so it stops biasing Smart Bidding. "
+                    "Does not change budgets, bids, or keywords."
+                ),
+                "finding": "; ".join(issues),
+                "action_kind": "ads.disable_bogus_conversions",
+                "action_endpoint": None,
+                "action_payload": {
+                    "conversion_action_id": int(action_id),
+                    "name": finding.get("name"),
+                    "current_status": finding.get("status"),
+                    "target_status": "PAUSED",
+                    "issues": issues,
+                    "preview": {
+                        "action": "pause conversion action",
+                        "conversion_action_id": int(action_id),
+                        "name": finding.get("name"),
+                    },
+                },
+                "fingerprint": fingerprint,
+                "status": "pending",
+            }
+        )
+    return tasks
+
+
+def _maybe_attach_frozen_meta(task: dict, page_url: str | None, query: str) -> dict:
+    """Attach shopify.apply_frozen_meta when the GSC URL resolves to a page/article.
+
+    Homepage, products, collections, and lookup failures stay advisory.
+    """
+    if not page_url:
+        return task
+    from app.services.frozen_meta_service import resolve_and_draft
+
+    draft = resolve_and_draft(page_url, query)
+    if not draft:
+        return task
+    payload = dict(task.get("action_payload") or {})
+    payload.update(draft["action_payload"])
+    task["action_kind"] = draft["action_kind"]
+    task["fingerprint"] = draft["fingerprint"]
+    task["action_payload"] = payload
+    return task
+
+
 def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
     """Generate SEO tasks from Google Search Console data."""
     tasks = []
@@ -317,12 +406,17 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "ctr_sum": 0.0,
                 "position_sum": 0.0,
                 "count": 0,
+                "top_page": None,
+                "top_page_impr": 0,
             }
         query_stats[q]["clicks"] += r.clicks or 0
         query_stats[q]["impressions"] += r.impressions or 0
         query_stats[q]["ctr_sum"] += r.ctr or 0
         query_stats[q]["position_sum"] += r.position or 0
         query_stats[q]["count"] += 1
+        if (r.impressions or 0) >= query_stats[q]["top_page_impr"] and r.page:
+            query_stats[q]["top_page"] = r.page
+            query_stats[q]["top_page_impr"] = r.impressions or 0
 
     # Rule 1: High-impression, low-CTR queries (impressions >= 50, CTR < 3%)
     for q, stats in query_stats.items():
@@ -334,7 +428,7 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
         avg_ctr = (stats["ctr_sum"] / stats["count"]) if stats["count"] else 0
         if stats["impressions"] >= 50 and avg_ctr < 0.03:
             lead = score_lead_relevance(q)
-            tasks.append({
+            task = {
                 "task_type": "seo",
                 "category": "keyword_optimization",
                 "priority": "HIGH",
@@ -353,7 +447,10 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "action_endpoint": None,
                 "action_payload": lead.as_dict(),
                 "status": "pending",
-            })
+            }
+            tasks.append(
+                _maybe_attach_frozen_meta(task, stats.get("top_page"), q)
+            )
 
     # Rule 2: Queries ranking position 8-20 with decent impressions (>= 20)
     for q, stats in query_stats.items():
@@ -412,7 +509,7 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 continue
 
             lead = score_lead_relevance(" ".join(page_queries[page]), page=page)
-            tasks.append({
+            task = {
                 "task_type": "seo",
                 "category": "zero_click_investigation",
                 "priority": "HIGH" if lead.tier != "LOW" else "MEDIUM",
@@ -430,7 +527,9 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "action_endpoint": None,
                 "action_payload": lead.as_dict(),
                 "status": "pending",
-            })
+            }
+            query_hint = page_queries[page][0] if page_queries[page] else ""
+            tasks.append(_maybe_attach_frozen_meta(task, page, query_hint))
 
     return tasks
 
@@ -881,6 +980,8 @@ def get_channel_metrics(db: Session) -> dict:
             if gsc_records
             else 0
         ),
+        "last_date": _iso_max_date(db, GSCData),
+        "last_ingested_at": _iso_max_created(db, GSCData),
     }
 
     # GA4 metrics (from daily_overview)
@@ -902,6 +1003,8 @@ def get_channel_metrics(db: Session) -> dict:
             r.metric_value or 0 for r in ga4_records
             if r.metric_name == "screenPageViews"
         ),
+        "last_date": _iso_max_date(db, GA4Data),
+        "last_ingested_at": _iso_max_created(db, GA4Data),
     }
 
     # Google Ads metrics
@@ -911,6 +1014,20 @@ def get_channel_metrics(db: Session) -> dict:
         "total_spend": sum(r.cost or 0.0 for r in ads_records),
         "total_conversions": sum(r.conversions or 0.0 for r in ads_records),
         "total_clicks": sum(r.clicks or 0 for r in ads_records),
+        "last_date": _iso_max_date(db, GoogleAdsData),
+        "last_ingested_at": _iso_max_created(db, GoogleAdsData),
+    }
+
+    from app.services.ga4_service import sum_stored_lead_events
+
+    leads = sum_stored_lead_events(db, days_back=7)
+    lead_metrics = {
+        "record_count": leads["total_leads"],
+        "form_submit": leads["form_submit"],
+        "phone_call_clicks": leads["phone_call_clicks"],
+        "total_leads": leads["total_leads"],
+        "last_date": leads["last_date"],
+        "kpi": leads["kpi"],
     }
 
     return {
@@ -918,4 +1035,15 @@ def get_channel_metrics(db: Session) -> dict:
         "gsc": gsc_metrics,
         "ga4": ga4_metrics,
         "google_ads": ads_metrics,
+        "leads": lead_metrics,
     }
+
+
+def _iso_max_date(db: Session, model) -> str | None:
+    value = db.query(func.max(model.date)).scalar()
+    return value.isoformat() if value else None
+
+
+def _iso_max_created(db: Session, model) -> str | None:
+    value = db.query(func.max(model.created_at)).scalar()
+    return value.isoformat() if value else None

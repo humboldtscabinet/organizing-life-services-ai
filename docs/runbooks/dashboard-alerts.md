@@ -51,6 +51,14 @@ Suggested fingerprints:
 - `seo:weekly_audit`
 - `ga4:key_event_trust`
 - `gbp:api_access`
+- `data:freshness:gsc`
+- `data:freshness:ga4`
+- `data:freshness:google_ads`
+
+Scheduled sync opens those `data:freshness:*` fingerprints when ingest
+(`created_at`) is older than 36h (WARNING) or 72h / empty (CRITICAL), and
+resolves them when a pull lands. Manual kick:
+`POST /api/dashboard/alerts/freshness-check`.
 
 When the same active fingerprint is seen again, the API reopens the alert,
 updates its message/details, and increments `occurrence_count`.

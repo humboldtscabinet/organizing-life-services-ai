@@ -8,7 +8,7 @@ from typing import Any
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from app.db.models import OpsAlert
+from app.db.models import GA4Data, GoogleAdsData, GSCData, OpsAlert
 from app.redaction import bounded_json_object, redact_sensitive_text, truncate_text
 
 VALID_SEVERITIES = {"INFO", "WARNING", "CRITICAL"}
@@ -254,4 +254,113 @@ def get_alert_metrics(db: Session) -> dict[str, Any]:
             .count()
         ),
         "latest_open_at": latest_open.created_at.isoformat() if latest_open else None,
+    }
+
+
+FRESHNESS_CHANNELS = {
+    "gsc": GSCData,
+    "ga4": GA4Data,
+    "google_ads": GoogleAdsData,
+}
+
+FRESHNESS_WARNING_HOURS = 36
+FRESHNESS_CRITICAL_HOURS = 72
+
+
+def classify_ingest_freshness(
+    last_ingested: datetime | None,
+    *,
+    now: datetime | None = None,
+    warning_hours: int = FRESHNESS_WARNING_HOURS,
+    critical_hours: int = FRESHNESS_CRITICAL_HOURS,
+) -> dict[str, Any]:
+    """Classify freshness from ingest time (created_at), not Google's metric date.
+
+    GSC Search Analytics often lags 2–3 days, so max(date) would always look
+    stale. The 36h SLA is “did the mini pull run,” not “is Google’s report
+    current.”
+    """
+    now = now or datetime.utcnow()
+    if last_ingested is None:
+        return {
+            "stale": True,
+            "severity": "CRITICAL",
+            "age_hours": None,
+        }
+    age_hours = (now - last_ingested).total_seconds() / 3600.0
+    if age_hours > critical_hours:
+        return {"stale": True, "severity": "CRITICAL", "age_hours": age_hours}
+    if age_hours > warning_hours:
+        return {"stale": True, "severity": "WARNING", "age_hours": age_hours}
+    return {"stale": False, "severity": None, "age_hours": age_hours}
+
+
+def check_data_freshness(
+    db: Session,
+    *,
+    max_age_hours: int = FRESHNESS_WARNING_HOURS,
+    now: datetime | None = None,
+) -> dict[str, Any]:
+    """Open or resolve data:freshness:{channel} alerts from ingest timestamps."""
+    now = now or datetime.utcnow()
+    channels: list[dict[str, Any]] = []
+    stale: list[str] = []
+
+    for channel, model in FRESHNESS_CHANNELS.items():
+        last_ingested = db.query(func.max(model.created_at)).scalar()
+        last_date = db.query(func.max(model.date)).scalar()
+        classified = classify_ingest_freshness(
+            last_ingested,
+            now=now,
+            warning_hours=max_age_hours,
+        )
+        fingerprint = f"data:freshness:{channel}"
+        last_ingested_iso = last_ingested.isoformat() if last_ingested else None
+        last_date_iso = last_date.isoformat() if last_date else None
+        entry = {
+            "channel": channel,
+            "last_ingested_at": last_ingested_iso,
+            "last_date": last_date_iso,
+            **classified,
+        }
+        if classified["stale"]:
+            stale.append(channel)
+            age = classified["age_hours"]
+            age_label = "no rows" if age is None else f"{age:.1f}h since ingest"
+            create_alert(
+                db,
+                source="platform_sync",
+                severity=classified["severity"],
+                title=f"{channel.upper()} data is stale",
+                message=(
+                    f"{channel} last ingest {age_label}. "
+                    "Mini Postgres is the ops source of truth."
+                ),
+                fingerprint=fingerprint,
+                details={
+                    "channel": channel,
+                    "last_ingested_at": last_ingested_iso,
+                    "last_date": last_date_iso,
+                    "age_hours": classified["age_hours"],
+                },
+            )
+        else:
+            existing = (
+                db.query(OpsAlert)
+                .filter(
+                    OpsAlert.fingerprint == fingerprint,
+                    OpsAlert.status.in_(ACTIVE_STATUSES),
+                )
+                .order_by(OpsAlert.created_at.desc())
+                .first()
+            )
+            if existing:
+                resolve_alert(db, existing.id)
+        channels.append(entry)
+
+    return {
+        "status": "success",
+        "stale_channels": stale,
+        "channels": channels,
+        "checked_at": now.isoformat(),
     }

@@ -18,6 +18,8 @@ def test_operational_shell_scripts_parse():
         ROOT / "infra" / "server" / "preflight.sh",
         ROOT / "infra" / "server" / "verify_local_llm.sh",
         ROOT / "infra" / "server" / "verify_stack.sh",
+        ROOT / "infra" / "server" / "run_platform_sync.sh",
+        ROOT / "infra" / "server" / "install_launchd_platform_sync.sh",
     ]
 
     for script in scripts:

@@ -19,6 +19,8 @@ Step-by-step operational procedures for common tasks. Each runbook is self-conta
 ## Ops
 
 - [dashboard-alerts.md](dashboard-alerts.md) — create operational alerts for the private dashboard
+- [mini-deploy-apply-loop.md](mini-deploy-apply-loop.md) — pull main, GTM env, deploy #61, launchd sync
+- [operator-manual-roadmap.md](operator-manual-roadmap.md) — FileVault, frozen-meta Apply, GBP reapply, Ads OAuth
 
 ## Conventions
 

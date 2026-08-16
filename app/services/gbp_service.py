@@ -12,6 +12,7 @@ Requires:
 """
 
 import os
+import time
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -175,12 +176,23 @@ def pull_gbp_data(
         f"{location_id}:fetchMultiDailyMetricsTimeSeries"
     )
 
-    resp = httpx.get(
-        url,
-        headers=headers,
-        params=_fetch_multi_daily_metrics_params(start_date, end_date),
-        timeout=60,
-    )
+    params = _fetch_multi_daily_metrics_params(start_date, end_date)
+    resp = None
+    for attempt in range(3):
+        resp = httpx.get(
+            url,
+            headers=headers,
+            params=params,
+            timeout=60,
+        )
+        if resp.status_code == 429 and attempt < 2:
+            time.sleep(2 ** attempt)
+            continue
+        break
+
+    if resp is not None and resp.status_code in {401, 403, 429}:
+        return _gbp_access_unavailable(db, location_id, resp.status_code, resp.text)
+
     resp.raise_for_status()
     data = resp.json()
 
@@ -259,4 +271,52 @@ def pull_gbp_data(
         "end_date": str(end_date),
         "rows_inserted": rows_inserted,
         "rows_updated": rows_updated,
+    }
+
+
+def _gbp_access_unavailable(
+    db: Session,
+    location_id: str,
+    status_code: int,
+    body: str,
+) -> dict[str, Any]:
+    """Record a gbp:access OpsAlert and skip the rest of the pull.
+
+    Never writes to GBP. 403 = access denied; 429 = retry later.
+    """
+    from app.services.ops_alert_service import create_alert
+
+    snippet = (body or "").replace("\n", " ")[:300]
+    severity = "WARNING" if status_code == 429 else "CRITICAL"
+    try:
+        create_alert(
+            db,
+            source="gbp",
+            severity=severity,
+            title="GBP Performance API access blocked",
+            message=(
+                f"HTTP {status_code} pulling {location_id}. "
+                "Keep NAP/schema in Shopify; do not invent GBP writes."
+            ),
+            fingerprint="gbp:access",
+            details={"http_status": status_code, "location_id": location_id, "body": snippet},
+        )
+    except Exception:
+        pass
+    db.add(
+        WorkflowLog(
+            workflow_name="gbp_performance_pull",
+            status="unavailable",
+            payload={
+                "location_id": location_id,
+                "http_status": status_code,
+            },
+        )
+    )
+    db.commit()
+    return {
+        "status": "unavailable",
+        "location_id": location_id,
+        "http_status": status_code,
+        "detail": f"GBP Performance API HTTP {status_code}",
     }

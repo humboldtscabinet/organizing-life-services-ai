@@ -27,6 +27,11 @@ def test_run_phase1_cycle_reports_partial_when_pull_fails(monkeypatch):
         lambda *_args, **_kwargs: {"status": "success", "tasks_created": 1},
     )
     monkeypatch.setattr(phase1, "create_alert", lambda *_args, **_kwargs: _FakeAlert())
+    monkeypatch.setattr(
+        phase1,
+        "check_data_freshness",
+        lambda *_args, **_kwargs: {"status": "success", "stale_channels": []},
+    )
 
     result = phase1.run_phase1_cycle(db, days_back=7, schedule_content_count=1)
 
@@ -52,6 +57,11 @@ def test_run_phase1_cycle_success(monkeypatch):
         lambda *_args, **_kwargs: {"status": "all_scheduled", "tasks_created": 0},
     )
     monkeypatch.setattr(phase1, "create_alert", lambda *_args, **_kwargs: SimpleNamespace(id=7))
+    monkeypatch.setattr(
+        phase1,
+        "check_data_freshness",
+        lambda *_args, **_kwargs: {"status": "success", "stale_channels": []},
+    )
 
     result = phase1.run_phase1_cycle(db, push_to_sheets=False)
 

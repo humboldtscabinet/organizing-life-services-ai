@@ -2,6 +2,10 @@
 
 Used to deploy LLM-drafted page titles and meta descriptions to the live Shopify storefront.
 
+Preferred path for service pages and blog articles is now dashboard Apply
+(`shopify.apply_frozen_meta`) after a frozen draft is attached. Use this
+runbook for homepage theme meta and any fallback `data/` push.
+
 ## Prerequisites
 
 - `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_ADMIN_API_TOKEN` set in `.env` (see [`.env.example`](../../.env.example)).

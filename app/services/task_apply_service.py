@@ -15,6 +15,7 @@ from typing import Any, Callable
 from sqlalchemy.orm import Session
 
 from app.db.models import DashboardTask, WorkflowLog
+from app.services.frozen_meta_service import payload_has_frozen_copy
 from app.services.llm_router import HighRiskGateError, assert_high_stakes_gate
 
 logger = logging.getLogger(__name__)
@@ -38,8 +39,6 @@ NEVER_APPLY_KINDS = frozenset(
 DEFERRED_ACTION_KINDS = frozenset(
     {
         "ga4.unmark_junk_key_events",
-        "ads.disable_bogus_conversions",
-        "shopify.apply_frozen_meta",
     }
 )
 
@@ -71,11 +70,34 @@ ALLOWLIST: dict[str, ActionKindSpec] = {
         deterministic=False,
         handler="content_generate_and_publish",
     ),
+    "shopify.apply_frozen_meta": ActionKindSpec(
+        kind="shopify.apply_frozen_meta",
+        gate="shopify_update",
+        deterministic=False,
+        handler="shopify_apply_frozen_meta",
+    ),
+    "ads.disable_bogus_conversions": ActionKindSpec(
+        kind="ads.disable_bogus_conversions",
+        gate="ads_conversion_mutate",
+        deterministic=True,
+        handler="ads_disable_bogus_conversions",
+    ),
 }
 
 
 def is_applyable_kind(action_kind: str | None) -> bool:
     return bool(action_kind) and action_kind in ALLOWLIST
+
+
+def is_applyable_task(task: DashboardTask) -> bool:
+    kind = task.action_kind
+    if not is_applyable_kind(kind):
+        return False
+    if task.status not in APPLYABLE_STATUSES:
+        return False
+    if kind == "shopify.apply_frozen_meta":
+        return payload_has_frozen_copy(task.action_payload)
+    return True
 
 
 def is_deterministic_kind(action_kind: str | None) -> bool:
@@ -99,7 +121,7 @@ def serialize_dashboard_task(task: DashboardTask) -> dict[str, Any]:
         "fingerprint": task.fingerprint,
         "status": task.status,
         "result": task.result,
-        "applyable": is_applyable_kind(kind) and task.status in APPLYABLE_STATUSES,
+        "applyable": is_applyable_task(task),
         "deterministic": is_deterministic_kind(kind),
         "created_at": task.created_at.isoformat() if task.created_at else None,
         "approved_at": task.approved_at.isoformat() if task.approved_at else None,
@@ -148,6 +170,14 @@ def apply_task(
             "status": "error",
             "detail": f"action_kind {kind} is not allowlisted",
             "code": "unknown_action_kind",
+        }
+    if kind == "shopify.apply_frozen_meta" and not payload_has_frozen_copy(
+        task.action_payload
+    ):
+        return {
+            "status": "error",
+            "detail": "Frozen title and meta description are required before Apply",
+            "code": "missing_frozen_copy",
         }
     if task.status not in APPLYABLE_STATUSES:
         return {
@@ -324,6 +354,68 @@ def _apply_content_generate_and_publish(
     return result
 
 
+def _apply_ads_disable_bogus_conversions(
+    db: Session, task: DashboardTask
+) -> dict[str, Any]:
+    from app.services.google_ads_service import pause_conversion_action
+
+    payload = _frozen_payload(task)
+    forbidden = {"budget", "bid", "keyword", "campaign_id", "amount_micros"}
+    if forbidden.intersection(payload):
+        raise ValueError("Payload contains refused Ads mutate fields")
+    action_id = payload.get("conversion_action_id")
+    if not action_id:
+        raise ValueError("Frozen conversion_action_id is required")
+    if payload.get("target_status") not in (None, "PAUSED"):
+        raise ValueError("Only PAUSED is allowed for conversion actions")
+    return pause_conversion_action(int(action_id))
+
+
+def _apply_shopify_frozen_meta(db: Session, task: DashboardTask) -> dict[str, Any]:
+    from app.services.frozen_meta_service import validate_frozen_payload
+    from app.services.shopify_service import update_article_seo, update_page_seo
+
+    payload = _frozen_payload(task)
+    extra_keys = set(payload) - {
+        "resource",
+        "page_id",
+        "article_id",
+        "blog_id",
+        "handle",
+        "blog_handle",
+        "path",
+        "query",
+        "current_title",
+        "current_meta_description",
+        "new_title",
+        "new_meta_description",
+        "preview",
+        "lead_score",
+        "lead_tier",
+        "lead_relevance_reasons",
+    }
+    resource, fields = validate_frozen_payload(payload)
+    if resource == "page":
+        result = update_page_seo(
+            fields["page_id"],
+            title=fields["title"],
+            meta_description=fields["meta_description"],
+        )
+    else:
+        result = update_article_seo(
+            fields["blog_id"],
+            fields["article_id"],
+            title=fields["title"],
+            meta_description=fields["meta_description"],
+        )
+    return {
+        "status": result.get("status"),
+        "resource": resource,
+        "ignored_payload_keys": sorted(extra_keys),
+        "shopify": result,
+    }
+
+
 def _create_publish_child(
     db: Session,
     *,
@@ -378,4 +470,6 @@ _HANDLERS: dict[str, Callable[[Session, DashboardTask], dict[str, Any]]] = {
     "gtm_ensure_phone_clicks": _apply_gtm_ensure_phone_clicks,
     "gtm_publish_version": _apply_gtm_publish_version,
     "content_generate_and_publish": _apply_content_generate_and_publish,
+    "shopify_apply_frozen_meta": _apply_shopify_frozen_meta,
+    "ads_disable_bogus_conversions": _apply_ads_disable_bogus_conversions,
 }

@@ -159,6 +159,17 @@ if [[ ${#COMPOSE_CMD[@]} -gt 0 ]]; then
   wait_for_http_codes "n8n" "http://127.0.0.1:${N8N_PORT:-5678}" "200 301 302 401"
 fi
 
+if command -v launchctl >/dev/null 2>&1; then
+  uid="$(id -u)"
+  for label in com.ols.platform-sync.daily com.ols.platform-sync.weekly; do
+    if launchctl print "gui/${uid}/${label}" >/dev/null 2>&1; then
+      pass "launchd ${label} is loaded"
+    else
+      warn "launchd ${label} is not loaded (install with infra/server/install_launchd_platform_sync.sh)"
+    fi
+  done
+fi
+
 printf '\nStack verification complete: %s failure(s), %s warning(s).\n' "$failures" "$warnings"
 if [[ "$failures" -gt 0 ]]; then
   exit 1

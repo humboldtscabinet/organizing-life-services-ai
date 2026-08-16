@@ -222,6 +222,29 @@ export const getAlertMetrics = async () => {
   return fetchAPI('/dashboard/alerts/metrics')
 }
 
+export const getWorkflowLogs = async (filters = {}) => {
+  const params = new URLSearchParams()
+  if (filters.days) params.append('days', String(filters.days))
+  if (filters.limit) params.append('limit', String(filters.limit))
+  if (filters.workflowName) params.append('workflow_name', filters.workflowName)
+  if (filters.status) params.append('status', filters.status)
+  const queryString = params.toString()
+  const endpoint = queryString ? `/dashboard/logs?${queryString}` : '/dashboard/logs'
+  return fetchAPI(endpoint)
+}
+
+export const getLlmAudit = async (filters = {}) => {
+  const params = new URLSearchParams()
+  if (filters.days) params.append('days', String(filters.days))
+  if (filters.limit) params.append('limit', String(filters.limit))
+  if (filters.taskType) params.append('task_type', filters.taskType)
+  if (filters.status) params.append('status', filters.status)
+  if (filters.includeBodies) params.append('include_bodies', 'true')
+  const queryString = params.toString()
+  const endpoint = queryString ? `/llm/audit?${queryString}` : '/llm/audit'
+  return fetchAPI(endpoint)
+}
+
 export const acknowledgeAlert = async (id) => {
   return fetchAPI(`/dashboard/alerts/${id}/acknowledge`, {
     method: 'POST',

@@ -17,22 +17,32 @@ It does **not** auto-publish blogs or mutate customer-facing Shopify state.
 | Surface | Use |
 |---|---|
 | Dashboard `Run Phase 1 Cycle` | Manual one-click cycle from the operator console |
-| `POST /api/dashboard/phase1-cycle` | API trigger for n8n or scripts |
+| `POST /api/dashboard/phase1-cycle` | API trigger for scripts |
 | `POST /api/dashboard/refresh` | Daily data pull + task generation only |
-| `scripts/scheduled_platform_sync.py` | Server cron/launchd entry point |
+| `scripts/scheduled_platform_sync.py` | Server launchd entry point (via `infra/server/run_platform_sync.sh`) |
 | GitHub Actions `Daily Platform Snapshot` | Repo-visible GSC + GA4 JSON artifacts |
 | GitHub Actions `Weekly SEO Audit` | Deep audit + measurement baseline |
 
-## Server schedule (recommended)
+## Server schedule (launchd)
 
-### Daily data refresh
-
-Requires an API image that includes `scripts/` (Dockerfile copies
-`scripts/` into `/app/scripts`). After pulling that change, redeploy before
-using `docker exec` cron paths.
+Install once on the mini after deploy:
 
 ```bash
 cd /Users/aiagentecosystem/services/ols
+infra/server/install_launchd_platform_sync.sh
+launchctl kickstart -k gui/$(id -u)/com.ols.platform-sync.daily
+```
+
+Do **not** import `workflows/n8n/*.json` while these jobs are loaded.
+
+### Daily data refresh (06:00)
+
+Requires an API image that includes `scripts/` (Dockerfile copies
+`scripts/` into `/app/scripts`).
+
+```bash
+infra/server/run_platform_sync.sh --generate-tasks
+# equivalent:
 docker exec ols-api python /app/scripts/scheduled_platform_sync.py --generate-tasks
 ```
 
@@ -44,10 +54,10 @@ curl -sS -X POST "http://127.0.0.1:8000/api/dashboard/refresh" \
   -H "X-API-Key: ${OLS_API_KEY}"
 ```
 
-### Weekly gated cycle (Monday)
+### Weekly gated cycle (Monday 07:00)
 
 ```bash
-docker exec ols-api python /app/scripts/scheduled_platform_sync.py --full-cycle --schedule-content-count 1
+infra/server/run_platform_sync.sh --full-cycle --schedule-content-count 1
 ```
 
 API fallback:
@@ -57,9 +67,6 @@ set -a && source .env && set +a
 curl -sS -X POST "http://127.0.0.1:8000/api/dashboard/phase1-cycle?schedule_content_count=1" \
   -H "X-API-Key: ${OLS_API_KEY}"
 ```
-
-Or import `workflows/n8n/weekly_phase1_cycle.json` into n8n and activate it on
-the Mac mini.
 
 ## Content publish flow (dashboard)
 

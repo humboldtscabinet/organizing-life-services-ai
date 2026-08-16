@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 
 from app.api_errors import APIError, build_error_payload, service_result_or_raise
 from app.db.database import get_db
+from app.services.audit_log_service import list_workflow_logs
 from app.services.dashboard_service import (
     approve_task,
     delay_task,
@@ -32,6 +33,7 @@ from app.services.gsc_service import pull_gsc_data
 from app.services.ops_alert_service import (
     acknowledge_alert,
     alert_to_dict,
+    check_data_freshness,
     create_alert,
     get_alert_metrics,
     list_alerts,
@@ -384,6 +386,34 @@ def list_ops_alerts(
 def get_ops_alert_metrics(db: Session = Depends(get_db)):
     """Return operational alert counts for dashboard KPI cards."""
     return {"status": "success", "metrics": get_alert_metrics(db)}
+
+
+@router.post("/alerts/freshness-check")
+def trigger_freshness_check(db: Session = Depends(get_db)):
+    """Open or resolve data:freshness:* alerts from ingest timestamps.
+
+    Manual kick for operators. Scheduled sync also runs this after pulls.
+    """
+    return check_data_freshness(db)
+
+
+@router.get("/logs")
+def list_dashboard_logs(
+    days: int = Query(7, ge=1, le=30),
+    limit: int = Query(100, ge=1, le=200),
+    workflow_name: str | None = Query(None),
+    status_filter: str | None = Query(None, alias="status"),
+    db: Session = Depends(get_db),
+):
+    """Read-only WorkflowLog list for the last N days. Payloads are redacted."""
+    logs = list_workflow_logs(
+        db,
+        days=days,
+        limit=limit,
+        workflow_name=workflow_name,
+        status=status_filter,
+    )
+    return {"status": "success", "count": len(logs), "logs": logs}
 
 
 @router.post("/alerts/{alert_id}/acknowledge")
