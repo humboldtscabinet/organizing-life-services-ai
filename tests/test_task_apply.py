@@ -325,3 +325,34 @@ def test_serialize_marks_applyable_pending_kinds():
 
     advisory = _Task(action_kind=None, status="pending")
     assert tas.serialize_dashboard_task(advisory)["applyable"] is False
+
+
+def test_ads_disable_bogus_pauses_frozen_id_only(monkeypatch):
+    calls = []
+    monkeypatch.setattr(
+        "app.services.google_ads_service.pause_conversion_action",
+        lambda action_id: calls.append(action_id) or {"status": "paused", "conversion_action_id": action_id},
+    )
+    task = _Task(
+        action_kind="ads.disable_bogus_conversions",
+        action_payload={
+            "conversion_action_id": 123,
+            "name": "Page view",
+            "target_status": "PAUSED",
+        },
+        status="pending",
+    )
+    result = tas.apply_task(_FakeDb(task), 1, human_confirmed=True)
+    assert result["status"] == "success"
+    assert calls == [123]
+
+
+def test_ads_disable_refuses_budget_fields():
+    task = _Task(
+        action_kind="ads.disable_bogus_conversions",
+        action_payload={"conversion_action_id": 1, "budget": 50},
+        status="pending",
+    )
+    result = tas.apply_task(_FakeDb(task), 1, human_confirmed=True)
+    assert result["status"] == "error"
+    assert "budget" in result["detail"].lower() or "failed" in result["detail"].lower()

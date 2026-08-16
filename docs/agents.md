@@ -57,6 +57,20 @@ Agents should improve the measurement loop, not replace it:
 5. Require human approval before public writes.
 6. Measure impact after a clean comparison window.
 
+## Never-list
+
+Do **not** add:
+
+- CrewAI or free-running multi-agent loops
+- Ads budget / bid / keyword mutate agents (`ads.budget_bid_keyword`)
+- GBP writes (`gbp.write`, `gbp.*`)
+- Indexing API
+- LLM-invented GTM tags (`gtm.create_arbitrary`)
+
+Allowlisted Apply verbs live in `app/services/task_apply_service.py`. n8n and
+cron may create `DashboardTask` rows. Only a human-confirmed dashboard click
+may call `POST /api/dashboard/tasks/{id}/apply`.
+
 ## Deferred Work
 
 CrewAI or a broader "agent government" can come later, but it should be added

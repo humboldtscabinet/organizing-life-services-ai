@@ -13,8 +13,10 @@ import {
   getAlerts,
   getChannelMetrics,
   getDevApiKey,
+  getLlmAudit,
   getMetrics,
   getTasks,
+  getWorkflowLogs,
   isDevAuthRequired,
   previewContentForTask,
   publishContentTask,
@@ -82,6 +84,8 @@ export default function App() {
   const [alertMetrics, setAlertMetrics] = useState(null)
   const [metrics, setMetrics] = useState(null)
   const [channelMetrics, setChannelMetrics] = useState(null)
+  const [workflowLogs, setWorkflowLogs] = useState([])
+  const [llmAudits, setLlmAudits] = useState([])
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('pending')
   const [typeFilter, setTypeFilter] = useState('all')
@@ -107,18 +111,22 @@ export default function App() {
 
     try {
       setLoading(true)
-      const [tasksData, metricsData, channelsData, alertsData, alertMetricsData] = await Promise.all([
+      const [tasksData, metricsData, channelsData, alertsData, alertMetricsData, logsData, auditData] = await Promise.all([
         getTasks({ limit: 50 }),
         getMetrics(),
         getChannelMetrics(),
         getAlerts({ status: 'open', limit: 20 }),
         getAlertMetrics(),
+        getWorkflowLogs({ days: 7, limit: 20 }),
+        getLlmAudit({ days: 7, limit: 20 }),
       ])
       setTasks(tasksData.tasks || [])
       setMetrics(metricsData.metrics || metricsData)
       setChannelMetrics(channelsData.metrics || channelsData)
       setAlerts(alertsData.alerts || [])
       setAlertMetrics(alertMetricsData.metrics || alertMetricsData)
+      setWorkflowLogs(logsData.logs || [])
+      setLlmAudits(auditData.audits || [])
     } catch (error) {
       console.error('Error fetching data:', error)
       setToast({ message: getErrorMessage(error, 'Failed to load dashboard data'), type: 'error' })
@@ -134,6 +142,8 @@ export default function App() {
       setAlertMetrics(null)
       setMetrics(null)
       setChannelMetrics(null)
+      setWorkflowLogs([])
+      setLlmAudits([])
       setLoading(false)
       return undefined
     }
@@ -347,6 +357,8 @@ export default function App() {
     setAlertMetrics(null)
     setMetrics(null)
     setChannelMetrics(null)
+    setWorkflowLogs([])
+    setLlmAudits([])
     setToast({ message: 'Session API key cleared', type: 'warning' })
   }
 
@@ -359,7 +371,15 @@ export default function App() {
   const completedToday = metrics?.status_breakdown?.completed || 0
   const pendingCount = metrics?.status_breakdown?.pending || 0
   const highPriorityCount = metrics?.priority_breakdown?.HIGH || 0
-  const activeChannels = channelMetrics ? Object.keys(channelMetrics).filter(k => k !== 'status').length : 0
+  const weeklyLeads = channelMetrics?.leads?.total_leads
+    ?? channelMetrics?.leads?.record_count
+    ?? 0
+  const channelCards = channelMetrics
+    ? ['gsc', 'ga4', 'google_ads', 'leads']
+        .filter((key) => channelMetrics[key] && typeof channelMetrics[key] === 'object')
+        .map((key) => [key, channelMetrics[key]])
+    : []
+  const activeChannels = channelCards.filter(([key]) => key !== 'leads').length
   const openAlertCount = alertMetrics?.open_count || 0
 
   const taskTypeData = metrics?.type_breakdown ? Object.entries(metrics.type_breakdown).map(([name, value]) => ({
@@ -480,7 +500,7 @@ export default function App() {
       )}
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
         <KPICard
           title="Pending Tasks"
           value={pendingCount}
@@ -511,6 +531,12 @@ export default function App() {
           color={alertMetrics?.critical_open_count ? '#ef4444' : '#eab308'}
           icon={<Bell size={24} />}
         />
+        <KPICard
+          title="Weekly Leads"
+          value={weeklyLeads}
+          color="#10b981"
+          icon={<CheckCircle size={24} />}
+        />
       </div>
 
       <AlertsPanel
@@ -519,6 +545,13 @@ export default function App() {
         hasRequiredApiKey={hasRequiredApiKey}
         onAcknowledge={handleAcknowledgeAlert}
         onDismiss={handleDismissAlert}
+      />
+
+      <LogsPanel
+        workflowLogs={workflowLogs}
+        llmAudits={llmAudits}
+        loading={loading}
+        hasRequiredApiKey={hasRequiredApiKey}
       />
 
       {/* Charts Row */}
@@ -664,19 +697,35 @@ export default function App() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {!hasRequiredApiKey ? (
             <div style={{ color: COLORS.textDim }}>Enter the API key above to load channel data.</div>
-          ) : channelMetrics ? (
-            Object.entries(channelMetrics).map(([channel, data]) => (
+          ) : channelCards.length > 0 ? (
+            channelCards.map(([channel, data]) => (
               <div key={channel} style={{ backgroundColor: COLORS.cardBg }} className="rounded-lg p-4">
                 <h3 className="text-lg font-semibold mb-2" style={{ color: COLORS.text }}>
-                  {channel.toUpperCase()}
+                  {channel === 'leads' ? 'WEEKLY LEADS' : channel.toUpperCase()}
                 </h3>
                 <div className="space-y-2" style={{ color: COLORS.textDim }}>
-                  <p>Records: <span style={{ color: COLORS.text }}>{data.record_count || 0}</span></p>
+                  {channel === 'leads' ? (
+                    <>
+                      <p>Total: <span style={{ color: COLORS.text }}>{data.total_leads || data.record_count || 0}</span></p>
+                      <p className="text-sm">form_submit: <span style={{ color: COLORS.text }}>{data.form_submit || 0}</span></p>
+                      <p className="text-sm">phone_call_clicks: <span style={{ color: COLORS.text }}>{data.phone_call_clicks || 0}</span></p>
+                      <p className="text-xs">{data.kpi || 'form_submit + phone_call_clicks (never page_view)'}</p>
+                    </>
+                  ) : (
+                    <p>Records: <span style={{ color: COLORS.text }}>{data.record_count || 0}</span></p>
+                  )}
                   <p className="text-sm">
-                    Last sync: <span style={{ color: COLORS.text }}>
+                    Last metric date: <span style={{ color: COLORS.text }}>
                       {data.last_date ? new Date(data.last_date).toLocaleDateString() : 'N/A'}
                     </span>
                   </p>
+                  {data.last_ingested_at && (
+                    <p className="text-sm">
+                      Last ingest: <span style={{ color: COLORS.text }}>
+                        {new Date(data.last_ingested_at).toLocaleString()}
+                      </span>
+                    </p>
+                  )}
                 </div>
               </div>
             ))
@@ -743,6 +792,75 @@ function KPICard({ title, value, color, icon }) {
       <div style={{ color }}>
         {icon}
       </div>
+    </div>
+  )
+}
+
+function LogsPanel({ workflowLogs, llmAudits, loading, hasRequiredApiKey }) {
+  return (
+    <div style={{ backgroundColor: COLORS.cardBg }} className="rounded-lg p-6 mb-8">
+      <h2 className="text-2xl font-semibold mb-4" style={{ color: COLORS.text }}>
+        Recent logs (7 days)
+      </h2>
+      {!hasRequiredApiKey ? (
+        <div className="text-center py-6" style={{ color: COLORS.textDim }}>
+          Enter the API key above to load logs.
+        </div>
+      ) : loading ? (
+        <div className="text-center py-6" style={{ color: COLORS.textDim }}>
+          Loading logs...
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div>
+            <h3 className="text-lg font-semibold mb-3" style={{ color: COLORS.text }}>
+              WorkflowLog
+            </h3>
+            {workflowLogs.length === 0 ? (
+              <p style={{ color: COLORS.textDim }}>No workflow rows in the last 7 days.</p>
+            ) : (
+              <div className="space-y-2">
+                {workflowLogs.map((row) => (
+                  <div key={`wf-${row.id}`} className="rounded-lg p-3" style={{ backgroundColor: COLORS.bg }}>
+                    <div className="flex justify-between gap-2 text-sm">
+                      <span style={{ color: COLORS.text }}>{row.workflow_name}</span>
+                      <span style={{ color: COLORS.textDim }}>{row.status}</span>
+                    </div>
+                    {row.created_at && (
+                      <p className="text-xs mt-1" style={{ color: COLORS.textDim }}>
+                        {new Date(row.created_at).toLocaleString()}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-3" style={{ color: COLORS.text }}>
+              LLMAudit
+            </h3>
+            {llmAudits.length === 0 ? (
+              <p style={{ color: COLORS.textDim }}>No LLM audit rows in the last 7 days.</p>
+            ) : (
+              <div className="space-y-2">
+                {llmAudits.map((row) => (
+                  <div key={`llm-${row.id}`} className="rounded-lg p-3" style={{ backgroundColor: COLORS.bg }}>
+                    <div className="flex justify-between gap-2 text-sm">
+                      <span style={{ color: COLORS.text }}>{row.task_type} / {row.model_role}</span>
+                      <span style={{ color: COLORS.textDim }}>{row.status}{row.verdict ? ` · ${row.verdict}` : ''}</span>
+                    </div>
+                    <p className="text-xs mt-1" style={{ color: COLORS.textDim }}>
+                      {row.provider} {row.model}
+                      {row.request || row.response ? ' (bodies present)' : ''}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

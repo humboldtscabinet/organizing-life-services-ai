@@ -12,6 +12,8 @@ from google.analytics.data_v1beta import BetaAnalyticsDataClient
 from google.analytics.data_v1beta.types import (
     DateRange,
     Dimension,
+    Filter,
+    FilterExpression,
     Metric,
     RunReportRequest,
 )
@@ -19,6 +21,9 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.db.models import GA4Data, WorkflowLog
+
+# Weekly lead KPI = these two. Never treat page_view as a lead.
+LEAD_EVENT_NAMES = ("form_submit", "phone_call_clicks")
 
 
 def _upsert_ga4(db: Session, metric_name: str, dimension_name: str,
@@ -219,6 +224,16 @@ def pull_ga4_data(
         else:
             updated += 1
 
+    named_inserted, named_updated = _pull_named_events(
+        db,
+        client=client,
+        property_id=property_id,
+        start_date=start_date,
+        end_date=end_date,
+    )
+    inserted += named_inserted
+    updated += named_updated
+
     # Log the workflow execution
     log_entry = WorkflowLog(
         workflow_name="ga4_data_pull",
@@ -244,6 +259,103 @@ def pull_ga4_data(
     }
 
 
+def _pull_named_events(
+    db: Session,
+    *,
+    client,
+    property_id: str,
+    start_date,
+    end_date,
+) -> tuple[int, int]:
+    """Store daily eventCount (and keyEvents when available) for lead events.
+
+    Uses data.report=named_events so session/pageview charts stay untouched.
+    """
+    inserted = 0
+    updated = 0
+    request = RunReportRequest(
+        property=f"properties/{property_id}",
+        dimensions=[
+            Dimension(name="eventName"),
+            Dimension(name="date"),
+        ],
+        metrics=[Metric(name="eventCount"), Metric(name="keyEvents")],
+        date_ranges=[
+            DateRange(
+                start_date=start_date.isoformat(),
+                end_date=end_date.isoformat(),
+            )
+        ],
+        dimension_filter=FilterExpression(
+            filter=Filter(
+                field_name="eventName",
+                in_list_filter=Filter.InListFilter(values=list(LEAD_EVENT_NAMES)),
+            )
+        ),
+    )
+    try:
+        response = client.run_report(request)
+        include_key_events = True
+    except Exception:
+        request = RunReportRequest(
+            property=f"properties/{property_id}",
+            dimensions=[
+                Dimension(name="eventName"),
+                Dimension(name="date"),
+            ],
+            metrics=[Metric(name="eventCount")],
+            date_ranges=[
+                DateRange(
+                    start_date=start_date.isoformat(),
+                    end_date=end_date.isoformat(),
+                )
+            ],
+            dimension_filter=FilterExpression(
+                filter=Filter(
+                    field_name="eventName",
+                    in_list_filter=Filter.InListFilter(values=list(LEAD_EVENT_NAMES)),
+                )
+            ),
+        )
+        response = client.run_report(request)
+        include_key_events = False
+
+    for row in response.rows:
+        event_name = row.dimension_values[0].value
+        date_str = row.dimension_values[1].value
+        date_obj = datetime.strptime(date_str, "%Y%m%d")
+        event_count = float(row.metric_values[0].value or 0)
+        result = _upsert_ga4(
+            db,
+            metric_name="eventCount",
+            dimension_name="eventName",
+            dimension_value=event_name,
+            date=date_obj,
+            metric_value=event_count,
+            data={"report": "named_events"},
+        )
+        if result == "inserted":
+            inserted += 1
+        else:
+            updated += 1
+        if include_key_events and len(row.metric_values) > 1:
+            key_events = float(row.metric_values[1].value or 0)
+            result = _upsert_ga4(
+                db,
+                metric_name="keyEvents",
+                dimension_name="eventName",
+                dimension_value=event_name,
+                date=date_obj,
+                metric_value=key_events,
+                data={"report": "named_events"},
+            )
+            if result == "inserted":
+                inserted += 1
+            else:
+                updated += 1
+    return inserted, updated
+
+
 def count_named_events(event_name: str, days_back: int = 7) -> int | None:
     """Return GA4 eventCount for one event over the last N days, or None.
 
@@ -259,8 +371,6 @@ def count_named_events(event_name: str, days_back: int = 7) -> int | None:
     )
     if not property_id or not os.path.exists(creds_path):
         return None
-
-    from google.analytics.data_v1beta.types import Filter, FilterExpression
 
     client = _get_ga4_client()
     end_date = datetime.utcnow().date() - timedelta(days=1)
@@ -290,3 +400,42 @@ def count_named_events(event_name: str, days_back: int = 7) -> int | None:
     for row in response.rows:
         total += int(float(row.metric_values[0].value or 0))
     return total
+
+
+def sum_stored_lead_events(db: Session, days_back: int = 7) -> dict:
+    """Sum form_submit + phone_call_clicks from Postgres named_events rows.
+
+    KPI is those two eventCounts. Never include page_view.
+    """
+    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    totals = {name: 0.0 for name in LEAD_EVENT_NAMES}
+    last_date = None
+    rows = (
+        db.query(GA4Data)
+        .filter(
+            GA4Data.date >= cutoff,
+            GA4Data.metric_name == "eventCount",
+            GA4Data.dimension_name == "eventName",
+            GA4Data.dimension_value.in_(LEAD_EVENT_NAMES),
+        )
+        .all()
+    )
+    for row in rows:
+        payload = row.data or {}
+        if payload.get("report") not in (None, "named_events"):
+            continue
+        name = row.dimension_value
+        if name in totals:
+            totals[name] += float(row.metric_value or 0)
+        if row.date and (last_date is None or row.date > last_date):
+            last_date = row.date
+    form_submit = int(totals["form_submit"])
+    phone = int(totals["phone_call_clicks"])
+    return {
+        "form_submit": form_submit,
+        "phone_call_clicks": phone,
+        "total_leads": form_submit + phone,
+        "last_date": last_date.isoformat() if last_date else None,
+        "kpi": "form_submit + phone_call_clicks (never page_view)",
+        "period_days": days_back,
+    }

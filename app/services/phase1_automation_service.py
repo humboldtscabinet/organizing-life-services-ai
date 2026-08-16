@@ -18,7 +18,7 @@ from app.services.ga4_service import pull_ga4_data
 from app.services.gbp_service import pull_gbp_data
 from app.services.google_ads_service import pull_google_ads_data
 from app.services.gsc_service import pull_gsc_data
-from app.services.ops_alert_service import create_alert
+from app.services.ops_alert_service import check_data_freshness, create_alert
 from app.services.sheets_service import (
     push_ga4_to_sheets,
     push_google_ads_to_sheets,
@@ -130,6 +130,10 @@ def run_phase1_cycle(
             },
         },
     )
-    result["alert_id"] = alert.id
+    result["alert_id"] = alert["id"] if isinstance(alert, dict) else alert.id
+    result["freshness"] = _capture_step(check_data_freshness, db)
+    if _has_error(result["freshness"]):
+        result["failed_steps"] = int(result["failed_steps"]) + 1
+        result["status"] = "partial"
     result["completed_at"] = datetime.now(timezone.utc).isoformat()
     return result

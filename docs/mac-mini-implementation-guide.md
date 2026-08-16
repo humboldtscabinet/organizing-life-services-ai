@@ -37,6 +37,22 @@ Do this before unboxing if possible.
 **Gate:** secrets exist outside git, the mini has a GitHub auth path, and the
 operator understands the FileVault recovery tradeoff.
 
+### FileVault posture (operator must choose)
+
+As of the 2026-06-24 audit FileVault is **on** and `autorestart` is **0**.
+Nothing in this repo will disable FileVault. Record the chosen posture after
+you decide:
+
+1. **Keep FileVault.** Physical-theft protection stays. A power blink needs a
+   person at the keyboard to unlock. Still run `sudo pmset autorestart 1` so
+   the Mac powers on to the FileVault screen.
+2. **Physically secure headless.** FileVault off, auto-login
+   `aiagentecosystem`, OrbStack login item, `sudo pmset autorestart 1`, so
+   compose comes back without a site visit.
+
+Do not mix FileVault-on with auto-login; macOS will not auto-login until the
+volume is unlocked.
+
 ## Section 1 — Mac Foundation
 
 Must start physically at the mini.

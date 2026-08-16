@@ -4,6 +4,8 @@ from app.services import gbp_service
 
 
 class _FakeResponse:
+    status_code = 200
+
     def raise_for_status(self):
         return None
 
@@ -155,3 +157,32 @@ def test_pull_gbp_data_updates_existing_rows(monkeypatch):
     assert result["rows_inserted"] == 1
     assert result["rows_updated"] == 1
     assert existing.metric_value == 4
+
+
+def test_pull_gbp_data_403_alerts_and_returns_unavailable(monkeypatch):
+    class _Denied:
+        status_code = 403
+        text = "account did not pass internal quality checks"
+
+        def raise_for_status(self):
+            raise AssertionError("403 should not raise_for_status")
+
+        def json(self):
+            return {}
+
+    alerts = []
+
+    monkeypatch.setattr(gbp_service, "_auth_headers", lambda: {"Authorization": "Bearer test"})
+    monkeypatch.setattr(gbp_service.httpx, "get", lambda *args, **kwargs: _Denied())
+    monkeypatch.setattr(
+        "app.services.ops_alert_service.create_alert",
+        lambda *_args, **kwargs: alerts.append(kwargs) or {"id": 9},
+    )
+
+    db = _FakeDb()
+    result = gbp_service.pull_gbp_data(db=db, location_id="locations/123", days_back=1)
+
+    assert result["status"] == "unavailable"
+    assert result["http_status"] == 403
+    assert alerts[0]["fingerprint"] == "gbp:access"
+    assert alerts[0]["severity"] == "CRITICAL"

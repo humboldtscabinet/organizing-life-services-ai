@@ -34,6 +34,7 @@ HIGH_STAKES_TASK_TYPES = {
     "ads_budget_change",
     "gtm_workspace_write",
     "gtm_publish",
+    "ads_conversion_mutate",
 }
 
 
