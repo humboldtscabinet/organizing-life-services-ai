@@ -30,8 +30,10 @@ local Ollama/Gemma verification, and post-reboot checks.
 
 See `docs/architecture.md` for the full system overview.
 
-Google Ads video creatives (Seedance / BytePlus ModelArk) live in
-[`seedance-ads/`](seedance-ads/README.md).
+Google Ads video creatives (Seedance / Seevio) live in
+[`seedance-ads/`](seedance-ads/README.md). To rebuild that aspect-ratio
+pipeline for another company, see
+[`seedance-ads/docs/build-for-another-company.md`](seedance-ads/docs/build-for-another-company.md).
 
 ## Current Operating Focus
 

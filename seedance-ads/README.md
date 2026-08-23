@@ -4,6 +4,8 @@ TypeScript pipeline for **Google Ads / Performance Max** video creatives with By
 
 **Production path:** remake existing 19s 9:16 OLS ads into native **1:1** and **16:9**. Seedance cannot losslessly re-aspect a file — 1:1 / 16:9 outputs are new generations that follow `[Video 1]`. ffmpeg then **replaces the last 3 seconds** with a native-ratio CTA card (so the original “Call Today” card is not left in the file) and **muxes the original voiceover** onto the remake.
 
+Adapting this pipeline to another company: [`docs/build-for-another-company.md`](docs/build-for-another-company.md).
+
 CTA cards are **not** redrawn by Seedance. The 9:16 card is a uniform scale of the Shopify PNG. 1:1 and 16:9 keep the original logo lockup as pixels and reflow the same locked copy in HTML (headless Chrome).
 
 Seedance 2.5 maxes out at **720p**. Combined reference-video duration must be **≤ 30s** (one 19s source per job is fine).
@@ -80,6 +82,7 @@ This invents people, homes, and branding. Do not use it for production OLS ads.
 ```
 seedance-ads/
 ├── examples/ols-reframe.manifest.json
+├── docs/build-for-another-company.md  Playbook to rebuild this for a new brand
 ├── docs/google-ads-reframe-log.md  Keeper status for all 14 sources
 ├── docs/google-ads-upload-audit-2026-08-16.md  Post-upload PMax / quality audit
 ├── docs/jewelry-reframe-log.md     First live jewelry batch (2026-08-14)
