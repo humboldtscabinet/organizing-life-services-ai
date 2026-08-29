@@ -3,8 +3,7 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.services import content_engine
-from app.services import llm_router
+from app.services import content_engine, llm_router
 from app.services.llm_router import (
     HighRiskGateError,
     LLMProviderUnavailable,
