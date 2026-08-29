@@ -3,12 +3,13 @@ from types import SimpleNamespace
 
 import pytest
 
-from app.services import content_engine
+from app.services import content_engine, llm_router
 from app.services.llm_router import (
     HighRiskGateError,
     LLMProviderUnavailable,
     LLMRequest,
     LLMResult,
+    _provider_for,
     assert_high_stakes_gate,
     is_high_stakes,
     route_llm,
@@ -68,6 +69,123 @@ def test_executive_request_requires_anthropic_key(monkeypatch):
                 preferred_role="executive",
                 prompt="Draft content.",
             )
+        )
+
+
+def test_clerk_and_executive_provider_selection(monkeypatch):
+    monkeypatch.setenv("LOCAL_LLM_MODEL", "gemma4:12b")
+    monkeypatch.setenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
+
+    assert _provider_for("clerk") == ("ollama", "gemma4:12b")
+    assert _provider_for("executive") == ("anthropic", "claude-sonnet-4-20250514")
+
+
+def test_judiciary_defaults_to_anthropic_when_no_xai_key(monkeypatch):
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+    monkeypatch.setenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-4-20250514")
+
+    provider, model = _provider_for("judiciary")
+
+    assert provider == "anthropic"
+    assert model == "claude-sonnet-4-20250514"
+
+
+def test_judiciary_uses_xai_grok_when_key_present(monkeypatch):
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+    monkeypatch.delenv("XAI_JUDGE_MODEL", raising=False)
+
+    provider, model = _provider_for("judiciary")
+
+    assert provider == "xai"
+    assert model == "grok-4"
+
+
+def test_judiciary_is_independent_of_executive_when_xai_key_present(monkeypatch):
+    """The whole point of the xAI judge: judge provider != executive provider."""
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+
+    executive_provider, _ = _provider_for("executive")
+    judiciary_provider, _ = _provider_for("judiciary")
+
+    assert executive_provider == "anthropic"
+    assert judiciary_provider == "xai"
+    assert judiciary_provider != executive_provider
+
+
+def test_xai_judge_model_is_configurable(monkeypatch):
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+    monkeypatch.setenv("XAI_JUDGE_MODEL", "grok-4-fast")
+
+    provider, model = _provider_for("judiciary")
+
+    assert provider == "xai"
+    assert model == "grok-4-fast"
+
+
+def test_route_llm_routes_judiciary_to_xai(monkeypatch):
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+
+    captured = {}
+
+    class _FakeMessage:
+        content = '{"verdict": "PASS", "reasons": [], "blocking_issue": ""}'
+
+    class _FakeChoice:
+        message = _FakeMessage()
+
+    class _FakeUsage:
+        prompt_tokens = 11
+        completion_tokens = 5
+
+    class _FakeCompletion:
+        id = "xai-cmpl-1"
+        choices = [_FakeChoice()]
+        usage = _FakeUsage()
+
+    class _FakeCompletions:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+            return _FakeCompletion()
+
+    class _FakeChat:
+        completions = _FakeCompletions()
+
+    class _FakeOpenAI:
+        def __init__(self, api_key, base_url):
+            captured["api_key"] = api_key
+            captured["base_url"] = base_url
+            self.chat = _FakeChat()
+
+    import openai
+
+    monkeypatch.setattr(openai, "OpenAI", _FakeOpenAI)
+
+    result = route_llm(
+        LLMRequest(
+            task_type="content_publish_review",
+            risk_level="high",
+            preferred_role="judiciary",
+            response_format="json",
+            prompt="Review this draft.",
+        )
+    )
+
+    assert result.provider == "xai"
+    assert result.model == "grok-4"
+    assert result.model_role == "judiciary"
+    assert result.total_tokens == 16
+    assert captured["base_url"] == "https://api.x.ai/v1"
+    assert captured["response_format"] == {"type": "json_object"}
+
+
+def test_xai_call_requires_key(monkeypatch):
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+
+    with pytest.raises(LLMProviderUnavailable):
+        llm_router._call_xai(
+            LLMRequest(task_type="content_publish_review", prompt="x"),
+            role="judiciary",
+            model="grok-4",
         )
 
 
