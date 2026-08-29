@@ -65,6 +65,8 @@ services:
       ANTHROPIC_JUDGE_MODEL: "${ANTHROPIC_JUDGE_MODEL:-claude-sonnet-4-20250514}"
       OPENAI_API_KEY: "${OPENAI_API_KEY:-}"
       XAI_API_KEY: "${XAI_API_KEY:-}"
+      XAI_JUDGE_MODEL: "${XAI_JUDGE_MODEL:-grok-4}"
+      XAI_BASE_URL: "${XAI_BASE_URL:-https://api.x.ai/v1}"
       LOCAL_LLM_BASE_URL: "${LOCAL_LLM_BASE_URL:-http://host.docker.internal:11434}"
       LOCAL_LLM_MODEL: "${LOCAL_LLM_MODEL:-gemma4:12b}"
       LOCAL_LLM_LARGE_MODEL: "${LOCAL_LLM_LARGE_MODEL:-gemma4:31b}"

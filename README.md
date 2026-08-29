@@ -30,7 +30,18 @@ local Ollama/Gemma verification, and post-reboot checks.
 
 See `docs/architecture.md` for the full system overview.
 
-Google Ads video creatives (Seedance / Seevio) live in
+## Working with agents
+
+This repo is intentionally **not** a free-running multi-agent system. Two docs
+govern how humans and AI agents operate here:
+
+- [`AGENTS.md`](AGENTS.md) — rules Cursor Cloud Agents / Grok Bots must follow
+  when changing this codebase (gates, never-apply list, where to look).
+- [`docs/grok-bot.md`](docs/grok-bot.md) — the Grok Bot operating contract that
+  maps named seats onto existing code paths (SEO measurement, gated Apply,
+  Seedance ads, Mac mini ops, coding via Cloud Agents, independent judiciary).
+
+Google Ads video creatives (Seedance / BytePlus ModelArk) live in
 [`seedance-ads/`](seedance-ads/README.md). To rebuild that aspect-ratio
 pipeline for another company, see
 [`seedance-ads/docs/build-for-another-company.md`](seedance-ads/docs/build-for-another-company.md).

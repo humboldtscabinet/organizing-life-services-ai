@@ -116,6 +116,8 @@ def route_llm(request: LLMRequest, db: Session | None = None) -> LLMResult:
             result = _call_ollama(request=request, role=role, model=model)
         elif provider == "anthropic":
             result = _call_anthropic(request=request, role=role, model=model)
+        elif provider == "xai":
+            result = _call_xai(request=request, role=role, model=model)
         else:
             raise LLMProviderUnavailable(f"Unsupported LLM provider: {provider}")
 
@@ -202,6 +204,13 @@ def _provider_for(role: ModelRole) -> tuple[str, str]:
     if role == "executive":
         return "anthropic", os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
     if role == "judiciary":
+        # Independent judiciary: when an xAI key is present, judge with xAI/Grok
+        # so the reviewer is a different provider/family than the Anthropic
+        # executive that drafts content. This matches the Mac mini plan, which
+        # names Grok as the independent judiciary model. With no key configured
+        # we fail closed to the existing Anthropic judge instead of erroring.
+        if os.getenv("XAI_API_KEY"):
+            return "xai", os.getenv("XAI_JUDGE_MODEL", "grok-4")
         return "anthropic", os.getenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-4-20250514")
     raise LLMProviderUnavailable(f"No provider configured for role: {role}")
 
@@ -292,6 +301,59 @@ def _call_anthropic(request: LLMRequest, role: ModelRole, model: str) -> LLMResu
         completion_tokens=completion_tokens,
         total_tokens=total_tokens,
         raw_response={"id": getattr(message, "id", None)},
+    )
+
+
+def _call_xai(request: LLMRequest, role: ModelRole, model: str) -> LLMResult:
+    api_key = os.getenv("XAI_API_KEY")
+    if not api_key:
+        raise LLMProviderUnavailable("XAI_API_KEY is not configured")
+
+    import openai
+
+    client = openai.OpenAI(
+        api_key=api_key,
+        base_url=os.getenv("XAI_BASE_URL", "https://api.x.ai/v1"),
+    )
+    messages: list[dict[str, str]] = []
+    if request.system_prompt:
+        messages.append({"role": "system", "content": request.system_prompt})
+    messages.append({"role": "user", "content": request.prompt})
+
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "max_tokens": request.max_tokens,
+        "temperature": request.temperature,
+        "messages": messages,
+    }
+    if request.response_format == "json":
+        kwargs["response_format"] = {"type": "json_object"}
+
+    try:
+        completion = client.chat.completions.create(**kwargs)
+    except openai.OpenAIError as exc:
+        raise LLMProviderUnavailable(f"xAI request failed: {exc}") from exc
+
+    choice = completion.choices[0]
+    text = (choice.message.content or "").strip()
+    usage = getattr(completion, "usage", None)
+    prompt_tokens = getattr(usage, "prompt_tokens", None)
+    completion_tokens = getattr(usage, "completion_tokens", None)
+    total_tokens = (
+        prompt_tokens + completion_tokens
+        if isinstance(prompt_tokens, int) and isinstance(completion_tokens, int)
+        else None
+    )
+    return LLMResult(
+        text=text,
+        provider="xai",
+        model=model,
+        model_role=role,
+        status="success",
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+        raw_response={"id": getattr(completion, "id", None)},
     )
 
 

@@ -9,6 +9,15 @@ Current agent behavior lives in:
 - `app/safety.py` — high-stakes write gates
 - guarded FastAPI routes — human confirmation before public writes
 
+How humans and Grok Bots should *operate* within this policy (named seats,
+skills-then-routines, approval boundaries) is documented separately, without
+adding any in-process agent framework:
+
+- [grok-bot.md](grok-bot.md) — Grok Bot operating contract mapped to existing
+  code paths
+- [../AGENTS.md](../AGENTS.md) — rules for Cloud Agents / Grok Bots that change
+  this codebase
+
 ## Role Policy
 
 Use model roles by task risk, not by hype:
