@@ -41,4 +41,7 @@ See also:
 
 - [deployment.md](deployment.md)
 - [agents.md](agents.md)
+- [grok-bot.md](grok-bot.md) — Grok Bot operating contract (named seats mapped
+  to existing code paths)
+- [../AGENTS.md](../AGENTS.md) — rules for Cloud Agents / Grok Bots changing the code
 - [runbooks/data-mutation-scripts.md](runbooks/data-mutation-scripts.md)
