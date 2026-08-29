@@ -42,7 +42,9 @@ govern how humans and AI agents operate here:
   Seedance ads, Mac mini ops, coding via Cloud Agents, independent judiciary).
 
 Google Ads video creatives (Seedance / BytePlus ModelArk) live in
-[`seedance-ads/`](seedance-ads/README.md).
+[`seedance-ads/`](seedance-ads/README.md). To rebuild that aspect-ratio
+pipeline for another company, see
+[`seedance-ads/docs/build-for-another-company.md`](seedance-ads/docs/build-for-another-company.md).
 
 ## Current Operating Focus
 
