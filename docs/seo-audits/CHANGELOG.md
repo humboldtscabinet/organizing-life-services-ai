@@ -10,6 +10,29 @@ Each entry should answer:
 
 ---
 
+## 2026-08-31 — Session 17: homepage CTR pass for organizers + estate-cleanout-near-me (NOT live applied)
+
+**Status: NOT live applied.** Docs + guarded script only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
+
+**What (proposed)**
+- New guarded, idempotent session script [`data/session17_homepage_ctr_cleanout.py`](../../data/session17_homepage_ctr_cleanout.py) that upgrades the homepage theme meta block `HOMEPAGE-SEO-META-V1` → `HOMEPAGE-SEO-META-V2` with dual-intent SERP copy:
+  - Title (50 chars): `Estate Sale Organizers & Cleanouts | Tampa Bay OLS`
+  - Description (156 chars): `Tampa Bay estate sale organizers and estate cleanout services. OLS runs full sales, appraisals, and downsizing from Pinellas to Citrus. Call (727) 542-6028.`
+- The organizer intlinks block `SEO-INTLINKS-ORGANIZERS-V1` already links estate cleanout services, so the script does **not** duplicate that copy; a single cleanout sentence is inserted only if that block is missing any cleanout mention.
+- One H1 story is preserved (heading stays `Estate Sale Organizers Serving Tampa Bay`); the `OLS-GTM-INSTALL-V1` GTM snippet is guarded against regression.
+
+**Why (hypothesis)**
+- GSC 2026-08-01→08-28: `estate sale organizers` → `/` (272 impr, 0 clicks, pos 15.9) and `estate cleanout near me` → `/` (264 impr, 0 clicks, pos 1.2). Cleanout ranks #1 with 0% CTR — a snippet mismatch, since the live title is organizer-only. Folding cleanout into the title/meta should let the same page earn clicks for both intents without keyword stuffing, competitor names, or invented prices/testimonials.
+
+**How**
+- Script: dry-run default; live writes require `--apply` + `OLS_ALLOW_DATA_MUTATION=1` / `OLS_DATA_MUTATION_CONFIRM=...`; snapshots `layout/theme.liquid` before any write; idempotent once V2 copy is present.
+- Tests: [`tests/test_session17_homepage_ctr_cleanout.py`](../../tests/test_session17_homepage_ctr_cleanout.py) cover copy-length/dual-intent contract, V1→V2 marker upgrade + idempotency, legacy-copy handling, no-duplicate cleanout, and the GTM regression guard.
+
+**Result / next watch**
+- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the diff, then `--apply` under the mutation guard. Re-measure `estate sale organizers` and `estate cleanout near me` CTR on `/` 14/28d after any real Apply.
+
+---
+
 ## 2026-08-31 — Weekly SEO audit: full 28d read on the Jul 25 applies (measurement only)
 
 **What**
