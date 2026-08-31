@@ -10,6 +10,31 @@ Each entry should answer:
 
 ---
 
+## 2026-08-31 — Weekly SEO audit: full 28d read on the Jul 25 applies (measurement only)
+
+**What**
+- Ran the weekly deep audit + post-deploy measurement baseline over 2026-08-01→08-28 vs 2026-07-04→07-31.
+- **No new live Shopify write this week.** This is a measurement pass; the last CHANGELOG live apply remains **2026-07-25**.
+- Crawl health: 80/80 pages returned 200; Google URL Inspection 20/20 PASS.
+
+**Why**
+- Measure the 2026-07-25 GTM install + `phone_call_clicks` and organic-hub applies over a full 28-day window, now that they have been live long enough to show in search stats.
+
+**How**
+- Workflow: GitHub Actions `weekly-seo-audit`, PR #82, merge `ef55604`.
+- Raw: [`data/audit_output/deep_seo_audit_20260831_120737.{md,json}`](../../data/audit_output/deep_seo_audit_20260831_120737.md), [`data/audit_output/post_deploy_measurement_baseline_20260831T121003Z.json`](../../data/audit_output/post_deploy_measurement_baseline_20260831T121003Z.json).
+- Baseline summary: [`docs/seo-audits/2026-08-31-post-deploy-measurement-baseline.md`](2026-08-31-post-deploy-measurement-baseline.md).
+
+**Result / next watch**
+- **GSC:** clicks 117 → 97 (−17.1%); impressions 14,690 → 13,425; weighted avg position 15.8 → 16.9.
+- **GA4:** all-traffic sessions +24.4%; organic sessions −61.5%; conversion tracking still fails trust checks.
+- **Real lead-intent key events:** `form_submit` 19, `phone_call_clicks` 8. Junk still in the mix: `page_view` (2 key events) and `ads_conversion_Contact_Page_load_https_1` (1 key event / 91 events).
+- **CTR holes (homepage still 0 clicks):** `estate sale organizers` → `/` (272 impr, 0 clicks, pos 15.9); `estate cleanout near me` → `/` (264 impr, 0 clicks, pos 1.2).
+- **Gainer:** `estate sales near me` +6 clicks.
+- **Next:** (1) unmark `page_view` as a key event in the GA4 UI; (2) `ads.disable_bogus_conversions` for `Contact_Page_load`; (3) then homepage content for the `estate sale organizers` and `estate cleanout near me` intents. Re-measure 14/28d after any real Apply.
+
+---
+
 ## 2026-07-25 — Session 16: install GTM on theme (live applied)
 
 **What**
