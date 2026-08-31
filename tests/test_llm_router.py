@@ -9,11 +9,45 @@ from app.services.llm_router import (
     LLMProviderUnavailable,
     LLMRequest,
     LLMResult,
+    _anthropic_allows_sampling,
     _provider_for,
     assert_high_stakes_gate,
     is_high_stakes,
     route_llm,
 )
+
+
+class _FakeAnthropicUsage:
+    input_tokens = 3
+    output_tokens = 2
+
+
+class _FakeAnthropicBlock:
+    type = "text"
+    text = '{"ok": true}'
+
+
+class _FakeAnthropicMessage:
+    id = "msg-anthropic-1"
+    content = [_FakeAnthropicBlock()]
+    usage = _FakeAnthropicUsage()
+
+
+def _patch_anthropic(monkeypatch, captured):
+    class _FakeMessages:
+        def create(self, **kwargs):
+            captured.clear()
+            captured.update(kwargs)
+            return _FakeAnthropicMessage()
+
+    class _FakeAnthropic:
+        def __init__(self, api_key):
+            captured["api_key"] = api_key
+            self.messages = _FakeMessages()
+
+    import anthropic
+
+    monkeypatch.setattr(anthropic, "Anthropic", _FakeAnthropic)
 
 
 class _FakeOllamaResponse:
@@ -78,6 +112,60 @@ def test_clerk_and_executive_provider_selection(monkeypatch):
 
     assert _provider_for("clerk") == ("ollama", "gemma4:12b")
     assert _provider_for("executive") == ("anthropic", "claude-sonnet-4-20250514")
+
+
+def test_executive_defaults_to_sonnet_5(monkeypatch):
+    monkeypatch.delenv("ANTHROPIC_MODEL", raising=False)
+
+    assert _provider_for("executive") == ("anthropic", "claude-sonnet-5")
+
+
+@pytest.mark.parametrize(
+    "model, allows",
+    [
+        ("claude-sonnet-5", False),
+        ("claude-sonnet-5-20260101", False),
+        ("claude-opus-4-7", False),
+        ("claude-opus-4-8", False),
+        ("claude-sonnet-4-20250514", True),
+        ("claude-opus-4-1-20250805", True),
+    ],
+)
+def test_anthropic_allows_sampling(model, allows):
+    assert _anthropic_allows_sampling(model) is allows
+
+
+def test_anthropic_omits_temperature_for_sonnet_5(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    captured: dict = {}
+    _patch_anthropic(monkeypatch, captured)
+
+    result = llm_router._call_anthropic(
+        LLMRequest(task_type="content_draft", prompt="Draft.", temperature=0.2),
+        role="executive",
+        model="claude-sonnet-5",
+    )
+
+    assert result.provider == "anthropic"
+    assert result.model == "claude-sonnet-5"
+    assert "temperature" not in captured
+    assert "top_p" not in captured
+    assert "top_k" not in captured
+    assert "thinking" not in captured
+
+
+def test_anthropic_keeps_temperature_for_legacy_model(monkeypatch):
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "sk-test")
+    captured: dict = {}
+    _patch_anthropic(monkeypatch, captured)
+
+    llm_router._call_anthropic(
+        LLMRequest(task_type="content_draft", prompt="Draft.", temperature=0.2),
+        role="executive",
+        model="claude-sonnet-4-20250514",
+    )
+
+    assert captured["temperature"] == 0.2
 
 
 def test_judiciary_defaults_to_anthropic_when_no_xai_key(monkeypatch):

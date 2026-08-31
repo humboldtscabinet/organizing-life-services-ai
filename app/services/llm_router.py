@@ -202,7 +202,7 @@ def _provider_for(role: ModelRole) -> tuple[str, str]:
     if role == "clerk":
         return "ollama", os.getenv("LOCAL_LLM_MODEL", "gemma4:12b")
     if role == "executive":
-        return "anthropic", os.getenv("ANTHROPIC_MODEL", "claude-sonnet-4-20250514")
+        return "anthropic", os.getenv("ANTHROPIC_MODEL", "claude-sonnet-5")
     if role == "judiciary":
         # Independent judiciary: when an xAI key is present, judge with xAI/Grok
         # so the reviewer is a different provider/family than the Anthropic
@@ -211,7 +211,7 @@ def _provider_for(role: ModelRole) -> tuple[str, str]:
         # we fail closed to the existing Anthropic judge instead of erroring.
         if os.getenv("XAI_API_KEY"):
             return "xai", os.getenv("XAI_JUDGE_MODEL", "grok-4")
-        return "anthropic", os.getenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-4-20250514")
+        return "anthropic", os.getenv("ANTHROPIC_JUDGE_MODEL", "claude-sonnet-5")
     raise LLMProviderUnavailable(f"No provider configured for role: {role}")
 
 
@@ -263,6 +263,27 @@ def _call_ollama(request: LLMRequest, role: ModelRole, model: str) -> LLMResult:
     )
 
 
+# Anthropic model families that reject non-default sampling params
+# (temperature / top_p / top_k) with a 400. Claude Sonnet 5 and Claude
+# Opus 4.7 / 4.8 use adaptive sampling (and adaptive thinking) and 400 when a
+# non-default sampling override is sent. Older snapshots such as
+# ``claude-sonnet-4-*`` still accept ``temperature``, so we only omit sampling
+# for the families below and keep sending it everywhere else (matched as a
+# substring so dated snapshots like ``claude-sonnet-5-20260101`` are covered).
+# See https://platform.claude.com/docs/en/models/sonnet-5/migration-guide
+_ANTHROPIC_NO_SAMPLING_MARKERS = (
+    "claude-sonnet-5",
+    "claude-opus-4-7",
+    "claude-opus-4-8",
+)
+
+
+def _anthropic_allows_sampling(model: str) -> bool:
+    """Return True when this Anthropic model still accepts sampling overrides."""
+    normalized = (model or "").lower()
+    return not any(marker in normalized for marker in _ANTHROPIC_NO_SAMPLING_MARKERS)
+
+
 def _call_anthropic(request: LLMRequest, role: ModelRole, model: str) -> LLMResult:
     api_key = os.getenv("ANTHROPIC_API_KEY")
     if not api_key:
@@ -274,9 +295,13 @@ def _call_anthropic(request: LLMRequest, role: ModelRole, model: str) -> LLMResu
     kwargs: dict[str, Any] = {
         "model": model,
         "max_tokens": request.max_tokens,
-        "temperature": request.temperature,
         "messages": [{"role": "user", "content": request.prompt}],
     }
+    # Sonnet 5 / Opus 4.7 / 4.8 reject non-default temperature/top_p/top_k and
+    # run adaptive thinking by default, so we omit sampling for them entirely
+    # (we never set top_p/top_k here) and do not send a manual thinking block.
+    if _anthropic_allows_sampling(model):
+        kwargs["temperature"] = request.temperature
     if request.system_prompt:
         kwargs["system"] = request.system_prompt
 

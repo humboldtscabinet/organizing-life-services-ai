@@ -592,7 +592,11 @@ Format your response as JSON with these exact keys:
                 preferred_role="executive",
                 response_format="json",
                 prompt=prompt,
-                max_tokens=4096,
+                # Claude Sonnet 5 runs adaptive thinking by default, which shares
+                # this budget; keep enough headroom that the article JSON still
+                # returns complete instead of truncating mid-object. Sampling
+                # (temperature) is omitted for Sonnet 5 inside the router.
+                max_tokens=8192,
                 temperature=0.2,
                 input_refs={
                     "topic": topic,
