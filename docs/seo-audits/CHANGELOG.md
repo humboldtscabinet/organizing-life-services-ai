@@ -10,6 +10,29 @@ Each entry should answer:
 
 ---
 
+## 2026-08-31 — Session 18: article CTR pass for "how-to-find-the-best-antique-buyer" (NOT live applied)
+
+**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
+
+**What (proposed)**
+- New guarded, idempotent session script [`data/session18_antique_buyer_article_ctr.py`](../../data/session18_antique_buyer_article_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, same article fields as Session 10 round 3 / [`data/push_meta_round3_direct.py`](../../data/push_meta_round3_direct.py)) for **one** article — handle `how-to-find-the-best-antique-buyer` ([live URL](https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer)):
+  - Title (49 chars): `Where to Sell Antiques Locally in Tampa Bay | OLS`
+  - Description (152 chars): `Where to sell antiques locally? Find a trusted antique buyer in Tampa Bay, FL, or let our estate sale team handle the sale for you. Call (727) 542-6028.`
+- The script selects exactly one article by handle and refuses to run if zero or more than one match, so it can never write a different article.
+- Does **not** touch Shopify products, product SEO fields, fee collections, the homepage theme, GTM tags, or `app/agents/`.
+
+**Why (hypothesis)**
+- GSC 2026-08-01→08-28: query `where to sell antiques locally` → this URL earns 190 impressions, 0 clicks, position 1.0 — a classic rank-#1, 0% CTR snippet mismatch. The live title (`How to Find the Best Antique Buyer | Organizing Life Services`, 61 chars) is buyer-framed and long enough to truncate, while the searcher's job is to *sell* antiques locally. Reframing the title/meta to seller-local intent should let the same #1 ranking finally earn clicks — without keyword stuffing, competitor names, invented prices, or fake testimonials. OLS is an estate-sale / personal-property company (not a pawn shop); Tampa Bay / Florida service-area context and the approved phone `(727) 542-6028` are allowed.
+
+**How**
+- Script: dry-run default; live writes require `--apply` + `OLS_ALLOW_DATA_MUTATION=1` / `OLS_DATA_MUTATION_CONFIRM=...`; snapshots the article's existing metafields (JSON) before any write; idempotent once the proposed `title_tag` / `description_tag` are present.
+- Tests: [`tests/test_session18_antique_buyer_article_ctr.py`](../../tests/test_session18_antique_buyer_article_ctr.py) cover copy length + seller-intent/on-brand contract, handle targeting (selects only the target handle; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
+
+**Result / next watch**
+- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure `where to sell antiques locally` → this URL CTR 14/28d after any real Apply.
+
+---
+
 ## 2026-08-31 — Session 17: homepage CTR pass for organizers + estate-cleanout-near-me (NOT live applied)
 
 **Status: NOT live applied.** Docs + guarded script only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
