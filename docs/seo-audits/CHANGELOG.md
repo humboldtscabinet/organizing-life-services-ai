@@ -10,6 +10,30 @@ Each entry should answer:
 
 ---
 
+## 2026-08-31 — Session 20: page CTR pass for "downsizing-moving-sales" (`downsizing specialist`) (NOT live applied)
+
+**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run for Session 20; this entry documents the proposed change and its dry-run brakes.
+
+**What (proposed)**
+- New guarded, idempotent session script [`data/session20_downsizing_specialist_page_ctr.py`](../../data/session20_downsizing_specialist_page_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, the same page SEO fields used by Session 10 / Session 11) for **one** EXISTING page — handle `downsizing-moving-sales` ([live URL](https://organizinglifeservices.com/pages/downsizing-moving-sales)):
+  - Title (55 chars): `Downsizing Specialist in Tampa Bay | Moving Sales | OLS`
+  - Description (113 chars): `Need a downsizing specialist in Tampa Bay? OLS handles sorting, moving sales, and cleanouts. Call (727) 542-6028.`
+- Edits the SEO title/meta metafields only. H1 (`Downsizing Help & Moving Sales | Organizing Life Services`) is left unchanged, exactly like Session 19. Does **not** touch the page body, Shopify products, product SEO fields, fee collections, the homepage theme, GTM (`GTM-KQ76X4NR`), ads, GBP, `app/agents/`, the dashboard Apply path, or any other page.
+- The script selects exactly one page by handle and refuses to run if zero or more than one match, so it can never write a different page.
+
+**Why (hypothesis)**
+- GSC 2026-08-01→08-28 (deep audit [`data/audit_output/deep_seo_audit_20260831_120737.json`](../../data/audit_output/deep_seo_audit_20260831_120737.json)): query `downsizing specialist` → this URL earns 62 impressions, 0 clicks, position 3.7 — a classic rank-with-no-CTR snippet mismatch (page totals: 179 impressions, 2 clicks, position 22.2). The live title (`Downsizing & Moving Sales in Greater Tampa Bay Area`, 50 chars) and generic live meta do not name the searcher's job. Naming `downsizing specialist` in the title and answering it in one sentence, with Tampa Bay service-area context plus the approved phone `(727) 542-6028`, should let the same top-4 ranking finally earn clicks — without keyword stuffing, `near me`, competitor names, invented prices, testimonials, street addresses, or GTM tags.
+- **Not addressed here:** the Tampa hub `/pages/estate-sale-tampa-hillsborough-county` (rank pos ~27 — a ranking job, not a snippet job) is deliberately out of scope; no new Palm Harbor URL is created; organizer queries (just published) are untouched.
+
+**How**
+- Script: dry-run default; live writes require `--apply` + `OLS_ALLOW_DATA_MUTATION=1` / `OLS_DATA_MUTATION_CONFIRM=...`; snapshots the page's existing metafields (JSON) before any write; idempotent once the proposed `title_tag` / `description_tag` are present.
+- Tests: [`tests/test_session20_downsizing_specialist_page_ctr.py`](../../tests/test_session20_downsizing_specialist_page_ctr.py) cover copy length + downsizing-specialist-intent/on-brand contract (no `$`, no `gtm-`), handle targeting (selects only the downsizing page, never the Tampa hub; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
+
+**Result / next watch**
+- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure `downsizing specialist` → this URL CTR at **2026-09-14 (14d)** and **2026-09-28 (28d)** after any real Apply.
+
+---
+
 ## 2026-08-31 — Session 19: article CTR pass for "estate-sale-vs-garage-sale-know-the-differences" (NOT live applied)
 
 **Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run for Session 19; this entry documents the proposed change and its dry-run brakes. (Note on prior applies: the last live applies both happened earlier **today, 2026-08-31** — homepage Session 17 (~10:54 AM ET) and antique-buyer Session 18 (~1:25 PM ET). The last live apply is **not** 2026-07-25.)
