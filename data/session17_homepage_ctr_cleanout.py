@@ -268,7 +268,7 @@ def upgrade_homepage_meta(source: str) -> tuple[str, str]:
         # Fallback: first index-title line after the V1 title comment.
         title_re = re.compile(
             rf"({{%- comment -%}} {re.escape(HOMEPAGE_META_MARKER_V1)}: title "
-            r"{{%- endcomment -%}}\s*"
+            r"{%- endcomment -%}\s*"
             r"{%- if template\.name == 'index' -%}\s*)"
             r"([^\n]+)",
             re.MULTILINE,
@@ -286,7 +286,7 @@ def upgrade_homepage_meta(source: str) -> tuple[str, str]:
     if not replaced_desc:
         desc_re = re.compile(
             rf'({{%- comment -%}} {re.escape(HOMEPAGE_META_MARKER_V1)}: description '
-            r'{{%- endcomment -%}}\s*'
+            r'{%- endcomment -%}\s*'
             r'{%- if template\.name == \'index\' -%}\s*'
             r'<meta name="description" content=")([^"]+)(">)',
             re.MULTILINE,
