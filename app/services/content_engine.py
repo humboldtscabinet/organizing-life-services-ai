@@ -785,7 +785,11 @@ Post payload:
             preferred_role="judiciary",
             response_format="json",
             prompt=prompt,
-            max_tokens=700,
+            # The Anthropic judiciary fallback is Claude Sonnet 5, which runs
+            # adaptive thinking by default and shares this budget; keep enough
+            # headroom that the verdict JSON still returns complete instead of
+            # being truncated by thinking tokens.
+            max_tokens=4096,
             temperature=0.0,
             input_refs={
                 "task_id": task.id,
