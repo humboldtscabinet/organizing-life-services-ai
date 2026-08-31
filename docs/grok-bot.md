@@ -186,6 +186,119 @@ role.
 - No content in `app/agents/` or `app/skills/` — they stay empty placeholders.
 - No unsupervised public writes.
 
+## Candidate routines (skill, then schedule)
+
+OLS already has the hard schedulers: launchd runs Postgres and task generation
+on the mini; GitHub Actions produces the audit and snapshot artifacts. A Grok
+Bot is the **stay-quiet reviewer sitting on top of those loops** — not a second
+cron that re-pulls GSC/GA4 or clicks Apply. A *skill* is how to do a job; a
+*routine* is when to run it. Skill-then-routine (rule 3): prove a job by hand,
+attach a schedule only after its failure cases are boring.
+
+**Access fact.** The Bot's xAI cloud computer is **not on Tailscale**. It can
+read GitHub, `curl` the public site, and talk to the operator. It cannot treat
+`localhost:8000`, n8n, or Ollama as a stable path. A `trycloudflare` dashboard
+URL may exist but is not a stable API (the hostname can change). Anything that
+needs the mini API is a human-pasted export, a Cursor Cloud Agent running on the
+mini, or out of scope for an unattended Bot routine. Do **not** SSH into the
+mini from xAI cloud as a routine default.
+
+Each candidate routine names six things, then stops:
+
+1. **Owning seat** — one of the six seats above, never a new one.
+2. **Trigger** — a clock time or a GitHub event.
+3. **Source of truth** — a live pull or artifact, never Bot memory (rule 5).
+4. **Output** — a briefing, a draft CHANGELOG line, or a `DashboardTask`
+   suggestion for a human. Never an Apply.
+5. **Approval line** — read/prepare runs unattended; publish, Shopify, ads, GTM,
+   and spend wait for a human (rule 6).
+6. **Quiet rule** — if nothing moved: no task, no PR, no ping (rule 4).
+
+**Do not routine:** Apply; merging snapshot/audit PRs; ads budget/bid/keyword;
+GBP writes; inventing GTM tags; indexing `/collections/all` or `/products/*`;
+filling `app/agents/` or `app/skills/`.
+
+### First wave (prove as skills, then schedule)
+
+1. **Weekly audit PR triage** — *SEO Measurement.* Trigger: a GitHub PR opened
+   on `automation/weekly-seo-audit-*`. Diff this week vs last; draft
+   `docs/seo-audits/YYYY-MM-DD-*.md` plus a CHANGELOG stub; flag only material
+   movers. Do not merge, do not Apply — a flat week is not news.
+2. **Daily snapshot silence filter** — *SEO Measurement.* Trigger: the daily
+   snapshot PR. Compare today vs yesterday; emit either "no material movement —
+   skip merge" or a five-line delta. Do not merge snapshot PRs.
+3. **Live-site policy watch** — *SEO Measurement / Mac mini Ops.* Trigger:
+   weekday morning, or after a human says they applied X. `curl`
+   `organizinglifeservices.com` and check that `GTM-KQ76X4NR` is present, no
+   `streetAddress` in JSON-LD, fee/product URLs stay `noindex`, and
+   `/collections/all` and `/collections/fees-products` are not promoted. Do not
+   PATCH Shopify or invent Apply verbs; ping only on new drift.
+4. **GSC watch due-date brief** — *SEO Measurement.* Trigger: 14 and 28 days
+   after a CHANGELOG apply. Re-read the latest audit JSON (not remembered CTR);
+   report success / still flat / data missing; recommend iterate title vs leave
+   it vs wait for GSC lag. Homepage watches stay advisory — do not run
+   `session12_homepage_organizers_ctr.py` or Apply frozen meta.
+5. **Pre-Apply briefing pack** — *Gated Apply.* Trigger: the operator pastes a
+   pending task or a dashboard export. Restate the frozen payload, which gate
+   applies (deterministic vs judge PASS), the denylist check, GTM ensure vs
+   publish as two clicks, and the exact human confirmation. Do not call
+   `/apply`, set `human_confirmed`, or forge `judge_verdict`.
+6. **Post-Apply public verify + CHANGELOG line** — *Gated Apply + SEO
+   Measurement.* Trigger: the operator says a task was applied (id + kind). Wait
+   ~5 min, `curl` the live URL, confirm title/meta/GTM marker, draft a CHANGELOG
+   line. Do not Apply a follow-up; the 14/28-day watch is a new routine instance
+   later.
+7. **Monday operator one-pager** — *SEO Measurement.* Trigger: Monday, after the
+   weekly audit job. One message: audit PR status, material movers, due GSC
+   watches, known open blockers (only if still open in docs), Seedance batches
+   waiting on a human. An empty week = no ping. Do not start Phase 1 — launchd
+   owns that.
+
+### Second wave (after the first skills stay quiet)
+
+8. **Stale pending-task digest** — *Gated Apply.* Weekly: applyable tasks older
+   than N days, with evidence from the latest snapshot; skip dismissed
+   fingerprints; no Apply.
+9. **28-day post-change impact note** — *SEO Measurement.* CHANGELOG rows
+   without a Result link once the comparison window is clean; winners/losers vs
+   the stated hypothesis.
+10. **Seedance dry-run inventory** — *Seedance Ads.* Weekly:
+    `reframe-ad.ts --dry-run`, missing sources, keeper OCR, credits not spent.
+    Live Seevio stays one-shot with operator go-ahead. Never
+    `ads.budget_bid_keyword`, never publish creatives into the ad account.
+11. **Mini health from artifacts, not SSH** — *Mac mini Ops.* The Bot should not
+    SSH from xAI cloud; use pasted `CRITICAL`/`WARNING` dashboard alerts or a
+    Cloud Agent dump. Page only on new fingerprints; restores, secret rotation,
+    and exposing ports stay human.
+12. **CI / policy-drift triage** — *Coding.* CI red, or a weekly grep that
+    `ALLOWLIST` / `NEVER_APPLY_KINDS` still match `docs/agents.md` and this file.
+    Output a review comment or a Cloud Agent ticket. No direct-to-main, no
+    "temporarily" registering a never-kind.
+13. **Content-preview shepherd** — *Gated Apply.* When Phase 1 has scheduled a
+    content task: remind the operator to Preview Draft first, use first-party
+    facts, then judge. The Bot may draft a contradiction list in chat, but the
+    real `judge_verdict` still comes from the in-process judiciary
+    (`XAI_API_KEY`), not a scheduled Bot stamping PASS.
+
+### Do not turn into routines
+
+- A second GSC pull from the Bot.
+- Auto-merging snapshot/audit PRs.
+- Auto-Apply when the judge returns PASS.
+- Scheduled live Seedance batches.
+- GBP NAP writes.
+- GA4 unmark of junk key events.
+- An n8n replacement or CrewAI.
+- The Bot acting as judiciary of record.
+
+### Suggested rollout
+
+This week, by hand, prove audit-PR synthesis and the live-site policy `curl`. If
+they are accurate for two Mondays, attach the GitHub-event routines. Next: the
+snapshot silence filter. Then the GSC watch briefs and post-Apply CHANGELOG
+line. Only after those stay quiet: the Monday one-pager, the stale-task digest,
+and the Seedance dry-run inventory.
+
 ## See also
 
 - [`AGENTS.md`](../AGENTS.md) — rules for Cloud Agents / Grok Bots changing the code
