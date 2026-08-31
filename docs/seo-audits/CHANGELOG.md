@@ -10,6 +10,32 @@ Each entry should answer:
 
 ---
 
+## 2026-08-31 — Session 19: article CTR pass for "estate-sale-vs-garage-sale-know-the-differences" (NOT live applied)
+
+**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run for Session 19; this entry documents the proposed change and its dry-run brakes. (Note on prior applies: the last live applies both happened earlier **today, 2026-08-31** — homepage Session 17 (~10:54 AM ET) and antique-buyer Session 18 (~1:25 PM ET). The last live apply is **not** 2026-07-25.)
+
+**What (proposed)**
+- New guarded, idempotent session script [`data/session19_estate_sale_vs_garage_sale_article_ctr.py`](../../data/session19_estate_sale_vs_garage_sale_article_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, same article fields as Session 10 round 3 / [`data/push_meta_round3_direct.py`](../../data/push_meta_round3_direct.py)) for **one** article — handle `estate-sale-vs-garage-sale-know-the-differences` ([live URL](https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences)):
+  - Title (45 chars): `Estate Sale vs Garage Sale in Tampa Bay | OLS`
+  - Description (147 chars): `Estate sale vs garage sale? Estate sales are professionally run whole-home sales; garage sales are DIY. Serving Tampa Bay, FL. Call (727) 542-6028.`
+- The script selects exactly one article by handle and refuses to run if zero or more than one match, so it can never write a different article.
+- Does **not** touch Shopify products, product SEO fields, fee collections, the homepage theme, GTM tags, `app/agents/`, or any other article.
+
+**Why (hypothesis)**
+- GSC 2026-08-01→08-28 (weekly audit, PR #82): this URL (the garage-sale-vs-estate-sale comparison) earned ~1,531 impressions and 0 clicks — a classic rank-with-no-CTR mismatch. The live title (`Estate Sale vs Garage Sale: Key Differences Explained`, 53 chars) already names the query, but the live meta (`Learn the key differences between estate sales vs garage sales, including pricing, scope, and which option works best for your situation.`, 137 chars) is generic — no Tampa Bay, no OLS, no phone — so the snippet does not earn the click. Restating the difference in one sentence and adding Tampa Bay / Florida service-area context plus the approved phone `(727) 542-6028` should let the same ranking finally earn clicks — without keyword stuffing, `near me`, competitor names, invented prices, or fake testimonials. OLS is an estate-sale / personal-property company (not a pawn shop, not a weekend garage-sale operator); the copy stays a homeowner comparison and does not pretend OLS runs garage sales.
+
+**Cannibalization (hypothesis — not addressed here)**
+- A second post exists at [`/blogs/news/yard-sale-vs-estate-sale-key-differences`](https://organizinglifeservices.com/blogs/news/yard-sale-vs-estate-sale-key-differences). Session 19 updates **only** the garage-sale handle above and deliberately does not touch, write, or "merge" the yard-sale post.
+
+**How**
+- Script: dry-run default; live writes require `--apply` + `OLS_ALLOW_DATA_MUTATION=1` / `OLS_DATA_MUTATION_CONFIRM=...`; snapshots the article's existing metafields (JSON) before any write; idempotent once the proposed `title_tag` / `description_tag` are present.
+- Tests: [`tests/test_session19_estate_sale_vs_garage_sale_article_ctr.py`](../../tests/test_session19_estate_sale_vs_garage_sale_article_ctr.py) cover copy length + comparison-intent/on-brand contract, handle targeting (selects only the garage-sale handle, never the yard-sale cannibal; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
+
+**Result / next watch**
+- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure this URL's `estate sale vs garage sale` CTR 14/28d after any real Apply.
+
+---
+
 ## 2026-08-31 — Session 18: article CTR pass for "how-to-find-the-best-antique-buyer" (NOT live applied)
 
 **Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
