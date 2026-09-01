@@ -34,9 +34,32 @@ Each entry should answer:
 
 ---
 
-## 2026-08-31 — Session 19: article CTR pass for "estate-sale-vs-garage-sale-know-the-differences" (NOT live applied)
+## 2026-08-31 — Task 207: new blog "Estate Sale Organizers in Tampa Bay: What to Know" (live applied)
 
-**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run for Session 19; this entry documents the proposed change and its dry-run brakes. (Note on prior applies: the last live applies both happened earlier **today, 2026-08-31** — homepage Session 17 (~10:54 AM ET) and antique-buyer Session 18 (~1:25 PM ET). The last live apply is **not** 2026-07-25.)
+**Status: LIVE applied.** Applied **2026-08-31 ~5:10 PM ET** via the dashboard `content.generate_and_publish` Apply verb with `human_confirmed=true` (and judge `PASS` — both gate flags required). This is the first live blog publish; the last live apply is no longer 2026-07-25.
+
+**What**
+- Published a new Shopify blog article (news blog), Shopify `article_id` **565700591770**, handle `estate-sale-organizers-tampa-bay-guide` ([live URL](https://organizinglifeservices.com/blogs/news/estate-sale-organizers-tampa-bay-guide)):
+  - Title / H1: `Estate Sale Organizers in Tampa Bay: What to Know`
+  - Meta description: `Hiring estate sale organizers in Tampa Bay? Learn what they do, how to choose one, and what to prepare for a smoother, more profitable sale.`
+- Did **not** touch Shopify products, product SEO fields, fee collections, the homepage theme, GTM tags, GBP, Ads, or `app/agents/`.
+
+**Why (hypothesis)**
+- GSC 2026-08-01→08-28 (weekly audit [`deep_seo_audit_20260831_120737.json`](../../data/audit_output/deep_seo_audit_20260831_120737.json)): query `estate sale organizers` aggregates **276 impressions, 0 clicks, position 16.9** — the homepage `/` alone carries **272 impressions, 0 clicks, position 15.9**. A dedicated informational guide targeting `estate sale organizers` gives the query a purpose-built landing page instead of leaning on the homepage snippet. (A remembered baseline of 1,241 impressions / 0 clicks / pos 19.2 was **not** confirmed in the repo audit files and is not used here.)
+
+**How**
+- Dashboard Apply: `content.generate_and_publish` (gate `content_publish`), `human_confirmed=true`, judge `PASS`. No guarded session script — this was a human-confirmed dashboard publish, not a `data/session*.py` run.
+- Live HTML verified after publish: GTM container `GTM-KQ76X4NR` present; phone `(727) 542-6028` / `tel:7275426028`; links `/pages/contact-us`; no `noindex`; no `streetAddress` in schema.
+
+**Result / next watch**
+- Live and verified (see live-HTML checks above). No live metrics yet — measurement pending the next GSC window.
+- **Next:** re-measure GSC query `estate sale organizers` and the URL `estate-sale-organizers-tampa-bay-guide` at **14 days (2026-09-14)** and **28 days (2026-09-28)**.
+
+---
+
+## 2026-08-31 — Session 19: article CTR pass for "estate-sale-vs-garage-sale-know-the-differences" (live applied)
+
+**Status: LIVE applied.** Applied **2026-08-31 ~1:40 PM ET** — Shopify `article_id` **560955195546**, handle `estate-sale-vs-garage-sale-know-the-differences`. The metafield title/description below (`Estate Sale vs Garage Sale in Tampa Bay | OLS` / the Tampa Bay + phone meta) are now the live `global.title_tag` / `global.description_tag`; the H1 is unchanged. Deliberately did **not** touch `/blogs/news/yard-sale-vs-estate-sale-key-differences`.
 
 **What (proposed)**
 - New guarded, idempotent session script [`data/session19_estate_sale_vs_garage_sale_article_ctr.py`](../../data/session19_estate_sale_vs_garage_sale_article_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, same article fields as Session 10 round 3 / [`data/push_meta_round3_direct.py`](../../data/push_meta_round3_direct.py)) for **one** article — handle `estate-sale-vs-garage-sale-know-the-differences` ([live URL](https://organizinglifeservices.com/blogs/news/estate-sale-vs-garage-sale-know-the-differences)):
@@ -56,13 +79,13 @@ Each entry should answer:
 - Tests: [`tests/test_session19_estate_sale_vs_garage_sale_article_ctr.py`](../../tests/test_session19_estate_sale_vs_garage_sale_article_ctr.py) cover copy length + comparison-intent/on-brand contract, handle targeting (selects only the garage-sale handle, never the yard-sale cannibal; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
 
 **Result / next watch**
-- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure this URL's `estate sale vs garage sale` CTR 14/28d after any real Apply.
+- **Live applied 2026-08-31 ~1:40 PM ET** (article 560955195546). Re-measure this URL's `estate sale vs garage sale` CTR at 14/28d.
 
 ---
 
-## 2026-08-31 — Session 18: article CTR pass for "how-to-find-the-best-antique-buyer" (NOT live applied)
+## 2026-08-31 — Session 18: article CTR pass for "how-to-find-the-best-antique-buyer" (live applied)
 
-**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
+**Status: LIVE applied.** Applied **2026-08-31 ~1:25 PM ET** — Shopify `article_id` **560540614810**, handle `how-to-find-the-best-antique-buyer`. The metafield title/description below (`Where to Sell Antiques Locally in Tampa Bay | OLS` + the seller-local-intent meta) are now the live `global.title_tag` / `global.description_tag`.
 
 **What (proposed)**
 - New guarded, idempotent session script [`data/session18_antique_buyer_article_ctr.py`](../../data/session18_antique_buyer_article_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, same article fields as Session 10 round 3 / [`data/push_meta_round3_direct.py`](../../data/push_meta_round3_direct.py)) for **one** article — handle `how-to-find-the-best-antique-buyer` ([live URL](https://organizinglifeservices.com/blogs/news/how-to-find-the-best-antique-buyer)):
@@ -79,7 +102,7 @@ Each entry should answer:
 - Tests: [`tests/test_session18_antique_buyer_article_ctr.py`](../../tests/test_session18_antique_buyer_article_ctr.py) cover copy length + seller-intent/on-brand contract, handle targeting (selects only the target handle; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
 
 **Result / next watch**
-- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure `where to sell antiques locally` → this URL CTR 14/28d after any real Apply.
+- **Live applied 2026-08-31 ~1:25 PM ET** (article 560540614810). Re-measure `where to sell antiques locally` → this URL CTR at 14/28d.
 
 ---
 
