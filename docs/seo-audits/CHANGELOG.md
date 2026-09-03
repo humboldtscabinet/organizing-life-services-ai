@@ -107,9 +107,9 @@ Each entry should answer:
 
 ---
 
-## 2026-08-31 — Session 17: homepage CTR pass for organizers + estate-cleanout-near-me (NOT live applied)
+## 2026-08-31 — Session 17: homepage CTR pass for organizers + estate-cleanout-near-me (live applied)
 
-**Status: NOT live applied.** Docs + guarded script only. No Shopify write has run; this entry documents the proposed change and its dry-run brakes. The last CHANGELOG live apply remains **2026-07-25**.
+**Status: LIVE applied.** Applied **2026-08-31 ~10:54 AM ET** via the guarded [`data/session17_homepage_ctr_cleanout.py`](../../data/session17_homepage_ctr_cleanout.py) script with `--apply` under the mutation guard (after a read-only dry-run) — the homepage theme meta block was upgraded `HOMEPAGE-SEO-META-V1` → `HOMEPAGE-SEO-META-V2` so the dual-intent title/description below are now the live homepage `<title>` / meta description. Live HTML was **re-verified 2026-09-03** and matches the V2 copy exactly: live `<title>` `Estate Sale Organizers & Cleanouts | Tampa Bay OLS` and live meta description `Tampa Bay estate sale organizers and estate cleanout services. OLS runs full sales, appraisals, and downsizing from Pinellas to Citrus. Call (727) 542-6028.` (No session17 apply report JSON exists under `data/audit_output/`; the corroboration is the guarded script path above plus the live-HTML re-verification.)
 
 **What (proposed)**
 - New guarded, idempotent session script [`data/session17_homepage_ctr_cleanout.py`](../../data/session17_homepage_ctr_cleanout.py) that upgrades the homepage theme meta block `HOMEPAGE-SEO-META-V1` → `HOMEPAGE-SEO-META-V2` with dual-intent SERP copy:
@@ -126,7 +126,8 @@ Each entry should answer:
 - Tests: [`tests/test_session17_homepage_ctr_cleanout.py`](../../tests/test_session17_homepage_ctr_cleanout.py) cover copy-length/dual-intent contract, V1→V2 marker upgrade + idempotency, legacy-copy handling, no-duplicate cleanout, and the GTM regression guard.
 
 **Result / next watch**
-- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the diff, then `--apply` under the mutation guard. Re-measure `estate sale organizers` and `estate cleanout near me` CTR on `/` 14/28d after any real Apply.
+- **Live applied 2026-08-31 ~10:54 AM ET** (homepage theme meta `HOMEPAGE-SEO-META-V2`). Live HTML re-verified **2026-09-03**: `<title>` and meta description match the V2 copy above; GTM container `GTM-KQ76X4NR` present; phone `(727) 542-6028` present; no `noindex`; no `streetAddress` in JSON-LD.
+- **Next:** re-measure `estate sale organizers` and `estate cleanout near me` CTR on `/` at **2026-09-14 (14d)** and **2026-09-28 (28d)**.
 
 ---
 
