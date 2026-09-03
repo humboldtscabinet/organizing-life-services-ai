@@ -205,8 +205,11 @@ def generate_gsc_watch_tasks(
             from app.services.dashboard_service import _maybe_attach_frozen_meta
 
             page_url = f"https://organizinglifeservices.com{watch.page_path}"
-            task = _maybe_attach_frozen_meta(task, page_url, watch.query)
-            # Watches stay notes unless a draft actually attached.
+            task = _maybe_attach_frozen_meta(
+                task, page_url, watch.query, avg_position=stats.get("position")
+            )
+            # Watches stay notes even when the frozen-meta draft is filtered out.
+            task.pop("_frozen_meta_rejected", None)
             if not task.get("action_kind"):
                 task["action_kind"] = None
         tasks.append(task)
