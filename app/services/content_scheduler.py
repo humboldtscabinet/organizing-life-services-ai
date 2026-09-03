@@ -20,7 +20,9 @@ from app.db.models import DashboardTask
 from app.services.content_engine import (
     analyze_content_gaps,
     create_content_task,
+    get_existing_content_coverage,
 )
+from app.services.task_enqueue_filters import should_skip_low_lead_near_me
 
 logger = logging.getLogger(__name__)
 
@@ -172,6 +174,10 @@ def schedule_weekly_content(db: Session, count: int = 1) -> Dict:
 
         created_tasks = []
 
+        # Live blog/page URLs used to skip LOW-intent "near me" blogs whose
+        # keyword a live page/post already covers. Fetched once per run.
+        existing_coverage = get_existing_content_coverage()
+
         # Walk opportunities in priority order, creating tasks for ones that
         # don't already have a pending/approved/executing task.
         for opp in opportunities:
@@ -179,6 +185,17 @@ def schedule_weekly_content(db: Session, count: int = 1) -> Dict:
                 break
 
             target_keyword = opp["query"]
+
+            # Skip LOW-lead shopper "near me" blogs already covered by a live
+            # page/post. Seller-intent HIGH/MEDIUM tasks still enqueue.
+            if should_skip_low_lead_near_me(
+                target_keyword, opp.get("lead_tier"), existing_coverage
+            ):
+                logger.info(
+                    "Skipping already-covered LOW-lead near-me content task: %s",
+                    target_keyword,
+                )
+                continue
 
             # Check if a task already exists for this keyword
             existing = (

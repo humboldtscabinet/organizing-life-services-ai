@@ -358,29 +358,107 @@ def _generate_ads_conversion_apply_tasks() -> list[dict]:
     return tasks
 
 
-def _maybe_attach_frozen_meta(task: dict, page_url: str | None, query: str) -> dict:
+FROZEN_META_OPEN_STATUSES = (
+    "pending",
+    "delayed",
+    "dismissed",
+    "approved",
+    "executing",
+)
+
+
+def _open_frozen_meta_url_keys(db: Session) -> set[str]:
+    """Collect URL/handle keys of open frozen-meta tasks for dedup.
+
+    Resilient to fake/mock sessions: rows without a frozen-meta ``action_kind``
+    are ignored, so a page yields at most one frozen-meta task even when two
+    different rewrites are proposed for it.
+    """
+    from app.services.frozen_meta_service import ACTION_KIND
+    from app.services.task_enqueue_filters import frozen_meta_url_key
+
+    keys: set[str] = set()
+    if db is None:
+        return keys
+    try:
+        rows = (
+            db.query(DashboardTask)
+            .filter(
+                DashboardTask.action_kind == ACTION_KIND,
+                DashboardTask.status.in_(FROZEN_META_OPEN_STATUSES),
+            )
+            .all()
+        )
+    except Exception:
+        logger.exception("Could not load open frozen-meta tasks for dedup")
+        return keys
+    for row in rows or []:
+        if getattr(row, "action_kind", None) != ACTION_KIND:
+            continue
+        key = frozen_meta_url_key(getattr(row, "action_payload", None))
+        if key:
+            keys.add(key)
+    return keys
+
+
+def _maybe_attach_frozen_meta(
+    task: dict,
+    page_url: str | None,
+    query: str,
+    *,
+    avg_position: float | None = None,
+    seen_url_keys: set[str] | None = None,
+) -> dict:
     """Attach shopify.apply_frozen_meta when the GSC URL resolves to a page/article.
 
-    Homepage, products, collections, and lookup failures stay advisory.
+    Homepage, products, collections, and lookup failures stay advisory. When a
+    draft resolves but fails the enqueue-time quality/dedup filters, the task is
+    marked with ``_frozen_meta_rejected`` (a short reason) and left un-attached;
+    task generators drop those rows instead of minting junk. Watch notes strip
+    the marker and stay advisory.
     """
     if not page_url:
         return task
     from app.services.frozen_meta_service import resolve_and_draft
+    from app.services.task_enqueue_filters import (
+        frozen_meta_rejection_reason,
+        frozen_meta_url_key,
+    )
 
     draft = resolve_and_draft(page_url, query)
     if not draft:
         return task
+
+    draft_payload = draft["action_payload"]
+    reason = frozen_meta_rejection_reason(draft_payload, avg_position=avg_position)
+    if reason is None:
+        url_key = frozen_meta_url_key(draft_payload)
+        if url_key and seen_url_keys is not None and url_key in seen_url_keys:
+            reason = "another open task already targets this URL/handle"
+    if reason:
+        task["_frozen_meta_rejected"] = reason
+        logger.info(
+            "Skipping frozen-meta task for %s: %s", page_url, reason
+        )
+        return task
+
     payload = dict(task.get("action_payload") or {})
-    payload.update(draft["action_payload"])
+    payload.update(draft_payload)
     task["action_kind"] = draft["action_kind"]
     task["fingerprint"] = draft["fingerprint"]
     task["action_payload"] = payload
+    if seen_url_keys is not None:
+        url_key = frozen_meta_url_key(draft_payload)
+        if url_key:
+            seen_url_keys.add(url_key)
     return task
 
 
 def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
     """Generate SEO tasks from Google Search Console data."""
     tasks = []
+    # Dedup frozen-meta tasks by URL/handle across this batch and open rows.
+    seen_frozen_urls = _open_frozen_meta_url_keys(db)
 
     # Fetch GSC data for the period
     records = (
@@ -448,9 +526,17 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "action_payload": lead.as_dict(),
                 "status": "pending",
             }
-            tasks.append(
-                _maybe_attach_frozen_meta(task, stats.get("top_page"), q)
+            avg_pos = (stats["position_sum"] / stats["count"]) if stats["count"] else None
+            attached = _maybe_attach_frozen_meta(
+                task,
+                stats.get("top_page"),
+                q,
+                avg_position=avg_pos,
+                seen_url_keys=seen_frozen_urls,
             )
+            if attached.pop("_frozen_meta_rejected", None):
+                continue
+            tasks.append(attached)
 
     # Rule 2: Queries ranking position 8-20 with decent impressions (>= 20)
     for q, stats in query_stats.items():
@@ -492,10 +578,17 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
         if _is_seo_denylist_page(p):
             continue
         if p not in page_stats:
-            page_stats[p] = {"clicks": 0, "impressions": 0}
+            page_stats[p] = {
+                "clicks": 0,
+                "impressions": 0,
+                "position_sum": 0.0,
+                "count": 0,
+            }
             page_queries[p] = []
         page_stats[p]["clicks"] += r.clicks or 0
         page_stats[p]["impressions"] += r.impressions or 0
+        page_stats[p]["position_sum"] += r.position or 0
+        page_stats[p]["count"] += 1
         if q not in page_queries[p]:
             page_queries[p].append(q)
 
@@ -529,7 +622,19 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "status": "pending",
             }
             query_hint = page_queries[page][0] if page_queries[page] else ""
-            tasks.append(_maybe_attach_frozen_meta(task, page, query_hint))
+            avg_pos = (
+                (stats["position_sum"] / stats["count"]) if stats["count"] else None
+            )
+            attached = _maybe_attach_frozen_meta(
+                task,
+                page,
+                query_hint,
+                avg_position=avg_pos,
+                seen_url_keys=seen_frozen_urls,
+            )
+            if attached.pop("_frozen_meta_rejected", None):
+                continue
+            tasks.append(attached)
 
     return tasks
 

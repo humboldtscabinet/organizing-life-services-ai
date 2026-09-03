@@ -206,6 +206,31 @@ def _get_existing_blog_urls() -> List[Dict]:
         return []
 
 
+def get_existing_content_coverage() -> List[str]:
+    """Return live blog-post and page URLs used to detect already-covered keywords.
+
+    Best-effort: network failures return whatever was gathered so far. Used by
+    the enqueue-time filter that skips LOW-intent "near me" blog tasks when a
+    live page/post already ranks for the keyword.
+    """
+    urls: List[str] = []
+    try:
+        urls.extend(item["url"] for item in _get_existing_blog_urls() if item.get("url"))
+    except Exception as e:
+        logger.warning(f"Could not fetch existing blog URLs for coverage: {e}")
+    try:
+        from app.services.shopify_service import get_pages
+
+        urls.extend(
+            f"/pages/{page.get('handle')}"
+            for page in get_pages(limit=250)
+            if page.get("handle")
+        )
+    except Exception as e:
+        logger.warning(f"Could not fetch existing pages for coverage: {e}")
+    return urls
+
+
 def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
     """
     Identify content gaps from GSC data of the last N days.
