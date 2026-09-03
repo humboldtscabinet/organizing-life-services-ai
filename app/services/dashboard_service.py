@@ -361,7 +361,6 @@ def _generate_ads_conversion_apply_tasks() -> list[dict]:
 FROZEN_META_OPEN_STATUSES = (
     "pending",
     "delayed",
-    "dismissed",
     "approved",
     "executing",
 )
@@ -486,12 +485,19 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "count": 0,
                 "top_page": None,
                 "top_page_impr": 0,
+                "page_positions": {},
             }
         query_stats[q]["clicks"] += r.clicks or 0
         query_stats[q]["impressions"] += r.impressions or 0
         query_stats[q]["ctr_sum"] += r.ctr or 0
         query_stats[q]["position_sum"] += r.position or 0
         query_stats[q]["count"] += 1
+        if r.page:
+            pos_agg = query_stats[q]["page_positions"].setdefault(
+                r.page, {"position_sum": 0.0, "count": 0}
+            )
+            pos_agg["position_sum"] += r.position or 0
+            pos_agg["count"] += 1
         if (r.impressions or 0) >= query_stats[q]["top_page_impr"] and r.page:
             query_stats[q]["top_page"] = r.page
             query_stats[q]["top_page_impr"] = r.impressions or 0
@@ -526,10 +532,18 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 "action_payload": lead.as_dict(),
                 "status": "pending",
             }
-            avg_pos = (stats["position_sum"] / stats["count"]) if stats["count"] else None
+            # Use the landing page's own average position (page-level, like
+            # Rule 3), not the query-wide average across incidental URLs.
+            top_page = stats.get("top_page")
+            top_page_pos = stats["page_positions"].get(top_page)
+            avg_pos = (
+                (top_page_pos["position_sum"] / top_page_pos["count"])
+                if top_page_pos and top_page_pos["count"]
+                else None
+            )
             attached = _maybe_attach_frozen_meta(
                 task,
-                stats.get("top_page"),
+                top_page,
                 q,
                 avg_position=avg_pos,
                 seen_url_keys=seen_frozen_urls,
