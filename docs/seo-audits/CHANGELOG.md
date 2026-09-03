@@ -10,11 +10,11 @@ Each entry should answer:
 
 ---
 
-## 2026-08-31 — Session 20: page CTR pass for "downsizing-moving-sales" (`downsizing specialist`) (NOT live applied)
+## 2026-08-31 — Session 20: page CTR pass for "downsizing-moving-sales" (`downsizing specialist`) (live applied)
 
-**Status: NOT live applied.** Docs + guarded script + tests only. No Shopify write has run for Session 20; this entry documents the proposed change and its dry-run brakes.
+**Status: LIVE applied.** Applied **2026-08-31 ~8:19 PM ET** (after PRs #89/#90 merged) via the guarded [`data/session20_downsizing_specialist_page_ctr.py`](../../data/session20_downsizing_specialist_page_ctr.py) script with `--apply` under the mutation guard (after a read-only dry-run) — Shopify page id **99735568538**, handle `downsizing-moving-sales` ([live URL](https://organizinglifeservices.com/pages/downsizing-moving-sales)). The metafield title/description below (`Downsizing Specialist in Tampa Bay | Moving Sales | OLS` / the Tampa Bay + phone meta) are now the live `global.title_tag` / `global.description_tag`; the H1 (`Downsizing Help & Moving Sales | Organizing Life Services`) is unchanged. Operator verified the live HTML afterward (see Result below).
 
-**What (proposed)**
+**What**
 - New guarded, idempotent session script [`data/session20_downsizing_specialist_page_ctr.py`](../../data/session20_downsizing_specialist_page_ctr.py) that updates the Shopify SEO metafields (`global.title_tag` / `global.description_tag`, the same page SEO fields used by Session 10 / Session 11) for **one** EXISTING page — handle `downsizing-moving-sales` ([live URL](https://organizinglifeservices.com/pages/downsizing-moving-sales)):
   - Title (55 chars): `Downsizing Specialist in Tampa Bay | Moving Sales | OLS`
   - Description (113 chars): `Need a downsizing specialist in Tampa Bay? OLS handles sorting, moving sales, and cleanouts. Call (727) 542-6028.`
@@ -30,7 +30,8 @@ Each entry should answer:
 - Tests: [`tests/test_session20_downsizing_specialist_page_ctr.py`](../../tests/test_session20_downsizing_specialist_page_ctr.py) cover copy length + downsizing-specialist-intent/on-brand contract (no `$`, no `gtm-`), handle targeting (selects only the downsizing page, never the Tampa hub; raises when absent or duplicated), and metafield planning + idempotency (create / update / unchanged).
 
 **Result / next watch**
-- _(pending)_ — no live apply yet. Operator: run a read-only dry-run on the Mac mini, review the plan, then `--apply` under the mutation guard. Re-measure `downsizing specialist` → this URL CTR at **2026-09-14 (14d)** and **2026-09-28 (28d)** after any real Apply.
+- **Live applied 2026-08-31 ~8:19 PM ET** on the Mac mini (page id 99735568538, handle `downsizing-moving-sales`). Live HTML verified after apply: GTM container `GTM-KQ76X4NR` present; phone `(727) 542-6028` present; no `noindex`; no `streetAddress` in schema; the Tampa hub `/pages/estate-sale-tampa-hillsborough-county` is unchanged.
+- **Next:** re-measure `downsizing specialist` → this URL CTR at **2026-09-14 (14d)** and **2026-09-28 (28d)**.
 
 ---
 
