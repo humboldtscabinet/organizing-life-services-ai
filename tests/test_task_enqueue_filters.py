@@ -323,6 +323,125 @@ def test_generate_gsc_tasks_keeps_good_frozen_meta(monkeypatch):
     assert frozen, "expected a good CTR frozen-meta task to enqueue"
 
 
+class _FakeTaskRow:
+    def __init__(self, *, action_kind, status, action_payload):
+        self.action_kind = action_kind
+        self.status = status
+        self.action_payload = action_payload
+
+
+class _StatusAwareDb:
+    """Fake session that mirrors the DB status filter for frozen-meta dedup.
+
+    ``DashboardTask`` queries return only rows whose status is in the live
+    ``dashboard_service.FROZEN_META_OPEN_STATUSES`` constant (as the real SQL
+    ``status.in_(...)`` filter would), so a dismissed row only blocks when the
+    constant still lists ``"dismissed"``. Any other model query returns the GSC
+    rows, matching the existing ``_FakeDb`` behavior.
+    """
+
+    def __init__(self, gsc_rows, task_rows):
+        self._gsc_rows = gsc_rows
+        self._task_rows = task_rows
+
+    def query(self, model):
+        from app.db.models import DashboardTask
+
+        if model is DashboardTask:
+            allowed = set(dashboard_service.FROZEN_META_OPEN_STATUSES)
+            rows = [r for r in self._task_rows if r.status in allowed]
+            return _FakeQuery(rows)
+        return _FakeQuery(self._gsc_rows)
+
+
+def test_dismissed_prior_row_does_not_block_new_good_rewrite(monkeypatch):
+    """A historically dismissed frozen-meta row must not block a fresh good
+    CTR rewrite for the same URL (Bugbot fix #1 for PR #96)."""
+    page = "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida"
+    gsc_rows = [
+        _row(page=page, query="estate sales new port richey", impressions=120, position=5.0)
+    ]
+    dismissed_row = _FakeTaskRow(
+        action_kind="shopify.apply_frozen_meta",
+        status="dismissed",
+        action_payload=_page_payload(
+            page_id=400,
+            path="/pages/estate-sale-new-port-richey-florida",
+            current_title="Estate Sales in New Port Richey, FL",
+            query="estate buyers near me",
+            new_title="Estate Buyers Near Me | Organizing Life Services",
+            new_meta="Need help with estate buyers near me? Call OLS today.",
+        ),
+    )
+
+    def _good_draft(page_url, query, **_kwargs):
+        return {
+            "action_kind": "shopify.apply_frozen_meta",
+            "fingerprint": "shopify.apply_frozen_meta:page:400:cafef00d",
+            "action_payload": _page_payload(
+                page_id=400,
+                path="/pages/estate-sale-new-port-richey-florida",
+                current_title="Estate Sales in New Port Richey, FL",
+                query=query,
+                new_title="Estate Sales in New Port Richey, FL",
+                new_meta="New Port Richey estate sales by OLS. Call (727) 542-6028.",
+            ),
+        }
+
+    monkeypatch.setattr(
+        "app.services.frozen_meta_service.resolve_and_draft", _good_draft
+    )
+    cutoff = datetime.utcnow() - timedelta(days=7)
+    db = _StatusAwareDb(gsc_rows, [dismissed_row])
+    tasks = dashboard_service._generate_gsc_tasks(db, cutoff)
+    frozen = [t for t in tasks if t.get("action_kind") == "shopify.apply_frozen_meta"]
+    assert frozen, "a dismissed prior row must not block a new good rewrite for the URL"
+
+
+def test_rule1_rank_hole_uses_top_page_position(monkeypatch):
+    """Rule 1 must judge rank-hole using the top landing page's own position,
+    not the query-wide average diluted by incidental URLs (Bugbot fix #2)."""
+    top_page = "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida"
+    incidental = "https://organizinglifeservices.com/pages/estate-liquidation"
+    # Query-wide average = (5 + 40) / 2 = 22.5 -> would be a rank hole if used.
+    # Top landing page ranks at 5 -> a genuine snippet/CTR job.
+    rows = [
+        _row(page=top_page, query="estate sales new port richey", impressions=120, position=5.0),
+        _row(page=incidental, query="estate sales new port richey", impressions=10, position=40.0),
+    ]
+
+    captured = {}
+
+    def _good_draft(page_url, query, **_kwargs):
+        captured["page_url"] = page_url
+        return {
+            "action_kind": "shopify.apply_frozen_meta",
+            "fingerprint": "shopify.apply_frozen_meta:page:400:cafef00d",
+            "action_payload": _page_payload(
+                page_id=400,
+                path="/pages/estate-sale-new-port-richey-florida",
+                current_title="Estate Sales in New Port Richey, FL",
+                query=query,
+                new_title="Estate Sales in New Port Richey, FL",
+                new_meta="New Port Richey estate sales by OLS. Call (727) 542-6028.",
+            ),
+        }
+
+    monkeypatch.setattr(
+        "app.services.frozen_meta_service.resolve_and_draft", _good_draft
+    )
+    cutoff = datetime.utcnow() - timedelta(days=7)
+    tasks = dashboard_service._generate_gsc_tasks(_FakeDb(rows), cutoff)
+    rule1 = [
+        t
+        for t in tasks
+        if t.get("category") == "keyword_optimization"
+        and t.get("action_kind") == "shopify.apply_frozen_meta"
+    ]
+    assert rule1, "Rule 1 should enqueue a frozen-meta task using the top page's rank"
+    assert captured.get("page_url") == top_page
+
+
 def test_generate_gsc_tasks_dedupes_same_url(monkeypatch):
     page = "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida"
     # Two different queries for the SAME url -> one page, one frozen-meta task.
