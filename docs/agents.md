@@ -25,8 +25,8 @@ Use model roles by task risk, not by hype:
 | Role | Default model/provider | Use for | Must not do |
 |---|---|---|---|
 | Clerk | Local Gemma via Ollama | low-risk classification, summaries, draft outlines, local context checks | publish, mutate Shopify, change ads/budgets, or decide final approval |
-| Executive | Claude/ChatGPT-class cloud model | content drafts, strategic analysis, synthesis across SEO evidence | bypass human review or fabricate first-party claims |
-| Judiciary | Independent cloud judge | high-stakes review, contradiction checks, publish safety | rewrite content silently or approve without evidence |
+| Executive | Claude (Anthropic) | content drafts, strategic analysis, synthesis across SEO evidence | bypass human review or fabricate first-party claims |
+| Judiciary | xAI/Grok when `XAI_API_KEY` is set, else Anthropic | high-stakes review, contradiction checks, publish safety | rewrite content silently or approve without evidence |
 
 High-stakes writes require both:
 

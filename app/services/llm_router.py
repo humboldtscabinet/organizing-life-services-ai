@@ -336,6 +336,7 @@ def _call_xai(request: LLMRequest, role: ModelRole, model: str) -> LLMResult:
 
     import openai
 
+    # xAI's chat API is OpenAI-compatible; this client talks to Grok, not ChatGPT.
     client = openai.OpenAI(
         api_key=api_key,
         base_url=os.getenv("XAI_BASE_URL", "https://api.x.ai/v1"),

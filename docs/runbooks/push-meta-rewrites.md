@@ -9,7 +9,7 @@ runbook for homepage theme meta and any fallback `data/` push.
 ## Prerequisites
 
 - `SHOPIFY_STORE_DOMAIN` and `SHOPIFY_ADMIN_API_TOKEN` set in `.env` (see [`.env.example`](../../.env.example)).
-- An OpenAI / Anthropic key for the draft-generation step (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`).
+- An Anthropic key for the draft-generation step (`ANTHROPIC_API_KEY`).
 
 ## Scope: Service Pages And Blogs Only
 
