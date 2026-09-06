@@ -13,7 +13,7 @@ local base for an AI agent ecosystem:
 
 - **Local clerk:** Gemma 4 via Ollama for classification, summaries, routing,
   low-risk drafts, and local context work.
-- **Executive models:** Claude / ChatGPT for harder planning, writing, coding,
+- **Executive models:** Claude for harder planning, writing, coding,
   and synthesis.
 - **Judiciary model:** Grok or another independent model only for structured
   fact/risk audits before high-stakes writes.
@@ -221,7 +221,7 @@ Router contracts:
 - Outputs include model role, structured result, verdict, citations/evidence
   where applicable, token/cost metadata, and audit ID.
 - Low-risk tasks default to local Gemma.
-- Hard tasks escalate to Claude/ChatGPT.
+- Hard tasks escalate to Claude.
 - High-stakes writes require independent judge `PASS` plus human approval.
 
 High-stakes writes include Shopify publish/update/delete, ads/budget changes,

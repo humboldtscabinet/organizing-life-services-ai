@@ -451,3 +451,71 @@ def test_publish_judge_flag_blocks_publish(monkeypatch):
             post_data={"title": "Bad draft", "body_html": "<p>No CTA</p>"},
             task=task,
         )
+
+
+def test_generate_blog_image_skips_without_xai_key(monkeypatch):
+    monkeypatch.delenv("XAI_API_KEY", raising=False)
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-should-not-be-used")
+
+    assert content_engine._generate_blog_image("Estate Sale", "estate sale") is None
+
+
+def test_generate_blog_image_uses_xai_grok_imagine(monkeypatch):
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+    monkeypatch.delenv("XAI_IMAGE_MODEL", raising=False)
+    monkeypatch.delenv("XAI_BASE_URL", raising=False)
+    captured = {}
+
+    class _FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"data": [{"url": "https://imgen.x.ai/test.png"}]}
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        captured.update(
+            {"url": url, "headers": headers, "json": json, "timeout": timeout}
+        )
+        return _FakeResponse()
+
+    monkeypatch.setattr(content_engine.httpx, "post", fake_post)
+
+    result = content_engine._generate_blog_image(
+        "Estate Sale Clearwater",
+        "estate sale clearwater",
+    )
+
+    assert result["src"] == "https://imgen.x.ai/test.png"
+    assert "estate sale clearwater" in result["alt"].lower()
+    assert captured["url"] == "https://api.x.ai/v1/images/generations"
+    assert captured["headers"]["Authorization"] == "Bearer xai-test-key"
+    assert captured["json"]["model"] == "grok-imagine-image-2.0"
+    assert captured["json"]["aspect_ratio"] == "16:9"
+    assert captured["json"]["n"] == 1
+    assert "dall-e" not in captured["json"]["model"]
+
+
+def test_generate_blog_image_model_is_configurable(monkeypatch):
+    monkeypatch.setenv("XAI_API_KEY", "xai-test-key")
+    monkeypatch.setenv("XAI_IMAGE_MODEL", "grok-imagine-image")
+    monkeypatch.setenv("XAI_BASE_URL", "https://api.x.ai/v1")
+    captured = {}
+
+    class _FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"data": [{"url": "https://imgen.x.ai/alt.png"}]}
+
+    def fake_post(url, headers=None, json=None, timeout=None):
+        captured["json"] = json
+        return _FakeResponse()
+
+    monkeypatch.setattr(content_engine.httpx, "post", fake_post)
+
+    result = content_engine._generate_blog_image("Topic", "keyword")
+
+    assert result["src"] == "https://imgen.x.ai/alt.png"
+    assert captured["json"]["model"] == "grok-imagine-image"

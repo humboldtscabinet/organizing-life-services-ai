@@ -27,6 +27,7 @@ google-ads==25.1.0
 
 # ---------- AI ----------
 anthropic==0.39.0
+# OpenAI-compatible HTTP client for xAI/Grok chat (not ChatGPT).
 openai==1.52.0
 
 # ---------- HTTP ----------

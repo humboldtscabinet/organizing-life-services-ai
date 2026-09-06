@@ -21,7 +21,6 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
 import httpx
-import openai
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -125,7 +124,7 @@ def _shopify_url(endpoint: str) -> str:
 
 def _generate_blog_image(topic: str, target_keyword: str) -> Optional[Dict]:
     """
-    Generate a unique blog thumbnail image using DALL-E 3.
+    Generate a unique blog thumbnail image using Grok Imagine (xAI).
 
     Creates a professional, photorealistic image tailored to the blog topic.
     Returns a dict with the image URL and SEO alt text, or None on failure.
@@ -134,40 +133,49 @@ def _generate_blog_image(topic: str, target_keyword: str) -> Optional[Dict]:
 
     Returns:
         {
-            "src": "https://oaidalleapiprodscus.blob...",  # temporary URL
+            "src": "https://...",  # temporary hosted URL from xAI
             "alt": "SEO-optimized alt text for the image"
         }
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key or api_key == "YOUR_OPENAI_API_KEY_HERE":
-        logger.warning("OPENAI_API_KEY not set — skipping image generation")
+    api_key = os.getenv("XAI_API_KEY")
+    if not api_key:
+        logger.warning("XAI_API_KEY not set — skipping image generation")
         return None
 
+    base_url = os.getenv("XAI_BASE_URL", "https://api.x.ai/v1").rstrip("/")
+    model = os.getenv("XAI_IMAGE_MODEL", "grok-imagine-image-2.0")
+
+    image_prompt = (
+        f"Professional real estate photography style image for a blog post about "
+        f"'{topic}' in the Tampa Bay, Florida area. "
+        f"The image should feel warm, inviting, and professional. "
+        f"Show a well-organized, bright interior space appropriate for "
+        f"estate sale or home organization services. "
+        f"Natural lighting, clean composition, no text or watermarks. "
+        f"Photorealistic, high quality, editorial style."
+    )
+
     try:
-        client = openai.OpenAI(api_key=api_key)
-
-        # Build a prompt for a professional, photorealistic estate sale image
-        image_prompt = (
-            f"Professional real estate photography style image for a blog post about "
-            f"'{topic}' in the Tampa Bay, Florida area. "
-            f"The image should feel warm, inviting, and professional. "
-            f"Show a well-organized, bright interior space appropriate for "
-            f"estate sale or home organization services. "
-            f"Natural lighting, clean composition, no text or watermarks. "
-            f"Photorealistic, high quality, editorial style."
+        response = httpx.post(
+            f"{base_url}/images/generations",
+            headers={
+                "Authorization": f"Bearer {api_key}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "model": model,
+                "prompt": image_prompt,
+                "n": 1,
+                "aspect_ratio": "16:9",
+            },
+            timeout=120,
         )
+        response.raise_for_status()
+        payload = response.json()
+        image_url = (payload.get("data") or [{}])[0].get("url")
+        if not image_url:
+            raise ValueError("xAI image response did not include a URL")
 
-        response = client.images.generate(
-            model="dall-e-3",
-            prompt=image_prompt,
-            size="1792x1024",  # landscape ratio, ideal for blog headers
-            quality="standard",
-            n=1,
-        )
-
-        image_url = response.data[0].url
-
-        # Generate SEO-optimized alt text using the target keyword
         alt_text = (
             f"{target_keyword.title()} - Professional estate sale and "
             f"home organization services in Tampa Bay, Florida"

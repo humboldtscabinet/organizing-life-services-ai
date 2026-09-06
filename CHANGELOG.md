@@ -6,6 +6,12 @@ changes are tracked separately in
 
 ## Unreleased
 
+- **Blog featured images now use Grok Imagine instead of DALL-E 3.**
+  `_generate_blog_image` in `app/services/content_engine.py` calls
+  `https://api.x.ai/v1/images/generations` with `XAI_API_KEY` and
+  `XAI_IMAGE_MODEL` (default `grok-imagine-image-2.0`, 16:9). `OPENAI_API_KEY`
+  is no longer used. Text routing is unchanged: clerk stays local Gemma,
+  executive stays Claude, judiciary stays Grok when the xAI key is set.
 - **Enqueue-time task filters keep obvious junk out of the dashboard queue.**
   New pure-predicate module `app/services/task_enqueue_filters.py` (no Apply,
   gate, or `action_kind` changes) is wired into task *creation*:

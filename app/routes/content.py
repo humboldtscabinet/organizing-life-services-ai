@@ -372,7 +372,7 @@ def add_image_to_article(
     if not image_data:
         raise APIError(
             status_code=503,
-            detail="Image generation is unavailable. Check OPENAI_API_KEY.",
+            detail="Image generation is unavailable. Check XAI_API_KEY.",
         )
 
     update_body = {
