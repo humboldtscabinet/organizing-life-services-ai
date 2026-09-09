@@ -23,7 +23,7 @@ The dashboard reads from Postgres only; it never calls the Google Ads API direct
 
 ## 2. Google Ads integration
 
-- **Client library:** Official `google-ads` Python client v25.x
+- **Client library:** Official `google-ads` Python client 31.2.0 (targets Google Ads API v25)
 - **Authentication:** OAuth2 with a long-lived refresh token issued to the company owner's Google account, which is the owner of the linked Ads customer.
 - **Credential storage:** Developer token, OAuth client ID/secret, and refresh token are stored in environment variables on the server (`.env`, gitignored). Credentials are never sent to the browser or logged.
 - **Source module:** `app/services/google_ads_service.py` — wraps `GoogleAdsService.search` queries and exposes a small set of read functions to the rest of the application.
