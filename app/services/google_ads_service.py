@@ -427,8 +427,8 @@ def list_campaigns() -> list[dict]:
             campaign.advertising_channel_type,
             campaign.bidding_strategy_type,
             campaign_budget.amount_micros,
-            campaign.start_date,
-            campaign.end_date
+            campaign.start_date_time,
+            campaign.end_date_time
         FROM campaign
         ORDER BY campaign.name
     """
@@ -443,8 +443,8 @@ def list_campaigns() -> list[dict]:
             "channel": c.advertising_channel_type.name,
             "bidding_strategy": c.bidding_strategy_type.name,
             "daily_budget_usd": round(row.campaign_budget.amount_micros / 1_000_000, 2),
-            "start_date": c.start_date,
-            "end_date": c.end_date,
+            "start_date": c.start_date_time,
+            "end_date": c.end_date_time,
         })
     return out
 
