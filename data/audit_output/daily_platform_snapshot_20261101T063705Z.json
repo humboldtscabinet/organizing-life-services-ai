@@ -1,0 +1,21 @@
+{
+  "generated_at": "2026-11-01T06:37:04.441168+00:00",
+  "site_url": "https://organizinglifeservices.com/",
+  "ga4_property_id": "396184354",
+  "gsc": {
+    "start_date": "2026-10-22",
+    "end_date": "2026-10-29",
+    "rows_fetched": 990,
+    "total_clicks": 4,
+    "total_impressions": 1869
+  },
+  "ga4": {
+    "start_date": "2026-10-24",
+    "end_date": "2026-10-31",
+    "metrics": {
+      "sessions": 225,
+      "totalUsers": 194,
+      "screenPageViews": 365
+    }
+  }
+}
