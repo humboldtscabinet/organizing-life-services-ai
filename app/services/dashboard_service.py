@@ -12,7 +12,8 @@ Manual-approval mode: generates tasks, waits for human approval before execution
 
 import logging
 import os
-from datetime import datetime, timedelta
+import re
+from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from sqlalchemy import and_, func
@@ -193,8 +194,11 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
     }
 
 
-# Statuses that always block a re-created recommendation sharing a dedupe key.
-# "dismissed" is handled separately via the configurable window below.
+# Statuses that always block a re-created recommendation sharing a dedupe key,
+# regardless of age. Documented rule: a "completed" or "executing" task counts
+# as blocking — once a recommendation has been acted on (or is being acted on)
+# we do not re-mint it from a later detector run. "dismissed" is the only
+# non-permanent case and is handled separately via the configurable window.
 DEDUPE_OPEN_STATUSES = (
     "pending",
     "delayed",
@@ -247,6 +251,64 @@ def _dedupe_key(task_type: str, category: str, target: str) -> str:
     return f"{task_type}:{category}:{normalized_target}"
 
 
+def _as_naive_utc(value: Optional[datetime]) -> Optional[datetime]:
+    """Coerce a datetime to naive UTC so it can be compared with ``utcnow()``.
+
+    Postgres ``TIMESTAMPTZ`` columns come back timezone-aware through psycopg2,
+    while ``utcnow()`` (and SQLite) are naive. Comparing the two raises
+    ``TypeError: can't compare offset-naive and offset-aware datetimes``, which
+    crashed ``generate_tasks`` the first time a keyed task was dismissed.
+    Normalizing both sides to naive UTC avoids it.
+    """
+    if value is None:
+        return None
+    if value.tzinfo is not None:
+        return value.astimezone(timezone.utc).replace(tzinfo=None)
+    return value
+
+
+def _dismissed_within_window(row, window_start: datetime) -> bool:
+    """True when a dismissed ``row`` still blocks per the configurable window.
+
+    Falls back to ``created_at`` for rows dismissed before ``dismissed_at``
+    existed, and normalizes timezone-aware DB values to naive UTC first.
+    """
+    dismissed_at = _as_naive_utc(
+        getattr(row, "dismissed_at", None) or getattr(row, "created_at", None)
+    )
+    return dismissed_at is not None and dismissed_at >= window_start
+
+
+# Legacy rows created before the dedupe_key column existed carry NULL keys. For
+# content_ranking the query is recoverable from the stable title pattern
+# "Create targeted content for '<query>' (position <n>)". This mirrors the
+# idempotent backfill in migration 007 so the runtime still collapses duplicates
+# even before (or without) that migration running, and matches the exact
+# normalization used by ``_dedupe_key``.
+_CONTENT_RANKING_TITLE_RE = re.compile(
+    r"^Create targeted content for '(?P<query>.+)' \(position [0-9.]+\)$"
+)
+
+
+def _parse_legacy_target(category: Optional[str], title: Optional[str]) -> Optional[str]:
+    """Recover the query/target from a legacy row's title where possible."""
+    if category == "content_ranking":
+        match = _CONTENT_RANKING_TITLE_RE.match(title or "")
+        if match:
+            return match.group("query")
+    return None
+
+
+def _computed_dedupe_key_for_row(row) -> Optional[str]:
+    """Best-effort dedupe key for a legacy row that has no stored dedupe_key."""
+    category = getattr(row, "category", None)
+    query = _parse_legacy_target(category, getattr(row, "title", None))
+    if query is None:
+        return None
+    task_type = getattr(row, "task_type", None) or "seo"
+    return _dedupe_key(task_type, category, query)
+
+
 def _existing_by_dedupe_key(
     db: Session, dedupe_key: str
 ) -> Optional[DashboardTask]:
@@ -271,13 +333,51 @@ def _existing_by_dedupe_key(
         status = getattr(row, "status", None)
         if status in DEDUPE_OPEN_STATUSES:
             return row
-        if status == "dismissed":
-            dismissed_at = (
-                getattr(row, "dismissed_at", None)
-                or getattr(row, "created_at", None)
+        if status == "dismissed" and _dismissed_within_window(row, window_start):
+            return row
+    return None
+
+
+def _existing_unkeyed_dedupe_task(
+    db: Session, task_data: dict, dedupe_key: str
+) -> Optional[DashboardTask]:
+    """Match legacy rows (dedupe_key NULL) whose recomputed key equals dedupe_key.
+
+    Rows created before the dedupe_key column existed carry NULL keys, so the
+    keyed lookup can never find them and the first run after deploy would
+    re-create every open/dismissed recommendation. Their key is recovered from
+    the stored title/target (see ``_computed_dedupe_key_for_row``) so duplicates
+    still collapse even if migration 007's backfill has not run or could not
+    parse a title. Blocking rules match ``_existing_by_dedupe_key``: open rows
+    always block; dismissed rows block only inside the (timezone-safe) window.
+    """
+    category = task_data.get("category")
+    if not category:
+        return None
+    window_start = utcnow() - timedelta(days=_dismissed_dedupe_window_days())
+    try:
+        candidates = (
+            db.query(DashboardTask)
+            .filter(
+                DashboardTask.dedupe_key.is_(None),
+                DashboardTask.category == category,
             )
-            if dismissed_at is not None and dismissed_at >= window_start:
-                return row
+            .all()
+        )
+    except Exception:
+        logger.exception("Could not load legacy unkeyed tasks for dedup")
+        return None
+    for row in candidates or []:
+        # Resilient to opaque/fake query layers that ignore the NULL filter.
+        if getattr(row, "dedupe_key", None):
+            continue
+        if _computed_dedupe_key_for_row(row) != dedupe_key:
+            continue
+        status = getattr(row, "status", None)
+        if status in DEDUPE_OPEN_STATUSES:
+            return row
+        if status == "dismissed" and _dismissed_within_window(row, window_start):
+            return row
     return None
 
 
@@ -305,7 +405,13 @@ def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardT
 
     dedupe_key = task_data.get("dedupe_key")
     if dedupe_key:
-        return _existing_by_dedupe_key(db, dedupe_key)
+        # Keyed match first (fast path), then recover legacy rows whose
+        # dedupe_key is still NULL. Keyed tasks do not fall through to the
+        # category+title match: the content title embeds a volatile position, so
+        # that match would never fire for the live key and could false-block.
+        return _existing_by_dedupe_key(db, dedupe_key) or _existing_unkeyed_dedupe_task(
+            db, task_data, dedupe_key
+        )
 
     return (
         db.query(DashboardTask)
