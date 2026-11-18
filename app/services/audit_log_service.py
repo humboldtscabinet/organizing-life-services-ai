@@ -2,13 +2,14 @@
 
 from __future__ import annotations
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Any
 
 from sqlalchemy.orm import Session
 
 from app.db.models import LLMAudit, WorkflowLog
 from app.redaction import redact_sensitive_text, sanitize_jsonish
+from app.time_utils import utcnow
 
 DEFAULT_DAYS = 7
 MAX_ROWS = 200
@@ -24,7 +25,7 @@ def list_workflow_logs(
 ) -> list[dict[str, Any]]:
     days = max(1, min(days, 30))
     limit = max(1, min(limit, MAX_ROWS))
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = utcnow() - timedelta(days=days)
     query = db.query(WorkflowLog).filter(WorkflowLog.created_at >= cutoff)
     if workflow_name:
         query = query.filter(WorkflowLog.workflow_name == workflow_name)
@@ -55,7 +56,7 @@ def list_llm_audits(
 ) -> list[dict[str, Any]]:
     days = max(1, min(days, 30))
     limit = max(1, min(limit, MAX_ROWS))
-    cutoff = datetime.utcnow() - timedelta(days=days)
+    cutoff = utcnow() - timedelta(days=days)
     query = db.query(LLMAudit).filter(LLMAudit.created_at >= cutoff)
     if task_type:
         query = query.filter(LLMAudit.task_type == task_type)

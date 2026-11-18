@@ -26,6 +26,7 @@ from app.db.models import (
     SEOReport,
 )
 from app.services.lead_relevance import score_lead_relevance
+from app.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +128,7 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
     - tasks_created: count of new tasks added
     - tasks_by_type: breakdown by task_type
     """
-    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    cutoff = utcnow() - timedelta(days=days_back)
     new_tasks = []
 
     # --- 1. GSC Tasks ---
@@ -891,7 +892,7 @@ def get_tasks(
 
     Sorted by priority (HIGH first) then by created_at (newest first).
     """
-    now = datetime.utcnow()
+    now = utcnow()
 
     # First, auto-reset expired delayed tasks back to pending
     expired_delayed = (
@@ -960,7 +961,7 @@ def approve_task(db: Session, task_id: int) -> dict:
         return {"status": "error", "detail": f"Task is {task.status}, not pending"}
 
     task.status = "approved"
-    task.approved_at = datetime.utcnow()
+    task.approved_at = utcnow()
 
     db.commit()
 
@@ -1005,7 +1006,7 @@ def delay_task(db: Session, task_id: int, hours: int = 24) -> dict:
         return {"status": "error", "detail": f"Task is {task.status}, not pending"}
 
     task.status = "delayed"
-    task.delayed_until = datetime.utcnow() + timedelta(hours=hours)
+    task.delayed_until = utcnow() + timedelta(hours=hours)
     db.commit()
 
     return {
@@ -1026,7 +1027,7 @@ def get_dashboard_metrics(db: Session) -> dict:
     - Tasks by priority
     - Recent completions
     """
-    now = datetime.utcnow()
+    now = utcnow()
 
     # Auto-reset expired delayed tasks first
     expired_delayed = (
@@ -1060,7 +1061,7 @@ def get_dashboard_metrics(db: Session) -> dict:
         priority_counts[task.priority] = priority_counts.get(task.priority, 0) + 1
 
     # Recent completions (last 7 days)
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     recent_completions = (
         db.query(DashboardTask)
         .filter(
@@ -1086,7 +1087,7 @@ def get_channel_metrics(db: Session) -> dict:
     - GA4: total sessions, pageviews
     - Google Ads: total spend, conversions
     """
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
 
     # GSC metrics
     gsc_records = db.query(GSCData).filter(GSCData.date >= cutoff).all()

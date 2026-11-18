@@ -21,6 +21,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.db.models import GA4Data, WorkflowLog
+from app.time_utils import utcnow
 
 # Weekly lead KPI = these two. Never treat page_view as a lead.
 LEAD_EVENT_NAMES = ("form_submit", "phone_call_clicks")
@@ -88,7 +89,7 @@ def pull_ga4_data(
 
     client = _get_ga4_client()
 
-    end_date = datetime.utcnow().date() - timedelta(days=1)
+    end_date = utcnow().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=days_back)
 
     # --- Report 1: Daily overview metrics ---
@@ -373,7 +374,7 @@ def count_named_events(event_name: str, days_back: int = 7) -> int | None:
         return None
 
     client = _get_ga4_client()
-    end_date = datetime.utcnow().date() - timedelta(days=1)
+    end_date = utcnow().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=days_back)
     request = RunReportRequest(
         property=f"properties/{property_id}",
@@ -407,7 +408,7 @@ def sum_stored_lead_events(db: Session, days_back: int = 7) -> dict:
 
     KPI is those two eventCounts. Never include page_view.
     """
-    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    cutoff = utcnow() - timedelta(days=days_back)
     totals = {name: 0.0 for name in LEAD_EVENT_NAMES}
     last_date = None
     rows = (

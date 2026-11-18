@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from types import SimpleNamespace
 
 from app.services import dashboard_service
+from app.time_utils import utcnow
 
 
 class _FakeQuery:
@@ -33,7 +34,7 @@ def _row(*, page, query, clicks=0, impressions=80, ctr=0.0, position=12.0, days_
         impressions=impressions,
         ctr=ctr,
         position=position,
-        date=datetime.utcnow() - timedelta(days=days_ago),
+        date=utcnow() - timedelta(days=days_ago),
     )
 
 
@@ -80,7 +81,7 @@ def test_generate_gsc_tasks_skips_product_and_utility_collection_pages():
         ),
     ]
     db = _FakeDb(rows)
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
 
     tasks = dashboard_service._generate_gsc_tasks(db, cutoff)
 
@@ -113,7 +114,7 @@ def test_generate_gsc_tasks_excludes_denylist_rows_from_query_stats():
         ),
     ]
     db = _FakeDb(rows)
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
 
     tasks = dashboard_service._generate_gsc_tasks(db, cutoff)
 
@@ -155,7 +156,7 @@ def test_generate_cross_channel_tasks_skips_denylist_pages():
                 return _DistinctQuery([(product,), (service,)])
             return _SumQuery()
 
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     tasks = dashboard_service._generate_cross_channel_tasks(_Db(), cutoff)
 
     titles = [t["title"] for t in tasks]

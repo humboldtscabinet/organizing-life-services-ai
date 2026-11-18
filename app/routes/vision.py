@@ -38,6 +38,7 @@ from app.services.vision_service import (
     pull_theme_assets,
     pull_xo_gallery_assets,
 )
+from app.time_utils import utcnow
 
 router = APIRouter(prefix="/api/vision", tags=["Vision AI"])
 VISION_XO_RUNBOOK = "scripts/vision_xo_local_workflow.md"
@@ -248,9 +249,7 @@ async def import_xo_gallery_data(request: Request):
     os.makedirs(os.path.dirname(XO_GALLERY_DATA_FILE), exist_ok=True)
 
     # Add metadata
-    from datetime import datetime
-
-    body["imported_at"] = datetime.utcnow().isoformat()
+    body["imported_at"] = utcnow().isoformat()
     body["base_url"] = (
         "https://cdn.shopify.com/s/files/1/0294/7966/5708/t/7/assets/"
     )

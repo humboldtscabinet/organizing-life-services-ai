@@ -7,6 +7,7 @@ from datetime import datetime
 from app.services import dashboard_service
 from app.services import task_apply_service as tas
 from app.services.gtm_service import PHONE_EVENT_NAME
+from app.time_utils import utcnow
 
 
 class _Task:
@@ -24,7 +25,7 @@ class _Task:
         self.fingerprint = kwargs.get("fingerprint")
         self.status = kwargs.get("status", "pending")
         self.result = None
-        self.created_at = datetime.utcnow()
+        self.created_at = utcnow()
         self.approved_at = None
         self.completed_at = None
 

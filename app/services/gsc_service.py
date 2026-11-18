@@ -13,6 +13,7 @@ from googleapiclient.discovery import build
 from sqlalchemy.orm import Session
 
 from app.db.models import GSCData, WorkflowLog
+from app.time_utils import utcnow
 
 # Scopes required for read-only GSC access
 GSC_SCOPES = ["https://www.googleapis.com/auth/webmasters.readonly"]
@@ -47,7 +48,7 @@ def pull_gsc_data(
 
     service = _get_gsc_service()
 
-    end_date = datetime.utcnow().date() - timedelta(days=3)  # GSC data lags ~3 days
+    end_date = utcnow().date() - timedelta(days=3)  # GSC data lags ~3 days
     start_date = end_date - timedelta(days=days_back)
 
     row_limit = 1000

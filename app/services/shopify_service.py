@@ -21,6 +21,7 @@ import httpx
 from sqlalchemy.orm import Session
 
 from app.db.models import ShopifyOrder, WorkflowLog
+from app.time_utils import utcnow
 
 _access_token_cache = {"token": None}
 
@@ -295,7 +296,7 @@ def pull_shopify_orders(
                     order["created_at"].replace("Z", "+00:00")
                 )
             except (ValueError, TypeError):
-                order_date = datetime.utcnow()
+                order_date = utcnow()
 
         record = ShopifyOrder(
             shopify_order_id=str(order["id"]),

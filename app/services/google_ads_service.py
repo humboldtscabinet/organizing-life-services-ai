@@ -26,6 +26,7 @@ from sqlalchemy import and_
 from sqlalchemy.orm import Session
 
 from app.db.models import GoogleAdsData, WorkflowLog
+from app.time_utils import utcnow
 
 
 def _upsert_ads(db: Session, campaign_name: str, ad_group: str,
@@ -99,7 +100,7 @@ def pull_google_ads_data(
 
     client = _get_ga4_client()
 
-    end_date = datetime.utcnow().date() - timedelta(days=1)
+    end_date = utcnow().date() - timedelta(days=1)
     start_date = end_date - timedelta(days=days_back)
 
     rows_inserted = 0
