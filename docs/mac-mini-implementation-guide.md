@@ -151,12 +151,23 @@ which starts a Cloudflare quick tunnel to `http://127.0.0.1:3000`. Its plist
 (`~/Library/LaunchAgents/com.ols.dashboard-tunnel.plist`) lives on the mini and
 is not tracked in this repo.
 
+A quick tunnel has no access control of its own, and the dashboard proxy
+injects `OLS_API_KEY` into every `/api/` request — so an open public URL would
+be a fully authenticated API (Apply, Shopify publish, ...) to anyone who learns
+the hostname. The dashboard must therefore require a credential before it is
+exposed: set `OLS_DASHBOARD_BASIC_AUTH_USER` and
+`OLS_DASHBOARD_BASIC_AUTH_PASSWORD` in `.env` to put the SPA and the `/api/`
+proxy behind HTTP Basic Auth. The tunnel script **fails closed** — it refuses
+to publish unless the local dashboard answers with a `401` challenge.
+
 The quick-tunnel hostname is **ephemeral** — cloudflared assigns a brand-new
 `*.trycloudflare.com` URL on every (re)start, including after a reboot. Do not
-bookmark it. The current public URL is always written to
+bookmark it. The current public URL is written to
 `logs/dashboard-public-url.txt` (raw cloudflared output is appended to
 `logs/cloudflared-quick.log`); both live under the gitignored `logs/`
-directory. To find the live URL, read that file on the mini, e.g.
+directory. The script clears that file on start, so it is empty until a fresh
+hostname is parsed — never a stale, now-dead address. To find the live URL,
+read that file on the mini once it is populated, e.g.
 `cat logs/dashboard-public-url.txt`.
 
 **Gate:** API health is OK, dashboard/n8n load through approved access, and
