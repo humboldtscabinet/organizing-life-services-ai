@@ -14,6 +14,11 @@
 # cloudflared output is appended to logs/cloudflared-quick.log (both ignored).
 set -euo pipefail
 
+# launchd starts jobs with a minimal PATH that omits Homebrew, where cloudflared
+# lives on the mini (/opt/homebrew/bin/cloudflared). Prepend the Homebrew bin
+# dirs so `command -v cloudflared` resolves under launchd.
+export PATH=/opt/homebrew/bin:/usr/local/bin:$PATH
+
 LOCAL_URL="http://127.0.0.1:3000"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
