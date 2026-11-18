@@ -6,6 +6,24 @@ changes are tracked separately in
 
 ## Unreleased
 
+- **Recommendation tasks dedupe on query, not the position-stamped title.**
+  `'Create targeted content'` (`content_ranking`) tasks bake the current GSC
+  average position into their title, so the daily job minted a new task for the
+  same query every run (e.g. #321–#359: 27 rows, 9 distinct queries). Each
+  `content_ranking` task now carries a stable `dedupe_key`
+  (`seo:content_ranking:<normalized query>`, case/whitespace-insensitive,
+  position-free) and `_existing_blocking_task` skips creation when a
+  pending/delayed/approved/executing/completed task already shares the key, or a
+  dismissed task shares it inside a configurable recently-dismissed window
+  (`OLS_DEDUPE_DISMISSED_WINDOW_DAYS`, default 30 days); dismissals older than
+  the window let the recommendation reappear. New nullable `dedupe_key` and
+  `dismissed_at` columns on `dashboard_tasks` (`app/db/models.py`,
+  `infra/postgres/init.sql`, idempotent migration
+  `006_dashboard_task_dedupe.sql`); `dismiss_task` now records `dismissed_at`.
+  Legacy dismissed rows without `dismissed_at` fall back to `created_at`. No
+  historical rows are modified, backfilled, or auto-dismissed; the Apply
+  allowlist, `NEVER_APPLY_KINDS`, judiciary, and gate are untouched. Covered by
+  `tests/test_dashboard_dedupe.py`.
 - **Blog featured images now use Grok Imagine instead of DALL-E 3.**
   `_generate_blog_image` in `app/services/content_engine.py` calls
   `https://api.x.ai/v1/images/generations` with `XAI_API_KEY` and

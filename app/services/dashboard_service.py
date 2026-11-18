@@ -193,12 +193,102 @@ def generate_tasks(db: Session, days_back: int = 7) -> dict:
     }
 
 
+# Statuses that always block a re-created recommendation sharing a dedupe key.
+# "dismissed" is handled separately via the configurable window below.
+DEDUPE_OPEN_STATUSES = (
+    "pending",
+    "delayed",
+    "approved",
+    "executing",
+    "completed",
+)
+
+# Default "recently dismissed" window: a dismissed duplicate inside this many
+# days still suppresses a new task; outside it the task is allowed to reappear.
+DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS = 30
+
+
+def _dismissed_dedupe_window_days() -> int:
+    """Return the configurable recently-dismissed dedupe window, in days.
+
+    Overridable via ``OLS_DEDUPE_DISMISSED_WINDOW_DAYS``; falls back to the
+    30-day default when unset, non-integer, or negative.
+    """
+    raw = os.getenv("OLS_DEDUPE_DISMISSED_WINDOW_DAYS", "").strip()
+    if not raw:
+        return DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        logger.warning(
+            "Invalid OLS_DEDUPE_DISMISSED_WINDOW_DAYS=%r; using default %d",
+            raw,
+            DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS,
+        )
+        return DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS
+    if value < 0:
+        logger.warning(
+            "Negative OLS_DEDUPE_DISMISSED_WINDOW_DAYS=%r; using default %d",
+            raw,
+            DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS,
+        )
+        return DEFAULT_DISMISSED_DEDUPE_WINDOW_DAYS
+    return value
+
+
+def _dedupe_key(task_type: str, category: str, target: str) -> str:
+    """Build a stable recommendation dedupe key from kind + query/target.
+
+    The key intentionally omits volatile detail (e.g. the current average
+    position baked into the task title) so the same query/target maps to one
+    key across daily runs. Whitespace and case are normalized.
+    """
+    normalized_target = " ".join((target or "").lower().split())
+    return f"{task_type}:{category}:{normalized_target}"
+
+
+def _existing_by_dedupe_key(
+    db: Session, dedupe_key: str
+) -> Optional[DashboardTask]:
+    """Return a task that should block a new one sharing ``dedupe_key``.
+
+    Open tasks (pending/delayed/approved/executing/completed) always block.
+    Dismissed tasks only block while inside the configurable recently-dismissed
+    window; older dismissals let the recommendation reappear. Rows dismissed
+    before ``dismissed_at`` existed fall back to ``created_at``.
+    """
+    window_start = utcnow() - timedelta(days=_dismissed_dedupe_window_days())
+    candidates = (
+        db.query(DashboardTask)
+        .filter(DashboardTask.dedupe_key == dedupe_key)
+        .all()
+    )
+    for row in candidates or []:
+        # Defensive re-check so opaque/fake query layers cannot leak rows with
+        # a different key into the decision.
+        if getattr(row, "dedupe_key", None) != dedupe_key:
+            continue
+        status = getattr(row, "status", None)
+        if status in DEDUPE_OPEN_STATUSES:
+            return row
+        if status == "dismissed":
+            dismissed_at = (
+                getattr(row, "dismissed_at", None)
+                or getattr(row, "created_at", None)
+            )
+            if dismissed_at is not None and dismissed_at >= window_start:
+                return row
+    return None
+
+
 def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardTask]:
     """Skip creating a duplicate open/dismissed task.
 
     Fingerprinted executable tasks may be recreated after completion if the
-    detector fires again (e.g. phone clicks drop to zero). Advisory SEO tasks
-    still treat completed as blocking so we do not reopen the same note.
+    detector fires again (e.g. phone clicks drop to zero). Tasks carrying a
+    ``dedupe_key`` dedupe on kind + query/target with a configurable
+    recently-dismissed window. Advisory SEO tasks without either key still
+    treat completed as blocking so we do not reopen the same note.
     """
     fingerprint = task_data.get("fingerprint")
     if fingerprint:
@@ -212,6 +302,11 @@ def _existing_blocking_task(db: Session, task_data: dict) -> Optional[DashboardT
             )
             .first()
         )
+
+    dedupe_key = task_data.get("dedupe_key")
+    if dedupe_key:
+        return _existing_by_dedupe_key(db, dedupe_key)
+
     return (
         db.query(DashboardTask)
         .filter(
@@ -581,6 +676,9 @@ def _generate_gsc_tasks(db: Session, cutoff: datetime) -> list[dict]:
                 ),
                 "action_endpoint": None,
                 "action_payload": lead.as_dict(),
+                # Dedupe on query, not the position-stamped title, so the daily
+                # run does not mint a fresh task each time the position drifts.
+                "dedupe_key": _dedupe_key("seo", "content_ranking", q),
                 "status": "pending",
             })
 
@@ -982,6 +1080,7 @@ def dismiss_task(db: Session, task_id: int) -> dict:
         return {"status": "error", "detail": f"Task is {task.status}, not pending"}
 
     task.status = "dismissed"
+    task.dismissed_at = utcnow()
     db.commit()
 
     return {

@@ -189,6 +189,7 @@ class DashboardTask(Base):
         Index("ix_dashboard_tasks_type_status", "task_type", "status"),
         Index("ix_dashboard_tasks_fingerprint", "fingerprint"),
         Index("ix_dashboard_tasks_action_kind", "action_kind"),
+        Index("ix_dashboard_tasks_dedupe_key", "dedupe_key"),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -202,12 +203,14 @@ class DashboardTask(Base):
     action_kind = Column(String(100))                 # Allowlisted apply verb; None = advisory
     action_payload = Column(JSONB)                    # Frozen JSON for the apply dispatcher
     fingerprint = Column(String(300))                 # Stable detect key; blocks duplicate open tasks
+    dedupe_key = Column(String(300))                  # Stable recommendation key (kind + query/target)
     status = Column(String(50), default="pending")    # pending, approved, executing, completed, failed, dismissed, delayed
     result = Column(JSONB)                            # Result from execution
     delayed_until = Column(DateTime, nullable=True)   # When to show the task again if delayed
     created_at = Column(DateTime, default=utcnow)
     approved_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
+    dismissed_at = Column(DateTime, nullable=True)    # When the task was dismissed (dedupe window anchor)
 
 
 class OpsAlert(Base):
