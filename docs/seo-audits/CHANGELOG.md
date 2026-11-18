@@ -10,6 +10,41 @@ Each entry should answer:
 
 ---
 
+## 2026-11-18 — St. Petersburg + Wesley Chapel CTR metafield pass, broken-link cleanup, and 11 redirects (live applied)
+
+**Status: LIVE applied.** Applied **2026-11-18 ~5:40 PM ET** on Shopify with `human_confirmed=true` (confirmed by Robert in chat ~5:25 PM ET) and judge `PASS` — both gate flags required. Two existing city pages had their SEO title/meta rewritten via the `global.title_tag` / `global.description_tag` metafields only; the H1 and canonical on each page are unchanged.
+
+**What**
+- **St. Petersburg** ([`/pages/estate-sale-st-petersburg-florida`](https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida)):
+  - Title: `Estate Sales St. Petersburg, FL | Full-Service Liquidators` → `Estate Sales St. Petersburg, FL | Pinellas County OLS`
+  - Meta: `St. Pete estate sales run start to finish: free consultation, pricing, public listing, sale-day staff and cleanout. Call (727) 542-6028 to book.`
+  - Judge `PASS` (grok-4), `audit_id` 7.
+- **Wesley Chapel** ([`/pages/estate-sale-wesley-chapel-florida`](https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida)):
+  - Title: `Estate Sales Wesley Chapel, FL | Pasco County Liquidators` → `Estate Sales Wesley Chapel, FL | Pasco County OLS`
+  - Meta: `Wesley Chapel estate sales run start to finish: free consultation, pricing, public listing, sale-day staff and cleanout. Call (727) 542-6028 to book.`
+  - Judge `PASS`, `audit_id` 8.
+- Both pages were written through the `global.title_tag` and `global.description_tag` metafields only. H1 and canonical are unchanged.
+- **Broken body links: 12 404s → 0.** Dead city links on the Tampa/Hillsborough and Pasco hubs were unwrapped to plain text, and a malformed `href` on the `estate-liquidation-made-easy` post was fixed to `/`.
+- **Eleven Shopify 301 redirects** added from docs `ols-redirects-proposed-2026-10-15`:
+  - Brandon, Riverview, Carrollwood, Lutz, and Westchase → `/pages/estate-sale-tampa-hillsborough-county`
+  - Hudson, Holiday, and Trinity → `/pages/estate-sale-pasco-county`
+  - `/pages/fees-products` → `/collections/fees-products`
+  - `/blog/estate-sale-pricing-strategies` → `/blogs/news/how-to-plan-estate-sale`
+  - `/blog/florida-estate-sales-guide` → `/blogs/news/how-do-estate-sales-work`
+
+**Not applied**
+- **Largo** and **Dunedin** — judge `FAIL` (`audit_id`s 9 and 10), pending re-review.
+- **personal-property-appraisal** — a new draft is pending owner review.
+
+**How**
+- Live Shopify metafield writes gated on `human_confirmed=true` (Robert, in chat ~5:25 PM ET) + judge `PASS`.
+
+**Result / next watch**
+- **GSC watch starts 2026-11-18**, with 14- and 28-day checks due **2026-12-02** and **2026-12-16**.
+- Watch queries: `estate sales st pete`, `estate sales st petersburg fl`, `estate sales wesley chapel`.
+
+---
+
 ## 2026-08-31 — Session 20: page CTR pass for "downsizing-moving-sales" (`downsizing specialist`) (live applied)
 
 **Status: LIVE applied.** Applied **2026-08-31 ~8:19 PM ET** (after PRs #89/#90 merged) via the guarded [`data/session20_downsizing_specialist_page_ctr.py`](../../data/session20_downsizing_specialist_page_ctr.py) script with `--apply` under the mutation guard (after a read-only dry-run) — Shopify page id **99735568538**, handle `downsizing-moving-sales` ([live URL](https://organizinglifeservices.com/pages/downsizing-moving-sales)). The metafield title/description below (`Downsizing Specialist in Tampa Bay | Moving Sales | OLS` / the Tampa Bay + phone meta) are now the live `global.title_tag` / `global.description_tag`; the H1 (`Downsizing Help & Moving Sales | Organizing Life Services`) is unchanged. Operator verified the live HTML afterward (see Result below).
