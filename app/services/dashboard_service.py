@@ -12,6 +12,7 @@ Manual-approval mode: generates tasks, waits for human approval before execution
 
 import logging
 import os
+import re
 from datetime import datetime, timedelta
 from typing import Optional
 
@@ -76,6 +77,35 @@ def make_dedupe_key(task_type: str, category: str, target: str) -> str:
     """
     normalized_target = " ".join((target or "").lower().split())
     return f"{task_type}:{category}:{normalized_target}"
+
+
+# Legacy rows created before the dedupe_key column existed carry NULL keys. For
+# content_ranking the query is recoverable from the stable title pattern
+# "Create targeted content for '<query>' (position <n>)". This mirrors the
+# backfill in migration 006 so the runtime fallback still collapses duplicates
+# even before (or without) that migration running.
+_CONTENT_RANKING_TITLE_RE = re.compile(
+    r"^Create targeted content for '(?P<query>.+)' \(position [0-9.]+\)$"
+)
+
+
+def _parse_legacy_target(category: Optional[str], title: Optional[str]) -> Optional[str]:
+    """Recover the query/target from a legacy row's title where possible."""
+    if category == "content_ranking":
+        match = _CONTENT_RANKING_TITLE_RE.match(title or "")
+        if match:
+            return match.group("query")
+    return None
+
+
+def _computed_dedupe_key_for_row(row: DashboardTask) -> Optional[str]:
+    """Best-effort dedupe key for a legacy row that has no stored dedupe_key."""
+    category = getattr(row, "category", None)
+    query = _parse_legacy_target(category, getattr(row, "title", None))
+    if query is None:
+        return None
+    task_type = getattr(row, "task_type", None) or "seo"
+    return make_dedupe_key(task_type, category, query)
 
 # Geographic service area terms for Organizing Life Services
 # Based in Greater Tampa Bay Area, Florida
@@ -272,9 +302,15 @@ def _existing_blocking_task(
         )
     dedupe_key = task_data.get("dedupe_key")
     if dedupe_key:
-        return _existing_dedupe_task(
+        match = _existing_dedupe_task(
             db, dedupe_key, window_days=window_days, now=now
+        ) or _existing_unkeyed_dedupe_task(
+            db, task_data, dedupe_key, window_days=window_days, now=now
         )
+        if match:
+            return match
+        # No keyed or legacy-unkeyed match: fall through to the category+title
+        # match below so a same-kind row with an identical title still blocks.
     return (
         db.query(DashboardTask)
         .filter(
@@ -297,12 +333,18 @@ def _existing_dedupe_task(
     window_days: Optional[int] = None,
     now: Optional[datetime] = None,
 ) -> Optional[DashboardTask]:
-    """Return a task that should block a new one with the same dedupe key.
+    """Return a keyed task that should block a new one with the same dedupe key.
 
     Blocks when an open task (pending/delayed/approved/executing) exists, or
     when a dismissed task is still inside the recently-dismissed window. A task
     dismissed longer ago than the window no longer blocks, so the detector may
     resurface it.
+
+    Rows backfilled by migration 006 get a dedupe_key but no ``dismissed_at``
+    (the backfill fills keys only). For the window anchor we therefore fall back
+    to ``created_at`` when ``dismissed_at`` is NULL — the table has no
+    ``updated_at`` column — so a legacy dismissed row is treated as dismissed at
+    its creation time.
     """
     open_match = (
         db.query(DashboardTask)
@@ -319,16 +361,75 @@ def _existing_dedupe_task(
         window_days = _dismissed_dedupe_window_days()
     now = now or utcnow()
     cutoff = now - timedelta(days=window_days)
+    dismissed_anchor = func.coalesce(
+        DashboardTask.dismissed_at, DashboardTask.created_at
+    )
     return (
         db.query(DashboardTask)
         .filter(
             DashboardTask.dedupe_key == dedupe_key,
             DashboardTask.status == "dismissed",
-            DashboardTask.dismissed_at.isnot(None),
-            DashboardTask.dismissed_at >= cutoff,
+            dismissed_anchor >= cutoff,
         )
         .first()
     )
+
+
+def _existing_unkeyed_dedupe_task(
+    db: Session,
+    task_data: dict,
+    dedupe_key: str,
+    *,
+    window_days: Optional[int] = None,
+    now: Optional[datetime] = None,
+) -> Optional[DashboardTask]:
+    """Match legacy rows (dedupe_key NULL) whose recomputed key equals dedupe_key.
+
+    Rows created before the dedupe_key column existed carry NULL keys. Their key
+    is recovered from the stored title/target (see ``_computed_dedupe_key_for_row``)
+    so duplicates still collapse even if migration 006's backfill has not run or
+    could not parse the title. Window handling matches ``_existing_dedupe_task``:
+    open rows always block; dismissed rows block only inside the window, anchored
+    on ``dismissed_at`` or, when NULL, ``created_at``.
+    """
+    category = task_data.get("category")
+    if not category:
+        return None
+    try:
+        rows = (
+            db.query(DashboardTask)
+            .filter(
+                DashboardTask.dedupe_key.is_(None),
+                DashboardTask.category == category,
+                DashboardTask.status.in_(list(DEDUPE_OPEN_STATUSES) + ["dismissed"]),
+            )
+            .all()
+        )
+    except Exception:
+        logger.exception("Could not load legacy unkeyed tasks for dedup")
+        return None
+
+    if window_days is None:
+        window_days = _dismissed_dedupe_window_days()
+    now = now or utcnow()
+    cutoff = now - timedelta(days=window_days)
+
+    for row in rows or []:
+        # Resilient to fake sessions that ignore the dedupe_key filter.
+        if getattr(row, "dedupe_key", None):
+            continue
+        if _computed_dedupe_key_for_row(row) != dedupe_key:
+            continue
+        status = getattr(row, "status", None)
+        if status in DEDUPE_OPEN_STATUSES:
+            return row
+        if status == "dismissed":
+            anchor = getattr(row, "dismissed_at", None) or getattr(
+                row, "created_at", None
+            )
+            if anchor is not None and anchor >= cutoff:
+                return row
+    return None
 
 
 def _generate_gtm_apply_tasks(*, days_back: int = 7) -> list[dict]:

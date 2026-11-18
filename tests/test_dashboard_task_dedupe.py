@@ -82,6 +82,28 @@ def _insert(db, *, status, dedupe_key=DEDUPE_KEY, title="existing", dismissed_at
     return task
 
 
+def _insert_legacy(
+    db, *, status, query=QUERY, avg_pos=12.3, dismissed_at=None, created_at=None
+):
+    """A row created before dedupe_key existed: NULL key, real title pattern."""
+    task = DashboardTask(
+        task_type="seo",
+        category="content_ranking",
+        priority="MEDIUM",
+        title=f"Create targeted content for '{query}' (position {avg_pos})",
+        dedupe_key=None,
+        status=status,
+        dismissed_at=dismissed_at,
+    )
+    db.add(task)
+    db.commit()
+    if created_at is not None:
+        task.created_at = created_at
+        db.commit()
+    db.refresh(task)
+    return task
+
+
 def test_pending_duplicate_is_skipped(db):
     """A pending task with the same dedupe key blocks a new one."""
     existing = _insert(db, status="pending")
@@ -138,6 +160,64 @@ def test_different_query_is_created(db):
     other = _task_data(query="probate cleanout clearwater")
 
     blocker = dashboard_service._existing_blocking_task(db, other)
+
+    assert blocker is None
+
+
+def test_unkeyed_pending_duplicate_is_skipped(db):
+    """A legacy pending row (NULL dedupe_key) still blocks via recomputed key."""
+    existing = _insert_legacy(db, status="pending")
+    assert existing.dedupe_key is None
+
+    blocker = dashboard_service._existing_blocking_task(db, _task_data())
+
+    assert blocker is not None
+    assert blocker.id == existing.id
+
+
+def test_unkeyed_dismissed_duplicate_inside_window_is_skipped(db):
+    """A legacy dismissed row inside the window blocks via recomputed key."""
+    now = utcnow()
+    existing = _insert_legacy(
+        db, status="dismissed", dismissed_at=now - timedelta(days=10)
+    )
+    assert existing.dedupe_key is None
+
+    blocker = dashboard_service._existing_blocking_task(
+        db, _task_data(), window_days=30, now=now
+    )
+
+    assert blocker is not None
+    assert blocker.id == existing.id
+
+
+def test_unkeyed_dismissed_without_timestamp_uses_created_at(db):
+    """Legacy dismissed row with no dismissed_at anchors on created_at.
+
+    Migration 006 fills dedupe_key but not dismissed_at, so a recently created
+    legacy dismissal must still block inside the window.
+    """
+    now = utcnow()
+    existing = _insert_legacy(
+        db,
+        status="dismissed",
+        dismissed_at=None,
+        created_at=now - timedelta(days=5),
+    )
+
+    blocker = dashboard_service._existing_blocking_task(
+        db, _task_data(), window_days=30, now=now
+    )
+
+    assert blocker is not None
+    assert blocker.id == existing.id
+
+
+def test_unkeyed_different_query_is_created(db):
+    """A legacy row for another query does not block a new, distinct query."""
+    _insert_legacy(db, status="pending", query="probate cleanout clearwater")
+
+    blocker = dashboard_service._existing_blocking_task(db, _task_data())
 
     assert blocker is None
 
