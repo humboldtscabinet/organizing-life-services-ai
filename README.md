@@ -41,6 +41,18 @@ govern how humans and AI agents operate here:
   maps named seats onto existing code paths (SEO measurement, gated Apply,
   Seedance ads, Mac mini ops, coding via Cloud Agents, independent judiciary).
 
+How agent work is scoped, reviewed, and evaluated:
+
+- [`docs/agent-evaluation.md`](docs/agent-evaluation.md) — the rubric used to
+  review agent-generated PRs (correctness, gate compliance, side-effect risk,
+  test coverage, scope).
+- [`docs/long-horizon-workflows.md`](docs/long-horizon-workflows.md) — the two
+  backbone multi-step workflows (gated Apply, independent judiciary) with what
+  "done correctly" means at each step.
+- [`evals/`](evals/README.md) — worked example tasks with prompts and graders,
+  plus [`evals/grade.sh`](evals/grade.sh) and the executable rubric in
+  [`tests/test_agent_eval_guardrails.py`](tests/test_agent_eval_guardrails.py).
+
 Google Ads video creatives (Seedance / BytePlus ModelArk) live in
 [`seedance-ads/`](seedance-ads/README.md). To rebuild that aspect-ratio
 pipeline for another company, see

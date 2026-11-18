@@ -21,6 +21,14 @@ Seedance, ops), read [`docs/grok-bot.md`](docs/grok-bot.md). If you are
   the allowlisted Apply dispatcher (`ALLOWLIST`, `NEVER_APPLY_KINDS`).
 - [`docs/grok-bot.md`](docs/grok-bot.md) — Grok Bot operating contract / seats.
 - [`docs/architecture.md`](docs/architecture.md) — system overview.
+- [`docs/agent-evaluation.md`](docs/agent-evaluation.md) — the rubric your PR is
+ reviewed against (correctness, gate compliance, side-effect risk, test
+ coverage, scope). Read it before opening a PR.
+- [`docs/long-horizon-workflows.md`](docs/long-horizon-workflows.md) — the gated
+ Apply flow and the independent judiciary check, end to end, with what "done
+ correctly" means.
+- [`evals/`](evals/) — worked example tasks (prompt + grader) and their
+ executable rubric in [`tests/test_agent_eval_guardrails.py`](tests/test_agent_eval_guardrails.py).
 
 ## Hard rules (do not violate)
 
@@ -59,10 +67,15 @@ Seedance, ops), read [`docs/grok-bot.md`](docs/grok-bot.md). If you are
 - **Run the tests that cover what you touched**, especially the router/apply
   path:
 
-  ```bash
-  python3 -m pytest tests/test_llm_router.py tests/test_task_apply.py \
-      tests/test_high_stakes_routes.py tests/test_gtm_write_control.py
-  ```
+ ```bash
+ python3 -m pytest tests/test_llm_router.py tests/test_task_apply.py \
+ tests/test_high_stakes_routes.py tests/test_gtm_write_control.py \
+ tests/test_agent_eval_guardrails.py
+ ```
+
+ `tests/test_agent_eval_guardrails.py` is the executable rubric for the gate,
+ the Apply allowlist, and the never-apply list; keep it green. `evals/grade.sh`
+ runs the grader set for the example tasks in [`evals/`](evals/).
 
 - If a requested change fights existing settings, tests, or policy, **stop and
   document why** in the PR instead of forcing it through.
