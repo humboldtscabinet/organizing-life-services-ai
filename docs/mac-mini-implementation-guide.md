@@ -142,6 +142,23 @@ above are useful when opening the dashboard/API/n8n from a normal browser:
 - API docs: `http://localhost:8000/docs`
 - n8n: `http://localhost:5678`
 
+### Dashboard quick tunnel (off-mini access)
+
+When an approved operator needs the dashboard without SSH port forwarding, the
+launchd job `com.ols.dashboard-tunnel` runs
+[`scripts/ols-dashboard-tunnel.sh`](../../scripts/ols-dashboard-tunnel.sh),
+which starts a Cloudflare quick tunnel to `http://127.0.0.1:3000`. Its plist
+(`~/Library/LaunchAgents/com.ols.dashboard-tunnel.plist`) lives on the mini and
+is not tracked in this repo.
+
+The quick-tunnel hostname is **ephemeral** — cloudflared assigns a brand-new
+`*.trycloudflare.com` URL on every (re)start, including after a reboot. Do not
+bookmark it. The current public URL is always written to
+`logs/dashboard-public-url.txt` (raw cloudflared output is appended to
+`logs/cloudflared-quick.log`); both live under the gitignored `logs/`
+directory. To find the live URL, read that file on the mini, e.g.
+`cat logs/dashboard-public-url.txt`.
+
 **Gate:** API health is OK, dashboard/n8n load through approved access, and
 Postgres is not published to the LAN.
 
