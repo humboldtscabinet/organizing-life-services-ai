@@ -3,13 +3,14 @@
 ## Prompt
 
 > When the judiciary provider (xAI/Grok) times out or returns a non-JSON body,
-> `route_llm` currently lets the exception bubble in a way that leaves an audit
-> row half-written and, worse, lets a high-stakes caller treat the missing
-> verdict as if review simply didn't happen. Make the failure path safe:
+> we need to be certain that failure can never be laundered into an approval.
+> Harden and lock down the judiciary failure path so that:
 >
-> - A provider error must still produce an audit record (with the error), never
->   a silent gap.
-> - A failed or empty judiciary response must **never** resolve to a passing
+> - A provider error is still recorded in the audit log (with the error) and
+>   then surfaced to the caller — never swallowed into a silent gap. (The router
+>   already writes an error audit row today; the task is to keep that guaranteed
+>   and pin it with a test.)
+> - A failed or empty judiciary response **never** resolves to a passing
 >   verdict. Downstream, "no verdict" and "FAIL" must both keep the high-stakes
 >   gate closed.
 > - Don't change which provider serves which role, and don't add a retry that
@@ -21,8 +22,8 @@
 
 - [ ] `tests/test_llm_router.py` passes, including a **new** test that simulates
       a judiciary provider raising / returning a non-PASS body and asserts:
-      (a) an audit row is written with the error, and (b) the returned verdict
-      is not `"PASS"`.
+      (a) an audit row is written with the error (preserving today's behavior),
+      and (b) the returned/resolved verdict is not `"PASS"`.
 - [ ] `tests/test_agent_eval_guardrails.py::TestGateFailsClosed` passes — a
       `None` or non-`"PASS"` verdict still raises `HighRiskGateError`.
 
