@@ -17,7 +17,7 @@ import json
 import logging
 import os
 import re
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Dict, List, Optional
 
 import httpx
@@ -27,6 +27,7 @@ from sqlalchemy.orm import Session
 from app.db.models import DashboardTask, GSCData
 from app.services.lead_relevance import score_lead_relevance
 from app.services.llm_router import LLMRequest, route_llm
+from app.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -76,7 +77,7 @@ def _get_shopify_token() -> str:
 
     Caches the token with a 23-hour TTL to handle expiration.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     if (
         _shopify_token_cache["token"]
         and _shopify_token_cache["expires_at"]
@@ -253,7 +254,7 @@ def analyze_content_gaps(db: Session, days_back: int = 90) -> List[Dict]:
 
     Returns sorted list of top 30 opportunities by estimated value.
     """
-    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    cutoff = utcnow() - timedelta(days=days_back)
 
     # Group by query, aggregate metrics over the period
     query_stats = (
@@ -1032,7 +1033,7 @@ def publish_to_shopify(db: Session, task_id: int) -> Dict:
 
         # Update task status
         task.status = "completed"
-        task.completed_at = datetime.utcnow()
+        task.completed_at = utcnow()
         task.result = {
             "shopify_article_id": article_id,
             "shopify_article_url": article_url,

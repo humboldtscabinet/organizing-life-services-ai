@@ -2,6 +2,7 @@ from datetime import datetime
 
 from app.db.models import LLMAudit, WorkflowLog
 from app.services.audit_log_service import serialize_llm_audit, serialize_workflow_log
+from app.time_utils import utcnow
 
 
 def test_workflow_log_payload_is_redacted():
@@ -10,7 +11,7 @@ def test_workflow_log_payload_is_redacted():
         workflow_name="dashboard_task_apply",
         status="success",
         payload={"api_key": "super-secret", "task_id": 9},
-        created_at=datetime.utcnow(),
+        created_at=utcnow(),
     )
     serialized = serialize_workflow_log(row)
     assert serialized["payload"]["api_key"] == "[redacted]"
@@ -29,7 +30,7 @@ def test_llm_audit_omits_bodies_by_default():
         verdict="PASS",
         request={"prompt": "secret OLS_API_KEY=abc", "api_key": "nope"},
         response={"text": "ok"},
-        created_at=datetime.utcnow(),
+        created_at=utcnow(),
     )
     listed = serialize_llm_audit(row, include_bodies=False)
     assert "request" not in listed

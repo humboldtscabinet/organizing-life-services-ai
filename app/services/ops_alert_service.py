@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import GA4Data, GoogleAdsData, GSCData, OpsAlert
 from app.redaction import bounded_json_object, redact_sensitive_text, truncate_text
+from app.time_utils import utcnow
 
 VALID_SEVERITIES = {"INFO", "WARNING", "CRITICAL"}
 VALID_STATUSES = {"open", "acknowledged", "dismissed", "resolved"}
@@ -83,7 +84,7 @@ def create_alert(
     Repeated n8n checks should send a stable fingerprint so the dashboard shows
     one alert with an occurrence count instead of one alert per run.
     """
-    now = datetime.utcnow()
+    now = utcnow()
     normalized_source = _clean_short_text(source, max_chars=MAX_SOURCE_CHARS)
     normalized_title = _clean_short_text(title, max_chars=MAX_TITLE_CHARS)
     normalized_fingerprint = _clean_optional_text(
@@ -180,7 +181,7 @@ def acknowledge_alert(db: Session, alert_id: int) -> dict[str, Any]:
     if not alert:
         return {"status": "error", "detail": "Alert not found"}
 
-    now = datetime.utcnow()
+    now = utcnow()
     alert.status = "acknowledged"
     alert.acknowledged_at = now
     alert.updated_at = now
@@ -194,7 +195,7 @@ def dismiss_alert(db: Session, alert_id: int) -> dict[str, Any]:
     if not alert:
         return {"status": "error", "detail": "Alert not found"}
 
-    now = datetime.utcnow()
+    now = utcnow()
     alert.status = "dismissed"
     alert.dismissed_at = now
     alert.updated_at = now
@@ -208,7 +209,7 @@ def resolve_alert(db: Session, alert_id: int) -> dict[str, Any]:
     if not alert:
         return {"status": "error", "detail": "Alert not found"}
 
-    now = datetime.utcnow()
+    now = utcnow()
     alert.status = "resolved"
     alert.resolved_at = now
     alert.updated_at = now
@@ -280,7 +281,7 @@ def classify_ingest_freshness(
     stale. The 36h SLA is “did the mini pull run,” not “is Google’s report
     current.”
     """
-    now = now or datetime.utcnow()
+    now = now or utcnow()
     if last_ingested is None:
         return {
             "stale": True,
@@ -302,7 +303,7 @@ def check_data_freshness(
     now: datetime | None = None,
 ) -> dict[str, Any]:
     """Open or resolve data:freshness:{channel} alerts from ingest timestamps."""
-    now = now or datetime.utcnow()
+    now = now or utcnow()
     channels: list[dict[str, Any]] = []
     stale: list[str] = []
 

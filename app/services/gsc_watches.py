@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from app.db.models import GSCData
 from app.services.frozen_meta_service import normalize_path
+from app.time_utils import utcnow
 
 
 @dataclass(frozen=True)
@@ -153,7 +154,7 @@ def generate_gsc_watch_tasks(
     today = today or date.today()
     from datetime import timedelta
 
-    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    cutoff = utcnow() - timedelta(days=days_back)
     tasks: list[dict[str, Any]] = []
     for watch in WATCHES:
         if today < watch.due_on:

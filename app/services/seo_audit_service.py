@@ -21,6 +21,7 @@ from app.db.models import (
     SEOReport,
     WorkflowLog,
 )
+from app.time_utils import utcnow
 
 # ===================== Core Audit Runner =====================
 
@@ -32,7 +33,7 @@ def run_seo_audit(db: Session, days_back: int = 7) -> dict:
     Returns a dict with audit results and recommendations.
     Each section is stored as a separate SEOReport row.
     """
-    cutoff = datetime.utcnow() - timedelta(days=days_back)
+    cutoff = utcnow() - timedelta(days=days_back)
     reports_created = 0
     all_findings = {}
 
@@ -41,7 +42,7 @@ def run_seo_audit(db: Session, days_back: int = 7) -> dict:
     if gsc_findings:
         report = SEOReport(
             report_type="gsc_audit",
-            report_date=datetime.utcnow(),
+            report_date=utcnow(),
             summary=gsc_findings["summary"],
             data=gsc_findings,
         )
@@ -54,7 +55,7 @@ def run_seo_audit(db: Session, days_back: int = 7) -> dict:
     if ga4_findings:
         report = SEOReport(
             report_type="ga4_audit",
-            report_date=datetime.utcnow(),
+            report_date=utcnow(),
             summary=ga4_findings["summary"],
             data=ga4_findings,
         )
@@ -67,7 +68,7 @@ def run_seo_audit(db: Session, days_back: int = 7) -> dict:
     if ads_findings:
         report = SEOReport(
             report_type="google_ads_audit",
-            report_date=datetime.utcnow(),
+            report_date=utcnow(),
             summary=ads_findings["summary"],
             data=ads_findings,
         )
@@ -80,7 +81,7 @@ def run_seo_audit(db: Session, days_back: int = 7) -> dict:
     if recommendations:
         report = SEOReport(
             report_type="seo_recommendations",
-            report_date=datetime.utcnow(),
+            report_date=utcnow(),
             summary=f"{len(recommendations)} actionable recommendations generated",
             data={"recommendations": recommendations},
         )
@@ -1095,7 +1096,7 @@ def run_deep_seo_audit(
     if not site_url:
         raise ValueError("GSC_SITE_URL is not set")
 
-    today = datetime.utcnow().date()
+    today = utcnow().date()
     gsc_end = today - timedelta(days=3)  # GSC lag
     cur_start = gsc_end - timedelta(days=period_days - 1)
     prv_end = cur_start - timedelta(days=1)
@@ -1150,7 +1151,7 @@ def run_deep_seo_audit(
 
     report = SEOReport(
         report_type="deep_audit",
-        report_date=datetime.utcnow(),
+        report_date=utcnow(),
         summary=summary_text,
         data=payload,
     )

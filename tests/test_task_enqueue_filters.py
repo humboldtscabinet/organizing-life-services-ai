@@ -20,6 +20,7 @@ from app.services.task_enqueue_filters import (
     keyword_already_covered,
     should_skip_low_lead_near_me,
 )
+from app.time_utils import utcnow
 
 
 def _page_payload(*, page_id, path, current_title, query, new_title, new_meta):
@@ -265,7 +266,7 @@ def _row(*, page, query, clicks=0, impressions=80, ctr=0.0, position=6.0):
         impressions=impressions,
         ctr=ctr,
         position=position,
-        date=datetime.utcnow() - timedelta(days=1),
+        date=utcnow() - timedelta(days=1),
     )
 
 
@@ -290,7 +291,7 @@ def test_generate_gsc_tasks_drops_rejected_frozen_meta(monkeypatch):
     monkeypatch.setattr(
         "app.services.frozen_meta_service.resolve_and_draft", _bad_draft
     )
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     tasks = dashboard_service._generate_gsc_tasks(_FakeDb(rows), cutoff)
     assert not any(t.get("action_kind") == "shopify.apply_frozen_meta" for t in tasks)
     assert not any(t["category"] == "zero_click_investigation" for t in tasks)
@@ -317,7 +318,7 @@ def test_generate_gsc_tasks_keeps_good_frozen_meta(monkeypatch):
     monkeypatch.setattr(
         "app.services.frozen_meta_service.resolve_and_draft", _good_draft
     )
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     tasks = dashboard_service._generate_gsc_tasks(_FakeDb(rows), cutoff)
     frozen = [t for t in tasks if t.get("action_kind") == "shopify.apply_frozen_meta"]
     assert frozen, "expected a good CTR frozen-meta task to enqueue"
@@ -391,7 +392,7 @@ def test_dismissed_prior_row_does_not_block_new_good_rewrite(monkeypatch):
     monkeypatch.setattr(
         "app.services.frozen_meta_service.resolve_and_draft", _good_draft
     )
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     db = _StatusAwareDb(gsc_rows, [dismissed_row])
     tasks = dashboard_service._generate_gsc_tasks(db, cutoff)
     frozen = [t for t in tasks if t.get("action_kind") == "shopify.apply_frozen_meta"]
@@ -430,7 +431,7 @@ def test_rule1_rank_hole_uses_top_page_position(monkeypatch):
     monkeypatch.setattr(
         "app.services.frozen_meta_service.resolve_and_draft", _good_draft
     )
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     tasks = dashboard_service._generate_gsc_tasks(_FakeDb(rows), cutoff)
     rule1 = [
         t
@@ -467,7 +468,7 @@ def test_generate_gsc_tasks_dedupes_same_url(monkeypatch):
     monkeypatch.setattr(
         "app.services.frozen_meta_service.resolve_and_draft", _good_draft
     )
-    cutoff = datetime.utcnow() - timedelta(days=7)
+    cutoff = utcnow() - timedelta(days=7)
     tasks = dashboard_service._generate_gsc_tasks(_FakeDb(rows), cutoff)
     frozen = [t for t in tasks if t.get("action_kind") == "shopify.apply_frozen_meta"]
     assert len(frozen) == 1, "one page must yield at most one frozen-meta task"

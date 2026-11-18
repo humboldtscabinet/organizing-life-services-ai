@@ -11,13 +11,13 @@ from __future__ import annotations
 import logging
 import os
 from dataclasses import asdict, dataclass, field
-from datetime import datetime
 from typing import Any, Literal
 
 import httpx
 from sqlalchemy.orm import Session
 
 from app.db.models import LLMAudit
+from app.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -409,7 +409,7 @@ def _write_audit(
         request=_safe_request(request),
         response=_safe_result(result),
         error=error,
-        created_at=datetime.utcnow(),
+        created_at=utcnow(),
     )
     try:
         db.add(record)

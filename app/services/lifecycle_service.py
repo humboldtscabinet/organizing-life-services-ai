@@ -14,11 +14,10 @@ the transition between lifecycle stages.
 Manual-approval mode: all stage transitions require explicit trigger.
 """
 
-from datetime import datetime
-
 from sqlalchemy.orm import Session
 
 from app.db.models import WorkflowLog
+from app.time_utils import utcnow
 
 # ===================== County Page Mapping =====================
 
@@ -356,7 +355,7 @@ def archive_estate_sale(
             "page_handle": page_handle,
             "redirect_to": county_page,
             "vision_enabled": run_vision,
-            "archived_at": datetime.utcnow().isoformat(),
+            "archived_at": utcnow().isoformat(),
         },
     )
     db.add(log_entry)

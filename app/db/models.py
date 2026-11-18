@@ -2,8 +2,6 @@
 SQLAlchemy ORM models — MVP tables per MASTER_PLAN_V2.1
 """
 
-from datetime import datetime
-
 from sqlalchemy import (
     CheckConstraint,
     Column,
@@ -17,6 +15,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.database import Base
+from app.time_utils import utcnow
 
 # ---------- Core tables ----------
 
@@ -29,7 +28,7 @@ class Contact(Base):
     phone = Column(String(30))
     email = Column(String(255))
     source = Column(String(100))
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class WorkflowLog(Base):
@@ -39,7 +38,7 @@ class WorkflowLog(Base):
     workflow_name = Column(String(200), nullable=False)
     status = Column(String(50), nullable=False)
     payload = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class LLMAudit(Base):
@@ -65,7 +64,7 @@ class LLMAudit(Base):
     request = Column(JSONB)
     response = Column(JSONB)
     error = Column(Text)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 # ---------- SEO tables (Phase 1) ----------
@@ -78,7 +77,7 @@ class SEOReport(Base):
     report_date = Column(DateTime, nullable=False)
     summary = Column(Text)
     data = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class GSCData(Base):
@@ -98,7 +97,7 @@ class GSCData(Base):
     ctr = Column(Float, default=0.0)
     position = Column(Float, default=0.0)
     date = Column(DateTime, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class GA4Data(Base):
@@ -116,7 +115,7 @@ class GA4Data(Base):
     dimension_value = Column(String(500))
     date = Column(DateTime, nullable=False)
     data = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class GBPInsight(Base):
@@ -128,7 +127,7 @@ class GBPInsight(Base):
     period_start = Column(DateTime)
     period_end = Column(DateTime)
     data = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class GoogleAdsData(Base):
@@ -147,7 +146,7 @@ class GoogleAdsData(Base):
     conversions = Column(Float, default=0.0)
     date = Column(DateTime, nullable=False)
     data = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class ImageAnalysis(Base):
@@ -164,7 +163,7 @@ class ImageAnalysis(Base):
     confidence = Column(Float)       # 0.0–1.0 from the vision model
     status = Column(String(50), default="pending")  # pending, analyzed, error
     data = Column(JSONB)             # full API response for debugging
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 class ShopifyOrder(Base):
@@ -178,7 +177,7 @@ class ShopifyOrder(Base):
     status = Column(String(50))
     order_date = Column(DateTime)
     data = Column(JSONB)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
 
 
 # ---------- Dashboard Task Management ----------
@@ -206,7 +205,7 @@ class DashboardTask(Base):
     status = Column(String(50), default="pending")    # pending, approved, executing, completed, failed, dismissed, delayed
     result = Column(JSONB)                            # Result from execution
     delayed_until = Column(DateTime, nullable=True)   # When to show the task again if delayed
-    created_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
     approved_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
 
@@ -240,9 +239,9 @@ class OpsAlert(Base):
     fingerprint = Column(String(300))
     details = Column(JSONB)
     occurrence_count = Column(Integer, default=1)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow)
-    last_seen_at = Column(DateTime, default=datetime.utcnow)
+    created_at = Column(DateTime, default=utcnow)
+    updated_at = Column(DateTime, default=utcnow)
+    last_seen_at = Column(DateTime, default=utcnow)
     acknowledged_at = Column(DateTime, nullable=True)
     dismissed_at = Column(DateTime, nullable=True)
     resolved_at = Column(DateTime, nullable=True)

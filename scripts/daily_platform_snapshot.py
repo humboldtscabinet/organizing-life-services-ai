@@ -37,7 +37,7 @@ def _gsc_service():
 
 def _pull_gsc_summary(site_url: str, days_back: int = 7) -> dict:
     service = _gsc_service()
-    end_date = datetime.utcnow().date() - timedelta(days=3)
+    end_date = datetime.now(timezone.utc).date() - timedelta(days=3)
     start_date = end_date - timedelta(days=days_back)
 
     row_limit = 1000
@@ -78,7 +78,7 @@ def _pull_ga4_summary(property_id: str, days_back: int = 7) -> dict:
     )
     client = BetaAnalyticsDataClient(credentials=credentials)
 
-    end_date = datetime.utcnow().date() - timedelta(days=1)
+    end_date = datetime.now(timezone.utc).date() - timedelta(days=1)
     start_date = end_date - timedelta(days=days_back)
 
     request = RunReportRequest(

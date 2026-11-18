@@ -22,6 +22,7 @@ from google.oauth2 import service_account
 from sqlalchemy.orm import Session
 
 from app.db.models import GBPInsight, WorkflowLog
+from app.time_utils import utcnow
 
 GBP_SCOPES = ["https://www.googleapis.com/auth/business.manage"]
 
@@ -168,7 +169,7 @@ def pull_gbp_data(
 
     headers = _auth_headers()
 
-    end_date = datetime.utcnow().date()
+    end_date = utcnow().date()
     start_date = end_date - timedelta(days=days_back)
 
     url = (

@@ -10,7 +10,7 @@ This service drives the weekly n8n automation that schedules new blog content.
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import timedelta
 from typing import Dict, List
 
 from sqlalchemy import and_
@@ -23,6 +23,7 @@ from app.services.content_engine import (
     get_existing_content_coverage,
 )
 from app.services.task_enqueue_filters import should_skip_low_lead_near_me
+from app.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -53,7 +54,7 @@ def get_content_calendar(db: Session, weeks: int = 12) -> List[Dict]:
     opportunities = analyze_content_gaps(db, days_back=90)
 
     calendar = []
-    today = datetime.utcnow().date()
+    today = utcnow().date()
 
     for week_num in range(1, weeks + 1):
         # Calculate week start date

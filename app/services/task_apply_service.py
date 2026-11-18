@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Any, Callable
 
 from sqlalchemy.orm import Session
@@ -17,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.db.models import DashboardTask, WorkflowLog
 from app.services.frozen_meta_service import payload_has_frozen_copy
 from app.services.llm_router import HighRiskGateError, assert_high_stakes_gate
+from app.time_utils import utcnow
 
 logger = logging.getLogger(__name__)
 
@@ -207,7 +207,7 @@ def apply_task(
 
     if task.status == "pending":
         task.status = "approved"
-        task.approved_at = datetime.utcnow()
+        task.approved_at = utcnow()
 
     task.status = "executing"
     db.commit()
@@ -239,7 +239,7 @@ def apply_task(
         }
 
     task.status = "completed"
-    task.completed_at = datetime.utcnow()
+    task.completed_at = utcnow()
     task.result = result
     db.add(
         WorkflowLog(
@@ -345,7 +345,7 @@ def _apply_content_generate_and_publish(
 
     # publish_to_shopify still requires status == approved.
     task.status = "approved"
-    task.approved_at = task.approved_at or datetime.utcnow()
+    task.approved_at = task.approved_at or utcnow()
     db.commit()
 
     result = publish_to_shopify(db, task.id)
