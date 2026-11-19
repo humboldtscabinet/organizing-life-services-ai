@@ -321,6 +321,9 @@ pg_backed = pytest.mark.skipif(
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# Unqualified table name: both the raw connection and the ORM resolve it through
+# the per-connection ``search_path``, which the fixture pins to a disposable
+# schema. The production ``public.dashboard_tasks`` is never referenced.
 _DASHBOARD_TASKS_TIMESTAMPTZ_DDL = """
 CREATE TABLE dashboard_tasks (
     id SERIAL PRIMARY KEY,
@@ -351,113 +354,128 @@ def _run_sql_file(cur, rel_path):
         cur.execute(fh.read())
 
 
-@pg_backed
-def test_postgres_timestamptz_and_backfill():
-    import psycopg2
-    from sqlalchemy import create_engine as _ce
-    from sqlalchemy.orm import sessionmaker as _sm
+@pytest.fixture
+def pg_schema():
+    """Isolated, disposable Postgres schema for the TIMESTAMPTZ-backed tests.
 
+    SAFETY: these tests create and drop their own table. To make them safe to
+    run against any DSN — including, by mistake, the app database — everything
+    happens inside a freshly created, uniquely named schema pinned via
+    ``search_path`` on both the raw connection and the SQLAlchemy engine. We
+    only ever ``DROP SCHEMA`` that temporary schema on teardown; the production
+    ``public.dashboard_tasks`` and its rows are never touched.
+    """
+    import uuid
+
+    import psycopg2
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    schema = f"ols_dedupe_test_{uuid.uuid4().hex[:12]}"
     conn = psycopg2.connect(_PG_DSN)
     conn.autocommit = True
+    engine = create_engine(
+        _PG_DSN, connect_args={"options": f"-csearch_path={schema}"}
+    )
+    Session = sessionmaker(bind=engine)
     try:
         with conn.cursor() as cur:
-            cur.execute("DROP TABLE IF EXISTS dashboard_tasks CASCADE;")
+            cur.execute(f'CREATE SCHEMA "{schema}";')
+            cur.execute(f'SET search_path TO "{schema}";')
             cur.execute(_DASHBOARD_TASKS_TIMESTAMPTZ_DDL)
-            # 198 legacy rows (30 open, 168 dismissed), NULL dedupe_key.
-            cur.execute(
-                """
-                INSERT INTO dashboard_tasks (task_type, category, priority, title, status)
-                SELECT 'seo', 'content_ranking', 'MEDIUM',
-                       'Create targeted content for ''query ' || g ||
-                       ''' (position 12.3)', 'pending'
-                FROM generate_series(1, 30) g;
-                """
-            )
-            cur.execute(
-                """
-                INSERT INTO dashboard_tasks
-                    (task_type, category, priority, title, status, dismissed_at)
-                SELECT 'seo', 'content_ranking', 'MEDIUM',
-                       'Create targeted content for ''dismissed ' || g ||
-                       ''' (position 9.0)', 'dismissed', NOW()
-                FROM generate_series(1, 168) g;
-                """
-            )
-            cur.execute("SELECT count(*) FROM dashboard_tasks WHERE dedupe_key IS NULL;")
-            assert cur.fetchone()[0] == 198
-
-            # Idempotent backfill: run twice; second run changes nothing.
-            _run_sql_file(cur, "infra/postgres/migrations/007_dashboard_task_dedupe_backfill.sql")
-            _run_sql_file(cur, "infra/postgres/migrations/007_dashboard_task_dedupe_backfill.sql")
-
-            cur.execute("SELECT count(*) FROM dashboard_tasks WHERE dedupe_key IS NOT NULL;")
-            assert cur.fetchone()[0] == 198
-            cur.execute("SELECT count(*) FROM dashboard_tasks WHERE status = 'dismissed';")
-            assert cur.fetchone()[0] == 168  # status untouched
-            cur.execute(
-                "SELECT dedupe_key FROM dashboard_tasks WHERE title LIKE '%%query 1''%%' LIMIT 1;"
-            )
-            assert cur.fetchone()[0] == "seo:content_ranking:query 1"
-
-        engine = _ce(_PG_DSN)
-        session = _sm(bind=engine)()
-        try:
-            row = (
-                session.query(DashboardTask)
-                .filter(DashboardTask.status == "dismissed")
-                .first()
-            )
-            assert row.dismissed_at is not None
-            assert row.dismissed_at.tzinfo is not None  # aware, as TIMESTAMPTZ reads
-            # Keyed match after backfill, no TypeError on the aware comparison.
-            assert (
-                dashboard_service._existing_blocking_task(session, _task_data("dismissed 1"))
-                is not None
-            )
-            # A genuinely new query still falls through and is allowed.
-            assert (
-                dashboard_service._existing_blocking_task(session, _task_data("brand new query"))
-                is None
-            )
-        finally:
-            session.close()
-            engine.dispose()
+        yield conn, Session, schema
     finally:
-        conn.close()
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE;')
+        finally:
+            engine.dispose()
+            conn.close()
 
 
 @pg_backed
-def test_postgres_unkeyed_fallback_without_backfill():
+def test_postgres_timestamptz_and_backfill(pg_schema):
+    conn, Session, _schema = pg_schema
+    with conn.cursor() as cur:
+        # 198 legacy rows (30 open, 168 dismissed), NULL dedupe_key.
+        cur.execute(
+            """
+            INSERT INTO dashboard_tasks (task_type, category, priority, title, status)
+            SELECT 'seo', 'content_ranking', 'MEDIUM',
+                   'Create targeted content for ''query ' || g ||
+                   ''' (position 12.3)', 'pending'
+            FROM generate_series(1, 30) g;
+            """
+        )
+        cur.execute(
+            """
+            INSERT INTO dashboard_tasks
+                (task_type, category, priority, title, status, dismissed_at)
+            SELECT 'seo', 'content_ranking', 'MEDIUM',
+                   'Create targeted content for ''dismissed ' || g ||
+                   ''' (position 9.0)', 'dismissed', NOW()
+            FROM generate_series(1, 168) g;
+            """
+        )
+        cur.execute("SELECT count(*) FROM dashboard_tasks WHERE dedupe_key IS NULL;")
+        assert cur.fetchone()[0] == 198
+
+        # Idempotent backfill: run twice; second run changes nothing.
+        _run_sql_file(cur, "infra/postgres/migrations/007_dashboard_task_dedupe_backfill.sql")
+        _run_sql_file(cur, "infra/postgres/migrations/007_dashboard_task_dedupe_backfill.sql")
+
+        cur.execute("SELECT count(*) FROM dashboard_tasks WHERE dedupe_key IS NOT NULL;")
+        assert cur.fetchone()[0] == 198
+        cur.execute("SELECT count(*) FROM dashboard_tasks WHERE status = 'dismissed';")
+        assert cur.fetchone()[0] == 168  # status untouched
+        cur.execute(
+            "SELECT dedupe_key FROM dashboard_tasks WHERE title LIKE '%%query 1''%%' LIMIT 1;"
+        )
+        assert cur.fetchone()[0] == "seo:content_ranking:query 1"
+
+    session = Session()
+    try:
+        row = (
+            session.query(DashboardTask)
+            .filter(DashboardTask.status == "dismissed")
+            .first()
+        )
+        assert row.dismissed_at is not None
+        assert row.dismissed_at.tzinfo is not None  # aware, as TIMESTAMPTZ reads
+        # Keyed match after backfill, no TypeError on the aware comparison.
+        assert (
+            dashboard_service._existing_blocking_task(session, _task_data("dismissed 1"))
+            is not None
+        )
+        # A genuinely new query is still allowed through.
+        assert (
+            dashboard_service._existing_blocking_task(session, _task_data("brand new query"))
+            is None
+        )
+    finally:
+        session.close()
+
+
+@pg_backed
+def test_postgres_unkeyed_fallback_without_backfill(pg_schema):
     """Before any backfill, an aware dismissed legacy row still blocks at runtime."""
-    import psycopg2
-    from sqlalchemy import create_engine as _ce
-    from sqlalchemy.orm import sessionmaker as _sm
-
-    conn = psycopg2.connect(_PG_DSN)
-    conn.autocommit = True
+    conn, Session, _schema = pg_schema
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO dashboard_tasks
+                (task_type, category, priority, title, status, dismissed_at)
+            VALUES ('seo', 'content_ranking', 'MEDIUM',
+                    'Create targeted content for ''estate sale tampa'' (position 12.3)',
+                    'dismissed', NOW());
+            """
+        )
+    session = Session()
     try:
-        with conn.cursor() as cur:
-            cur.execute("DROP TABLE IF EXISTS dashboard_tasks CASCADE;")
-            cur.execute(_DASHBOARD_TASKS_TIMESTAMPTZ_DDL)
-            cur.execute(
-                """
-                INSERT INTO dashboard_tasks
-                    (task_type, category, priority, title, status, dismissed_at)
-                VALUES ('seo', 'content_ranking', 'MEDIUM',
-                        'Create targeted content for ''estate sale tampa'' (position 12.3)',
-                        'dismissed', NOW());
-                """
-            )
-        engine = _ce(_PG_DSN)
-        session = _sm(bind=engine)()
-        try:
-            blocker = dashboard_service._existing_blocking_task(
-                session, _task_data("estate sale tampa")
-            )
-            assert blocker is not None
-            assert blocker.dedupe_key is None  # matched via unkeyed fallback
-        finally:
-            session.close()
-            engine.dispose()
+        blocker = dashboard_service._existing_blocking_task(
+            session, _task_data("estate sale tampa")
+        )
+        assert blocker is not None
+        assert blocker.dedupe_key is None  # matched via unkeyed fallback
     finally:
-        conn.close()
+        session.close()
