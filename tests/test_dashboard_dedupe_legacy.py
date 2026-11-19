@@ -21,6 +21,7 @@ re-created recommendation (see ``DEDUPE_OPEN_STATUSES``).
 """
 
 import os
+import uuid
 from datetime import datetime, timedelta, timezone
 from types import SimpleNamespace
 
@@ -351,14 +352,59 @@ def _run_sql_file(cur, rel_path):
         cur.execute(fh.read())
 
 
-@pg_backed
-def test_postgres_timestamptz_and_backfill():
+@pytest.fixture
+def pg_schema():
+    """Run Postgres-backed tests inside a throwaway schema.
+
+    These tests create and drop a ``dashboard_tasks`` table. Isolating them in a
+    uniquely named schema (dropped on teardown) guarantees they never touch the
+    operator's real ``public.dashboard_tasks`` table, even if ``OLS_TEST_PG_DSN``
+    points at a live database.
+    """
     import psycopg2
-    from sqlalchemy import create_engine as _ce
-    from sqlalchemy.orm import sessionmaker as _sm
+
+    schema = f"ols_test_{uuid.uuid4().hex}"
+
+    def _drop():
+        conn = psycopg2.connect(_PG_DSN)
+        conn.autocommit = True
+        try:
+            with conn.cursor() as cur:
+                cur.execute(f'DROP SCHEMA IF EXISTS "{schema}" CASCADE;')
+        finally:
+            conn.close()
 
     conn = psycopg2.connect(_PG_DSN)
     conn.autocommit = True
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f'CREATE SCHEMA "{schema}";')
+    finally:
+        conn.close()
+
+    try:
+        yield schema
+    finally:
+        _drop()
+
+
+def _connect_schema(schema):
+    """psycopg2 connection whose search_path is pinned to the throwaway schema."""
+    import psycopg2
+
+    conn = psycopg2.connect(_PG_DSN)
+    conn.autocommit = True
+    with conn.cursor() as cur:
+        cur.execute(f'SET search_path TO "{schema}";')
+    return conn
+
+
+@pg_backed
+def test_postgres_timestamptz_and_backfill(pg_schema):
+    from sqlalchemy import create_engine as _ce
+    from sqlalchemy.orm import sessionmaker as _sm
+
+    conn = _connect_schema(pg_schema)
     try:
         with conn.cursor() as cur:
             cur.execute("DROP TABLE IF EXISTS dashboard_tasks CASCADE;")
@@ -399,7 +445,7 @@ def test_postgres_timestamptz_and_backfill():
             )
             assert cur.fetchone()[0] == "seo:content_ranking:query 1"
 
-        engine = _ce(_PG_DSN)
+        engine = _ce(_PG_DSN, connect_args={"options": f"-csearch_path={pg_schema}"})
         session = _sm(bind=engine)()
         try:
             row = (
@@ -427,14 +473,12 @@ def test_postgres_timestamptz_and_backfill():
 
 
 @pg_backed
-def test_postgres_unkeyed_fallback_without_backfill():
+def test_postgres_unkeyed_fallback_without_backfill(pg_schema):
     """Before any backfill, an aware dismissed legacy row still blocks at runtime."""
-    import psycopg2
     from sqlalchemy import create_engine as _ce
     from sqlalchemy.orm import sessionmaker as _sm
 
-    conn = psycopg2.connect(_PG_DSN)
-    conn.autocommit = True
+    conn = _connect_schema(pg_schema)
     try:
         with conn.cursor() as cur:
             cur.execute("DROP TABLE IF EXISTS dashboard_tasks CASCADE;")
@@ -448,7 +492,7 @@ def test_postgres_unkeyed_fallback_without_backfill():
                         'dismissed', NOW());
                 """
             )
-        engine = _ce(_PG_DSN)
+        engine = _ce(_PG_DSN, connect_args={"options": f"-csearch_path={pg_schema}"})
         session = _sm(bind=engine)()
         try:
             blocker = dashboard_service._existing_blocking_task(
