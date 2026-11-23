@@ -1,0 +1,1512 @@
+{
+  "content_targets": {
+    "available": true,
+    "targets": [
+      {
+        "business_score": 15.4,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 12.8,
+        "impressions": 160,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+        "position": 11.3,
+        "query": "estate sales new port richey",
+        "recommended_action": "Review existing page intent and title/meta alignment"
+      },
+      {
+        "business_score": 13.5,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 12.9,
+        "impressions": 161,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography",
+          "appears partly shopper/research oriented"
+        ],
+        "lead_score": 55,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-new-port-richey-florida",
+        "position": 10.4,
+        "query": "estate sales near me",
+        "recommended_action": "Review existing page intent and title/meta alignment"
+      },
+      {
+        "business_score": 10.9,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 9.1,
+        "impressions": 114,
+        "lead_relevance_reasons": [
+          "contains high-intent service language"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/",
+        "position": 19.4,
+        "query": "estate sale organizers",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 9.4,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 6.7,
+        "impressions": 84,
+        "lead_relevance_reasons": [
+          "contains high-intent service language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 90,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "position": 29.0,
+        "query": "estate sale organizers",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 8.4,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 7.0,
+        "impressions": 87,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+        "position": 10.7,
+        "query": "estate sales st pete",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 8.0,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 7.6,
+        "impressions": 95,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography",
+          "appears partly shopper/research oriented"
+        ],
+        "lead_score": 55,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-citrus-county",
+        "position": 10.6,
+        "query": "estate sales near me",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 7.4,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 6.2,
+        "impressions": 123,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-wesley-chapel-florida",
+        "position": 8.4,
+        "query": "estate sales wesley chapel",
+        "recommended_action": "Review existing page intent and title/meta alignment"
+      },
+      {
+        "business_score": 7.3,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 7.3,
+        "impressions": 91,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/blogs/news/5-tips-to-help-clients-prepare-for-estate-sales",
+        "position": 10.8,
+        "query": "how to prepare for an estate sale",
+        "recommended_action": "Create or refresh an educational guide"
+      },
+      {
+        "business_score": 6.6,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 6.6,
+        "impressions": 82,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/pages/downsizing-moving-sales",
+        "position": 15.3,
+        "query": "downsizing specialist",
+        "recommended_action": "Expand matching service page with FAQs, process, and CTA"
+      },
+      {
+        "business_score": 6.2,
+        "clicks": 1,
+        "ctr": 0.008064516129032258,
+        "estimated_click_gap": 5.2,
+        "impressions": 124,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-largo-florida",
+        "position": 9.0,
+        "query": "estate sales largo",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 6.2,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 5.2,
+        "impressions": 103,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-dunedin-florida",
+        "position": 8.2,
+        "query": "estate sales dunedin",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 5.5,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 4.6,
+        "impressions": 57,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-tampa-hillsborough-county",
+        "position": 28.1,
+        "query": "estate sale management",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 5.2,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 5.2,
+        "impressions": 65,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+        "position": 27.0,
+        "query": "how to increase home value for appraisal",
+        "recommended_action": "Create or refresh an educational guide"
+      },
+      {
+        "business_score": 4.9,
+        "clicks": 2,
+        "ctr": 0.023255813953488372,
+        "estimated_click_gap": 4.9,
+        "impressions": 86,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/",
+        "position": 21.8,
+        "query": "estate sale planners",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 4.6,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 4.6,
+        "impressions": 58,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+        "position": 25.4,
+        "query": "how to improve appraisal value of home",
+        "recommended_action": "Create or refresh an educational guide"
+      },
+      {
+        "business_score": 4.4,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 3.7,
+        "impressions": 74,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-st-petersburg-florida",
+        "position": 9.9,
+        "query": "estate sales st petersburg fl",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 3.8,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 3.8,
+        "impressions": 48,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/",
+        "position": 20.3,
+        "query": "tag sale organizers",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 3.2,
+        "clicks": 1,
+        "ctr": 0.021739130434782608,
+        "estimated_click_gap": 2.7,
+        "impressions": 46,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-palm-harbor-pinellas-county",
+        "position": 10.5,
+        "query": "estate sales palm harbor",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 3.2,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.6,
+        "impressions": 33,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language",
+          "matches OLS service-area geography"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-sale-clearwater-florida",
+        "position": 12.4,
+        "query": "estate sales clearwater",
+        "recommended_action": "Create or improve a service-area page/section"
+      },
+      {
+        "business_score": 3.1,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.6,
+        "impressions": 32,
+        "lead_relevance_reasons": [
+          "contains high-intent service language"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/pages/estate-cleanout-services",
+        "position": 17.7,
+        "query": "estate cleanout services",
+        "recommended_action": "Expand matching service page with FAQs, process, and CTA"
+      },
+      {
+        "business_score": 2.8,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.8,
+        "impressions": 56,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/",
+        "position": 1.1,
+        "query": "estate sale and appraisal services",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 2.8,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.8,
+        "impressions": 35,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+        "position": 18.6,
+        "query": "estate valuation of personal property",
+        "recommended_action": "Expand appraisal page into a stronger service landing page"
+      },
+      {
+        "business_score": 2.7,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.2,
+        "impressions": 45,
+        "lead_relevance_reasons": [
+          "contains high-intent service language"
+        ],
+        "lead_score": 70,
+        "lead_tier": "HIGH",
+        "page": "https://organizinglifeservices.com/",
+        "position": 1.0,
+        "query": "estate cleanouts",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 2.5,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.5,
+        "impressions": 31,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/",
+        "position": 25.7,
+        "query": "estate sale management",
+        "recommended_action": "Expand homepage service-intent copy or refine homepage internal links"
+      },
+      {
+        "business_score": 2.5,
+        "clicks": 0,
+        "ctr": 0.0,
+        "estimated_click_gap": 2.5,
+        "impressions": 31,
+        "lead_relevance_reasons": [
+          "contains relevant estate sale/downsizing language"
+        ],
+        "lead_score": 50,
+        "lead_tier": "MEDIUM",
+        "page": "https://organizinglifeservices.com/blogs/news/how-to-increase-your-home-appraisal-value",
+        "position": 26.4,
+        "query": "items that increase home appraisal value",
+        "recommended_action": "Create or refresh an educational guide"
+      }
+    ],
+    "windows": {
+      "current": {
+        "end": "2026-11-20",
+        "start": "2026-10-24"
+      }
+    }
+  },
+  "ga4_conversion_tracking": {
+    "admin_key_event_status": {
+      "available": true,
+      "bad_key_events": [],
+      "key_events": [
+        {
+          "classification": "other",
+          "counting_method": "ONCE_PER_EVENT",
+          "custom": false,
+          "deletable": false,
+          "event_name": "purchase",
+          "name": "properties/396184354/keyEvents/5810226048"
+        },
+        {
+          "classification": "lead_intent",
+          "counting_method": "ONCE_PER_EVENT",
+          "custom": true,
+          "deletable": true,
+          "event_name": "form_submit",
+          "name": "properties/396184354/keyEvents/6420183209"
+        },
+        {
+          "classification": "lead_intent",
+          "counting_method": "ONCE_PER_EVENT",
+          "custom": true,
+          "deletable": true,
+          "event_name": "phone_call_clicks",
+          "name": "properties/396184354/keyEvents/6654360236"
+        }
+      ],
+      "status": "ok"
+    },
+    "assessment": {
+      "issues": [],
+      "key_events": 37.0,
+      "key_events_per_session": 0.025325119780971937,
+      "lead_key_events": 37.0,
+      "passive_key_events": 0.0,
+      "sessions": 1461.0,
+      "status": "pass"
+    },
+    "available": true,
+    "channel_rows": [
+      {
+        "channel": "Direct",
+        "classification": "lead_intent",
+        "event_count": 11.0,
+        "event_name": "form_submit",
+        "key_events": 11.0,
+        "sessions": 4.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "lead_intent",
+        "event_count": 8.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 8.0,
+        "sessions": 7.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "lead_intent",
+        "event_count": 4.0,
+        "event_name": "form_submit",
+        "key_events": 4.0,
+        "sessions": 4.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "lead_intent",
+        "event_count": 3.0,
+        "event_name": "form_submit",
+        "key_events": 3.0,
+        "sessions": 3.0
+      },
+      {
+        "channel": "Direct",
+        "classification": "lead_intent",
+        "event_count": 2.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 2.0,
+        "sessions": 2.0
+      },
+      {
+        "channel": "Email",
+        "classification": "lead_intent",
+        "event_count": 2.0,
+        "event_name": "form_submit",
+        "key_events": 2.0,
+        "sessions": 2.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "lead_intent",
+        "event_count": 2.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 2.0,
+        "sessions": 2.0
+      },
+      {
+        "channel": "AI Assistant",
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "form_submit",
+        "key_events": 1.0,
+        "sessions": 1.0
+      },
+      {
+        "channel": "Display",
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "form_submit",
+        "key_events": 1.0,
+        "sessions": 1.0
+      },
+      {
+        "channel": "Email",
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 1.0,
+        "sessions": 1.0
+      },
+      {
+        "channel": "Paid Search",
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 1.0,
+        "sessions": 1.0
+      },
+      {
+        "channel": "Unassigned",
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 1.0,
+        "sessions": 1.0
+      },
+      {
+        "channel": "Email",
+        "classification": "passive_or_pageview",
+        "event_count": 583.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "sessions": 576.0
+      },
+      {
+        "channel": "Email",
+        "classification": "passive_or_pageview",
+        "event_count": 697.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "sessions": 562.0
+      },
+      {
+        "channel": "Direct",
+        "classification": "passive_or_pageview",
+        "event_count": 388.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "sessions": 385.0
+      },
+      {
+        "channel": "Direct",
+        "classification": "passive_or_pageview",
+        "event_count": 541.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "sessions": 381.0
+      },
+      {
+        "channel": "Direct",
+        "classification": "passive_or_pageview",
+        "event_count": 357.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "sessions": 353.0
+      },
+      {
+        "channel": "Email",
+        "classification": "passive_or_pageview",
+        "event_count": 344.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "sessions": 339.0
+      },
+      {
+        "channel": "Email",
+        "classification": "passive_or_pageview",
+        "event_count": 347.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "sessions": 281.0
+      },
+      {
+        "channel": "Email",
+        "classification": "passive_or_pageview",
+        "event_count": 275.0,
+        "event_name": "scroll",
+        "key_events": 0.0,
+        "sessions": 259.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "passive_or_pageview",
+        "event_count": 239.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "sessions": 239.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "passive_or_pageview",
+        "event_count": 453.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "sessions": 232.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "passive_or_pageview",
+        "event_count": 182.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "sessions": 182.0
+      },
+      {
+        "channel": "Cross-network",
+        "classification": "passive_or_pageview",
+        "event_count": 330.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "sessions": 164.0
+      },
+      {
+        "channel": "Direct",
+        "classification": "passive_or_pageview",
+        "event_count": 215.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "sessions": 120.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "passive_or_pageview",
+        "event_count": 109.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "sessions": 109.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "passive_or_pageview",
+        "event_count": 227.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "sessions": 104.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "passive_or_pageview",
+        "event_count": 187.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "sessions": 86.0
+      },
+      {
+        "channel": "Organic Search",
+        "classification": "passive_or_pageview",
+        "event_count": 84.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "sessions": 84.0
+      },
+      {
+        "channel": "Paid Search",
+        "classification": "passive_or_pageview",
+        "event_count": 60.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "sessions": 60.0
+      }
+    ],
+    "deltas": {
+      "key_events_delta_pct": 15.625,
+      "sessions_delta_pct": 16.136724960254373
+    },
+    "event_rows": [
+      {
+        "classification": "lead_intent",
+        "event_count": 22.0,
+        "event_name": "form_submit",
+        "key_events": 22.0
+      },
+      {
+        "classification": "lead_intent",
+        "event_count": 15.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 15.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 2140.0,
+        "event_name": "page_view",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 1463.0,
+        "event_name": "session_start",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 1225.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 1099.0,
+        "event_name": "first_visit",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 479.0,
+        "event_name": "scroll",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 221.0,
+        "event_name": "ads_conversion_Contact_Page_load_https_1",
+        "key_events": 0.0
+      },
+      {
+        "classification": "other",
+        "event_count": 60.0,
+        "event_name": "form_start",
+        "key_events": 0.0
+      },
+      {
+        "classification": "lead_intent",
+        "event_count": 25.0,
+        "event_name": "generate_lead",
+        "key_events": 0.0
+      },
+      {
+        "classification": "other",
+        "event_count": 4.0,
+        "event_name": "click",
+        "key_events": 0.0
+      },
+      {
+        "classification": "other",
+        "event_count": 3.0,
+        "event_name": "search",
+        "key_events": 0.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "view_search_results",
+        "key_events": 0.0
+      },
+      {
+        "classification": "other",
+        "event_count": 1.0,
+        "event_name": "view_item_list",
+        "key_events": 0.0
+      }
+    ],
+    "key_event_metric": "keyEvents",
+    "organic_landing_rows": [
+      {
+        "classification": "lead_intent",
+        "event_count": 2.0,
+        "event_name": "phone_call_clicks",
+        "key_events": 2.0,
+        "landing_page": "/",
+        "sessions": 2.0
+      },
+      {
+        "classification": "lead_intent",
+        "event_count": 2.0,
+        "event_name": "form_submit",
+        "key_events": 2.0,
+        "landing_page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 2.0
+      },
+      {
+        "classification": "lead_intent",
+        "event_count": 1.0,
+        "event_name": "form_submit",
+        "key_events": 1.0,
+        "landing_page": "/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "sessions": 1.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 135.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 52.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 52.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 52.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 40.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 40.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 111.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 40.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 17.0,
+        "event_name": "scroll",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 13.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 16.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 8.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 8.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 8.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 7.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 7.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 5.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "(not set)",
+        "sessions": 5.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 5.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "landing_page": "(not set)",
+        "sessions": 5.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 8.0,
+        "event_name": "ads_conversion_Contact_Page_load_https_1",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 5.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 8.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/pages/downsizing-moving-sales",
+        "sessions": 4.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 4.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/pages/downsizing-moving-sales",
+        "sessions": 4.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 8.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-liquidation",
+        "sessions": 4.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 4.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-liquidation",
+        "sessions": 4.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 4.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 4.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/pages/710-george-street-south-tarpon-springs-fl",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "session_start",
+        "key_events": 0.0,
+        "landing_page": "/pages/710-george-street-south-tarpon-springs-fl",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 3.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-liquidation",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 7.0,
+        "event_name": "user_engagement",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-liquidation",
+        "sessions": 3.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 4.0,
+        "event_name": "scroll",
+        "key_events": 0.0,
+        "landing_page": "/pages/estate-sale-palm-harbor-pinellas-county",
+        "sessions": 3.0
+      },
+      {
+        "classification": "other",
+        "event_count": 2.0,
+        "event_name": "form_start",
+        "key_events": 0.0,
+        "landing_page": "/",
+        "sessions": 2.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 2.0,
+        "event_name": "first_visit",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "sessions": 2.0
+      },
+      {
+        "classification": "passive_or_pageview",
+        "event_count": 7.0,
+        "event_name": "page_view",
+        "key_events": 0.0,
+        "landing_page": "/blogs/news/estate-sale-vs-garage-sale-know-the-differences",
+        "sessions": 2.0
+      }
+    ],
+    "property_id": "396184354",
+    "totals_current": {
+      "activeUsers": 1165.0,
+      "keyEvents": 37.0,
+      "sessions": 1461.0
+    },
+    "totals_prior": {
+      "activeUsers": 926.0,
+      "keyEvents": 32.0,
+      "sessions": 1258.0
+    },
+    "windows": {
+      "current": {
+        "end": "2026-11-22",
+        "start": "2026-10-26"
+      },
+      "prior": {
+        "end": "2026-10-25",
+        "start": "2026-09-28"
+      }
+    }
+  },
+  "gbp_readiness": {
+    "api_status": {
+      "attempted": false,
+      "reason": "not attempted",
+      "status": "skipped"
+    },
+    "checks": [
+      {
+        "check": "LocalBusiness schema present",
+        "detail": "Organizing Life Services",
+        "passed": true
+      },
+      {
+        "check": "No public streetAddress in schema",
+        "detail": "streetAddress absent",
+        "passed": true
+      },
+      {
+        "check": "Schema keeps region/country",
+        "detail": "FL/US",
+        "passed": true
+      },
+      {
+        "check": "Schema has service area",
+        "detail": "14 area entries",
+        "passed": true
+      },
+      {
+        "check": "Schema has phone",
+        "detail": "+17275426028",
+        "passed": true
+      },
+      {
+        "check": "Contact page labels mailing address",
+        "detail": "mailing address label and PMB present",
+        "passed": true
+      }
+    ],
+    "status": "pass"
+  },
+  "generated_at": "2026-11-23 12:07 UTC",
+  "gtm_audit": {
+    "available": false,
+    "reason": "GTM_ACCOUNT_ID/GTM_CONTAINER_ID not configured."
+  },
+  "markdown_path": "docs/seo-audits/2026-11-23-post-deploy-measurement-baseline.md",
+  "post_deploy_seo_verification": {
+    "pages": [
+      {
+        "checks": [
+          {
+            "check": "title",
+            "detail": "Estate Sale Organizers & Cleanouts | Tampa Bay OLS",
+            "passed": false
+          },
+          {
+            "check": "meta_description",
+            "detail": "Tampa Bay estate sale organizers and estate cleanout services. OLS runs full sales, appraisals, and downsizing from Pinellas to Citrus. Call (727) 542-6028.",
+            "passed": false
+          },
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "Homepage",
+        "meta_description_len": 156,
+        "robots": "",
+        "status": "warning",
+        "title_len": 50,
+        "url": "https://organizinglifeservices.com/"
+      },
+      {
+        "checks": [
+          {
+            "check": "title",
+            "detail": "Tampa Personal Property Appraisers | Estate Appraisals",
+            "passed": false
+          },
+          {
+            "check": "meta_description",
+            "detail": "Need Tampa personal property appraisers for probate, insurance, or a sale? OLS provides estate appraisals across Tampa Bay. Call (727) 542-6028.",
+            "passed": false
+          },
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/pages/personal-property-appraisal",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "Personal Property Appraisal",
+        "meta_description_len": 144,
+        "robots": "",
+        "status": "warning",
+        "title_len": 54,
+        "url": "https://organizinglifeservices.com/pages/personal-property-appraisal"
+      },
+      {
+        "checks": [
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/pages/contact-us",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "Contact",
+        "meta_description_len": 156,
+        "robots": "",
+        "status": "pass",
+        "title_len": 54,
+        "url": "https://organizinglifeservices.com/pages/contact-us"
+      },
+      {
+        "checks": [
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/pages/about-us",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "About",
+        "meta_description_len": 147,
+        "robots": "",
+        "status": "pass",
+        "title_len": 35,
+        "url": "https://organizinglifeservices.com/pages/about-us"
+      },
+      {
+        "checks": [
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/pages/testimonials",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "Testimonials",
+        "meta_description_len": 147,
+        "robots": "",
+        "status": "pass",
+        "title_len": 53,
+        "url": "https://organizinglifeservices.com/pages/testimonials"
+      },
+      {
+        "checks": [
+          {
+            "check": "h1_count",
+            "detail": "1",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/pages/senior-services",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [],
+        "label": "Senior Services",
+        "meta_description_len": 160,
+        "robots": "",
+        "status": "pass",
+        "title_len": 31,
+        "url": "https://organizinglifeservices.com/pages/senior-services"
+      },
+      {
+        "checks": [
+          {
+            "check": "robots",
+            "detail": "noindex,follow",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/collections/all",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 2,
+        "issues": [
+          "missing_meta_description",
+          "multiple_h1",
+          "noindex"
+        ],
+        "label": "All Collections",
+        "meta_description_len": 0,
+        "robots": "noindex,follow",
+        "status": "pass",
+        "title_len": 57,
+        "url": "https://organizinglifeservices.com/collections/all"
+      },
+      {
+        "checks": [
+          {
+            "check": "robots",
+            "detail": "noindex,follow",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/collections/fees-products",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 2,
+        "issues": [
+          "missing_meta_description",
+          "multiple_h1",
+          "noindex"
+        ],
+        "label": "Fees Products",
+        "meta_description_len": 0,
+        "robots": "noindex,follow",
+        "status": "pass",
+        "title_len": 62,
+        "url": "https://organizinglifeservices.com/collections/fees-products"
+      },
+      {
+        "checks": [
+          {
+            "check": "robots",
+            "detail": "noindex,follow",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/products/product-cc-2-7-fee",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [
+          "title_too_long",
+          "missing_meta_description",
+          "noindex",
+          "low_alt_text_coverage"
+        ],
+        "label": "Fee Product CC 2.7",
+        "meta_description_len": 0,
+        "robots": "noindex,follow",
+        "status": "pass",
+        "title_len": 68,
+        "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee"
+      },
+      {
+        "checks": [
+          {
+            "check": "robots",
+            "detail": "noindex,follow",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [
+          "title_too_long",
+          "noindex",
+          "low_alt_text_coverage"
+        ],
+        "label": "Fee Product CC 2.7 Duplicate",
+        "meta_description_len": 87,
+        "robots": "noindex,follow",
+        "status": "pass",
+        "title_len": 68,
+        "url": "https://organizinglifeservices.com/products/product-cc-2-7-fee-2"
+      },
+      {
+        "checks": [
+          {
+            "check": "robots",
+            "detail": "noindex,follow",
+            "passed": true
+          },
+          {
+            "check": "http_ok",
+            "detail": "200",
+            "passed": true
+          },
+          {
+            "check": "canonical_present",
+            "detail": "https://organizinglifeservices.com/products/processing-fee",
+            "passed": true
+          },
+          {
+            "check": "unexpected_issues",
+            "detail": "none",
+            "passed": true
+          }
+        ],
+        "h1_count": 1,
+        "issues": [
+          "missing_meta_description",
+          "noindex",
+          "low_alt_text_coverage"
+        ],
+        "label": "Processing Fee Product",
+        "meta_description_len": 0,
+        "robots": "noindex,follow",
+        "status": "pass",
+        "title_len": 63,
+        "url": "https://organizinglifeservices.com/products/processing-fee"
+      }
+    ],
+    "status": "warning"
+  },
+  "raw_json_path": "data/audit_output/post_deploy_measurement_baseline_20261123T120740Z.json",
+  "site_url": "https://organizinglifeservices.com/"
+}
